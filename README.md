@@ -44,6 +44,13 @@ Some pages (the speed test and the page transitions) need the site to run throug
 
 - Works best in Chrome or Edge.
 - Browser support details were checked in September 2026. Things move, so check [web.dev/baseline](https://web.dev/baseline) before relying on a specific feature.
+## Further reading
+
+- [Web Almanac 2025: Page weight](https://almanac.httparchive.org/en/2025/page-weight). How big pages are today, and how much of that is JavaScript.
+- [The cost of JavaScript in 2019](https://v8.dev/blog/cost-of-javascript-2019). Why downloading and running JavaScript costs more than the file size suggests.
+- [Optimize long tasks](https://web.dev/articles/optimize-long-tasks). How to break up slow JavaScript so the page stays responsive.
+- [How many people are missing out on JavaScript enhancement?](https://gds.blog.gov.uk/2013/10/21/how-many-people-are-missing-out-on-javascript-enhancement/). The UK government's case for building pages that work without JavaScript.
+
 ## Questions
 
 Ask Dheeraj, who built it.
