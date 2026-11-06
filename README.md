@@ -2,6 +2,8 @@
 
 A short talk, and a website to go with it, about things we used to write JavaScript for that HTML and CSS can now do on their own.
 
+This is not really a project. It is a presentation, built with the help of Claude, using plain HTML.
+
 Think menus, tooltips, accordions, dark mode and page transitions. Each one is a small example. Each one shows the old way (with JavaScript) next to the new way (with CSS), so you can see the difference for yourself.
 
 ## What's in here
