@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · Dropdown menus | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+/* Decoration only - the important CSS is shown inside each code box */
+.stage { min-height: 300px; align-items: start; padding-top: 3.2rem; }
+/* If the browser can't do anchor positioning yet, just centre the popover */
+@supports not (anchor-name: --a) { html #new-menu { inset: 0; margin: auto; } }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="00-basics.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="02-dialog.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 01 / 17 · 📋 Popover</span>
+    <h1>Dropdown menus with zero JavaScript</h1>
+    <p class="lead">Menus that open, close when you click somewhere else, close on Escape, and sit on top of everything. It used to take a pile of JS. Now it's one HTML attribute.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: click listeners · "click outside" code · Escape key code · z-index fights</span>
+      <span class="chip new">Uses: popover · popovertarget</span>
+      <span class="chip ok">✅ All modern browsers (Baseline 2024)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A button that opens a little menu</h3><p>Like the "⋮" or "Menu" button on almost every website. Click it and a list drops down.</p></div>
+      <div class="analogy old"><div class="big">🧑‍🔧</div><h3><small>😓 The old way</small>Hire an electrician for every light</h3><p>With JavaScript, we wire everything by hand: "when clicked, show it", "when clicked outside, hide it", "when Escape is pressed, hide it". Forget one wire and it breaks.</p></div>
+      <div class="analogy new"><div class="big">💡</div><h3><small>😎 The new way</small>The light switch comes built in</h3><p>We tell the browser: <i>"this button controls that menu"</i>. The browser already knows how opening, closing, Escape and clicking outside should work.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: try both!</h2>
+    <div class="compare">
+      <!-- ===================== BEFORE ===================== -->
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>The way we've done it for 15 years</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="old-menu">
+              <button class="btn old-menu-btn" aria-expanded="false">Menu ▾</button>
+              <ul class="demo-menu old-menu-list">
+                <li><a href="#">👤 Profile</a></li>
+                <li><a href="#">⚙️ Settings</a></li>
+                <li><a href="#">🚪 Log out</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>24</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>3</b><span>event listeners</span></div>
+            <div class="stat"><b>😬</b><span>easy to forget one</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><div class="old-menu">
+  <button class="old-menu-btn">Menu ▾</button>
+  <ul class="old-menu-list">
+    <li><a href="#">👤 Profile</a></li>
+    <li><a href="#">⚙️ Settings</a></li>
+    <li><a href="#">🚪 Log out</a></li>
+  </ul>
+</div></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>.old-menu { position: relative; }
+
+.old-menu-list {
+  display: none;            /* hidden by default */
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 999;             /* please be on top 🙏 */
+}
+
+.old-menu-list.is-open {
+  display: block;           /* shown when JS adds the sticker */
+}
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const btn = document.querySelector('.old-menu-btn');
+const list = document.querySelector('.old-menu-list');
+
+// 1. Open / close when the button is clicked
+btn.addEventListener('click', (event) => {
+  event.stopPropagation();
+  list.classList.toggle('is-open');
+  btn.setAttribute('aria-expanded', list.classList.contains('is-open'));
+});
+
+// 2. Close when you click anywhere else
+document.addEventListener('click', (event) => {
+  if (!list.contains(event.target)) {
+    list.classList.remove('is-open');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+});
+
+// 3. Close when you press Escape
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    list.classList.remove('is-open');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.focus();
+  }
+});
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><b>CSS hides the menu</b> (<code>display: none</code>) and has one rule: "if the menu has the <code>is-open</code> sticker, show it".</li>
+            <li><b>JS finds</b> the button and the menu on the page (<code>querySelector</code> = "go and find").</li>
+            <li><b>Doorbell #1:</b> when the button is clicked, JS adds or removes the <code>is-open</code> sticker.</li>
+            <li><b>Doorbell #2:</b> when you click <i>anywhere else</i> on the page, JS removes the sticker.</li>
+            <li><b>Doorbell #3:</b> when you press <kbd>Escape</kbd>, JS removes the sticker and puts focus back on the button.</li>
+            <li>JS also has to update <code>aria-expanded</code> by hand so screen readers know if it's open. Forget this and blind users are lost.</li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- ===================== AFTER ===================== -->
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · HTML + CSS</h3><p>The browser does the work</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <button class="btn new-menu-btn" popovertarget="new-menu">Menu ▾</button>
+            <ul class="demo-menu" id="new-menu" popover>
+              <li><a href="#">👤 Profile</a></li>
+              <li><a href="#">⚙️ Settings</a></li>
+              <li><a href="#">🚪 Log out</a></li>
+            </ul>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>2</b><span>HTML attributes</span></div>
+            <div class="stat"><b>♿</b><span>accessible out of the box</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><button popovertarget="new-menu">Menu ▾</button>
+
+<ul id="new-menu" popover>
+  <li><a href="#">👤 Profile</a></li>
+  <li><a href="#">⚙️ Settings</a></li>
+  <li><a href="#">🚪 Log out</a></li>
+</ul></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: change a value and watch</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* Only needed to place it under the button
+   (this "anchor" trick is Lesson 04!) */
+.new-menu-btn { anchor-name: --menu-btn; }
+
+#new-menu {
+  margin: 0;
+  inset: auto;
+  position-anchor: --menu-btn;
+  top: calc(anchor(bottom) + 8px);
+  left: anchor(left);
+}
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>popover</code> on the list tells the browser: <b>"this is a pop-up thing, hide it until asked"</b>.</li>
+            <li><code>popovertarget="new-menu"</code> on the button says: <b>"I control the thing called new-menu"</b>. Click = toggle.</li>
+            <li>That's it. The browser now handles <b>click outside</b> ("light dismiss"), <b>Escape</b>, and <b>putting focus back</b>.</li>
+            <li>It goes in the <b>top layer 🥞</b>, so it's always on top. No more <code>z-index: 999999</code>.</li>
+            <li>The browser also tells screen readers whether it's open (<code>aria-expanded</code>) automatically.</li>
+            <li>The CSS is only there to place the menu under the button.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before: we wire every step ourselves</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>You click</li>
+          <li><span class="ico">👂</span>JS hears it</li>
+          <li><span class="ico">🏷️</span>JS adds the "is-open" sticker</li>
+          <li><span class="ico">🎨</span>CSS sees the sticker and shows the menu</li>
+          <li><span class="ico">🔁</span>Repeat for click-outside + Escape</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After: the browser knows the rules</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>You click</li>
+          <li><span class="ico">🌐</span>Browser opens it</li>
+          <li><span class="ico">✅</span>Click outside, Escape and screen readers all handled</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note info"><span class="ico">🎛️</span><p><code>popover="auto"</code> (the default) closes other popovers and closes on click outside. <code>popover="manual"</code> stays open until you close it: good for toasts.</p></div>
+      <div class="note good"><span class="ico">🎁</span><p>You can also use <code>popovertargetaction="show"</code> or <code>"hide"</code> for buttons that only open or only close.</p></div>
+      <div class="note warn"><span class="ico">🔍</span><p>You can style the open state with the <code>:popover-open</code> mood, and animate it (Lesson 12 shows how).</p></div>
+    </div>
+    <p class="takeaway">💡 One attribute replaced 24 lines of JavaScript, and the result is <i>more</i> accessible.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-attr"><dt><code>popover</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Turns an element into a pop-up that starts hidden, shows on the top layer, and closes on Esc or a click outside.<span class="like-a">Like: a jack-in-the-box</span></dd></div>
+      <div class="word k-attr"><dt><code>popovertarget</code><span class="kind">⚙️ HTML attribute</span></dt><dd>On a button: clicking it opens and closes the popover with that id.<span class="like-a">Like: a remote paired with one TV</span></dd></div>
+      <div class="word k-attr"><dt><code>id</code><span class="kind">⚙️ HTML attribute</span></dt><dd>A unique name for ONE element. Buttons, labels and links point at it.<span class="like-a">Like: a house number</span></dd></div>
+      <div class="word k-attr"><dt><code>class</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Name-tags for an element so CSS and JS can find it. One element can wear several.<span class="like-a">Like: stickers on a lunchbox</span></dd></div>
+      <div class="word k-attr"><dt><code>href</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Where a link goes. href="#faq" jumps to the element with id faq.<span class="like-a">Like: the address on a signpost</span></dd></div>
+      <div class="word k-prop"><dt><code>position</code><span class="kind">🔧 Property</span></dt><dd>How a box is placed: static (normal), relative, absolute (exact spot inside a positioned parent), fixed (stuck to the screen), sticky.<span class="like-a">Like: pinning a note to the board</span></dd></div>
+      <div class="word k-prop"><dt><code>top / left</code><span class="kind">🔧 Property</span></dt><dd>Used with position: how far from the top and left edges the box sits.<span class="like-a">Like: "2 cm from the top, 1 cm from the left"</span></dd></div>
+      <div class="word k-prop"><dt><code>z-index</code><span class="kind">🔧 Property</span></dt><dd>Which box is on top when boxes overlap. The bigger number is closer to you.<span class="like-a">Like: a stack of paper</span></dd></div>
+      <div class="word k-prop"><dt><code>display</code><span class="kind">🔧 Property</span></dt><dd>How a box behaves: block (own line), inline (inside text), flex or grid (arranges its children), none (hidden).<span class="like-a">Like: choosing furniture layout for a room</span></dd></div>
+      <div class="word k-prop"><dt><code>margin</code><span class="kind">🔧 Property</span></dt><dd>Space OUTSIDE the border, pushing other things away.<span class="like-a">Like: personal space</span></dd></div>
+      <div class="word k-prop"><dt><code>inset</code><span class="kind">🔧 Property</span></dt><dd>A shortcut for top, right, bottom and left in one go. inset: 0 = stretch to all four edges.<span class="like-a">Like: wall-to-wall carpet</span></dd></div>
+      <div class="word k-prop"><dt><code>anchor-name</code><span class="kind">🔧 Property</span></dt><dd>Gives an element a name so other elements can be placed next to it.<span class="like-a">Like: dropping a pin on a map</span></dd></div>
+      <div class="word k-prop"><dt><code>position-anchor</code><span class="kind">🔧 Property</span></dt><dd>Says which anchor (by name) this element should stick to.<span class="like-a">Like: "follow that pin"</span></dd></div>
+      <div class="word k-fn"><dt><code>anchor()</code><span class="kind">🧮 Function</span></dt><dd>Reads a position from the anchor. top: anchor(bottom) = "start where the button ends".<span class="like-a">Like: "stand just below the flag"</span></dd></div>
+      <div class="word k-fn"><dt><code>calc()</code><span class="kind">🧮 Function</span></dt><dd>Does maths with mixed units, e.g. calc(100% - 2rem).<span class="like-a">Like: a calculator</span></dd></div>
+      <div class="word k-unit"><dt><code>px</code><span class="kind">📏 Unit</span></dt><dd>Pixels: one dot on the screen. A fixed size.<span class="like-a">Like: centimetres on a ruler</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;div&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain box with no special meaning, used to group things.<span class="like-a">Like: a cardboard box</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;button&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A button you can click or press with the keyboard.<span class="like-a">Like: a doorbell</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;ul&gt; / &lt;li&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A list (ul) and each item in it (li).<span class="like-a">Like: a shopping list and its lines</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;a&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A link. Its href says where it goes.<span class="like-a">Like: a signpost</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="00-basics.html"><small>◀ Previous</small>00 · The basics</a>
+    <a class="next" href="02-dialog.html"><small>Next ▶</small>02 · Modal pop-ups</a>
+  </nav>
+</main>
+</body>
+</html>

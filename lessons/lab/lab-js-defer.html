@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" data-lab="defer" data-ready="js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Playground · Shop 3 · script with defer</title>
+<script>/* measuring helper (same on every version): listen for long tasks from the start */
+window.__longTasks = []; try { new PerformanceObserver(l => __longTasks.push(...l.getEntries().filter(t => t.name === 'self'))).observe({ type: 'longtask' }); } catch {}</script>
+<link rel="stylesheet" href="lab.css">
+<!-- defer: the page is shown first and the script runs after. Today's "good practice" way. -->
+<script src="lab-heavy.js" defer></script>
+<script src="lab-measure.js" defer></script>
+</head>
+<body>
+<p class="who js">🌙 Shop 3 · &lt;script defer&gt; · see it first, use it later</p>
+<header class="bar">
+  <b>🍩 Donut Shop</b>
+  <button class="menu-btn" aria-expanded="false">Menu ▾</button>
+  <ul class="menu js-menu" hidden>
+    <li><a href="#">Glazed</a></li><li><a href="#">Chocolate</a></li><li><a href="#">Sprinkles</a></li>
+  </ul>
+</header>
+<main>
+  <h1 class="hero">Fresh donuts, delivered warm.</h1>
+  <p class="hero-text">Every donut is made by hand this morning, glazed while it's still warm and delivered to your door in under thirty minutes.</p>
+  <section class="faq">
+    <h2>Questions</h2>
+    <div><button class="q">How fast is delivery?</button><p class="a">Most orders arrive in under 30 minutes. At busy times it can take up to 45 minutes, and we'll text you when the driver leaves the shop.</p></div>
+    <div><button class="q">Do you have vegan donuts?</button><p class="a">Yes. Our glazed, cinnamon and berry donuts are all vegan. They're cooked in a separate fryer and marked with a green leaf on the menu.</p></div>
+    <div><button class="q">Can I order for a party?</button><p class="a">Of course. Order 48 or more and we'll deliver on a tray with napkins, and you can choose a delivery time up to two weeks ahead.</p></div>
+  </section>
+  <footer>🍩 Donut Shop · Open 7am to 7pm · Made with a JavaScript framework</footer>
+</main>
+</body>
+</html>

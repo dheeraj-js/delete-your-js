@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Morph demo · Donut | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.detail { display: grid; gap: 2rem; grid-template-columns: 1fr; align-items: center; padding: 1rem 0 4rem; }
+@media (min-width: 820px) { .detail { grid-template-columns: 1.1fr 1fr; } }
+.hero-pic { display: grid; place-items: center; aspect-ratio: 1; border-radius: 32px; font-size: clamp(8rem, 20vw, 14rem); background: linear-gradient(135deg, #fd79a8, #ff9f43); box-shadow: 0 40px 80px -30px #fd79a8aa; }
+.detail h2 { font-size: clamp(2.2rem, 1.5rem + 3vw, 4rem); }
+.detail p { color: var(--muted); font-size: 1.15rem; }
+.price { display: inline-block; margin: .5rem 0 1.5rem; padding: .4rem 1rem; border-radius: 999px; background: #2ee6a622; color: var(--new); font-weight: 800; font-size: 1.2rem; }
+.back { display: inline-block; padding: .9rem 1.5rem; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); color: var(--text); font-weight: 800; text-decoration: none; }
+.back:hover { border-color: var(--new); }
+
+/* ✨ SAME names as on the list page = morph */
+.hero-pic  { view-transition-name: donut; }
+.hero-name { view-transition-name: donut-name; }
+::view-transition-group(donut) { animation-duration: .55s; animation-timing-function: cubic-bezier(.2, .8, .2, 1); }
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Demo"><a href="17-page-transitions.html">◀ Back to Lesson 17</a></nav>
+</div></header>
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">🍩 Morph demo · page 2 of 2</span>
+    <h1>Treat details</h1>
+  </section>
+  <div class="detail">
+    <div class="hero-pic">🍩</div>
+    <div>
+      <h2 class="hero-name">Donut</h2>
+      <span class="price">€2.50</span>
+      <p>This is a <b>different HTML page</b>. The picture and the name <b>morphed</b> here because both pages give them the same <code>view-transition-name</code>.</p>
+      <p>Now press your browser's <b>Back</b> button. It animates in reverse, and nobody wrote any code for that.</p>
+      <a class="back" href="vt-demo-list.html">◀ Back to treats</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

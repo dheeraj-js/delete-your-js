@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · Dark mode | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { align-items: start; }
+.theme-demo { display: grid; gap: 1rem; width: 100%; }
+.theme-card { padding: 1.3rem; border-radius: 18px; border: 1px solid; transition: background .35s, color .35s, border-color .35s; }
+.theme-card h3 { margin: 0 0 .3rem; font-size: 1.25rem; }
+.theme-card p { margin: 0 0 1rem; }
+.theme-card .pill { display: inline-block; padding: .45rem .9rem; border-radius: 999px; font-weight: 800; font-size: .9rem; transition: background .35s, color .35s; }
+.toggle-row { display: flex; align-items: center; gap: .75rem; font-weight: 800; color: #1d2340; }
+.new-switch { appearance: none; position: relative; width: 56px; height: 32px; margin: 0; border-radius: 99px; background: #c9cde0; cursor: pointer; transition: background .25s; }
+.new-switch::before { content: "☀️"; position: absolute; top: 3px; left: 3px; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #fff; font-size: .9rem; transition: translate .25s; }
+.new-switch:checked { background: #6c5ce7; }
+.new-switch:checked::before { content: "🌙"; translate: 24px 0; }
+/* The "after" demo stage itself follows the scheme too */
+.new-theme .stage { transition: background-color .35s; }
+.split { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); margin-top: 1.25rem; }
+.swatch { display: flex; align-items: center; gap: .8rem; padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--panel); }
+.swatch .half { display: flex; overflow: hidden; width: 70px; height: 44px; border-radius: 10px; border: 1px solid var(--line); flex: none; }
+.swatch .half span { flex: 1; }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="09-counters.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="11-container-queries.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 10 / 17 · 🌙 light-dark()</span>
+    <h1>Dark mode with one colour function</h1>
+    <p class="lead">Write each colour once, as a pair: "this in light mode, that in dark mode". Add a toggle made from a checkbox and <code>:has()</code>, and you've got a theme switch with no JavaScript.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: theme-toggle JS · duplicated .dark { } CSS for every colour</span>
+      <span class="chip new">Uses: color-scheme · light-dark() · :has()</span>
+      <span class="chip ok">✅ All modern browsers (Baseline 2024)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A light / dark switch</h3><p>Flip it and the card changes to dark colours. Flip it back and it's light again.</p></div>
+      <div class="analogy old"><div class="big">👔👕</div><h3><small>😓 The old way</small>Two separate wardrobes</h3><p>Every colour was written <b>twice</b>: once normally, and again inside a <code>.dark</code> section. JS swapped the <code>.dark</code> sticker on and off.</p></div>
+      <div class="analogy new"><div class="big">🧥</div><h3><small>😎 The new way</small>A reversible jacket</h3><p><code>light-dark(white, black)</code> is one colour with two sides. The page says which side to wear with <code>color-scheme</code>.</p></div>
+    </div>
+    <div class="split">
+      <div class="swatch"><div class="half"><span style="background:#fff"></span><span style="background:#1b1b2f"></span></div><div><code>light-dark(#fff, #1b1b2f)</code><br><small style="color:var(--muted)">background: white in light, navy in dark</small></div></div>
+      <div class="swatch"><div class="half"><span style="background:#222"></span><span style="background:#eee"></span></div><div><code>light-dark(#222, #eee)</code><br><small style="color:var(--muted)">text: dark in light, light in dark</small></div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: flip the switches</h2>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>Toggle a .dark class</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="theme-demo">
+              <button class="btn old-theme-btn">🌙 Dark mode</button>
+              <div class="theme-card old-theme-card">
+                <h3>🦉 Night owl news</h3>
+                <p>Every colour on this card is written twice in the CSS.</p>
+                <span class="pill">Read more</span>
+              </div>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>6</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>2×</b><span>every colour written twice</span></div>
+            <div class="stat"><b>😵</b><span>easy to miss one</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><button class="old-theme-btn">🌙 Dark mode</button>
+<div class="old-theme-card">
+  <h3>🦉 Night owl news</h3>
+  <span class="pill">Read more</span>
+</div></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>/* light colours */
+.old-theme-card { background: #ffffff; color: #222222; border-color: #dddddd; }
+.old-theme-card .pill { background: #ffe8a3; color: #6b4e00; }
+
+/* ...and ALL of them again for dark 😩 */
+.old-theme-card.dark { background: #1b1b2f; color: #eeeeee; border-color: #33334d; }
+.old-theme-card.dark .pill { background: #3d3a7a; color: #d9d4ff; }
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const themeBtn = document.querySelector('.old-theme-btn');
+const themeCard = document.querySelector('.old-theme-card');
+
+themeBtn.addEventListener('click', () => {
+  const isDark = themeCard.classList.toggle('dark');
+  themeBtn.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
+});
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>CSS lists every colour for light mode.</li>
+            <li>Then CSS lists <b>every colour again</b> under <code>.dark</code>. Add a new colour and you must remember to add it in both places.</li>
+            <li>JS listens for a click and toggles the <code>dark</code> sticker. It also changes the button text.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after new-theme">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · CSS</h3><p>Reversible colours</p></div></header>
+        <div class="side-body">
+          <div class="stage new-scope">
+            <div class="theme-demo">
+              <label class="toggle-row"><input type="checkbox" class="new-switch" aria-label="Dark mode"> <span class="new-toggle-text"></span></label>
+              <div class="theme-card new-theme-card">
+                <h3>🦉 Night owl news</h3>
+                <p>Every colour on this card is written once, as a light/dark pair.</p>
+                <span class="pill">Read more</span>
+              </div>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>1×</b><span>each colour written once</span></div>
+            <div class="stat"><b>🖥️</b><span>can follow your OS setting</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><div class="new-scope">
+  <label>
+    <input type="checkbox" class="new-switch"> <span class="new-toggle-text"></span>
+  </label>
+  <div class="new-theme-card">
+    <h3>🦉 Night owl news</h3>
+    <span class="pill">Read more</span>
+  </div>
+</div></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: change a colour pair</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* 1. which side of the jacket to wear */
+.new-scope { color-scheme: light; }
+.new-scope:has(.new-switch:checked) { color-scheme: dark; }
+
+/* 2. every colour written ONCE, as a pair */
+.new-scope {
+  background-color: light-dark(#f6f7fc, #0f0f1e);
+}
+.new-theme-card {
+  background: light-dark(#ffffff, #1b1b2f);
+  color: light-dark(#222222, #eeeeee);
+  border-color: light-dark(#dddddd, #33334d);
+}
+.new-theme-card .pill {
+  background: light-dark(#ffe8a3, #3d3a7a);
+  color: light-dark(#6b4e00, #d9d4ff);
+}
+
+/* 3. even the label text can change */
+.new-toggle-text::after { content: "🌙 Dark mode"; }
+.new-scope:has(.new-switch:checked) .new-toggle-text::after {
+  content: "☀️ Light mode";
+  color: #fff;
+}
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>color-scheme</code> tells the browser <b>which side of the jacket to wear</b>: <code>light</code> or <code>dark</code>.</li>
+            <li><code>:has(.new-switch:checked)</code> (Lesson 08!) = "if the switch inside is ticked, use dark". The switch is just a <b>checkbox</b> with some styling.</li>
+            <li><code>light-dark(A, B)</code> = "use A in light mode, B in dark mode". Each colour is written <b>once</b>.</li>
+            <li>The label text lives in <code>::after</code> 👻, so CSS can change it too.</li>
+            <li>Bonus: <code>color-scheme: light dark</code> on <code>:root</code> makes the site <b>follow the user's phone or computer setting</b> automatically.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click toggle</li>
+          <li><span class="ico">🏷️</span>JS adds ".dark"</li>
+          <li><span class="ico">👔</span>CSS swaps to the second wardrobe of colours</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">☑️</span>Tick the switch</li>
+          <li><span class="ico">🔭</span>:has() sets color-scheme: dark</li>
+          <li><span class="ico">🧥</span>Every light-dark() flips to its dark side</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note warn"><span class="ico">💾</span><p><b>Honest limit:</b> CSS can't <b>remember</b> the choice for next time. If the user picks dark and reloads, it resets. Saving the choice (localStorage or a cookie) is still a small, real JS job.</p></div>
+      <div class="note good"><span class="ico">🖥️</span><p>Often you don't need a toggle at all: <code>:root { color-scheme: light dark; }</code> follows the OS setting, and form controls and scrollbars change too.</p></div>
+      <div class="note info"><span class="ico">🎨</span><p>Works great with CSS variables: <code>--surface: light-dark(#fff, #111);</code> once, then use <code>var(--surface)</code> everywhere.</p></div>
+    </div>
+    <p class="takeaway">💡 Write each colour once, as a pair. Let the browser pick the side.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-prop"><dt><code>color-scheme</code><span class="kind">🔧 Property</span></dt><dd>Tells the browser the page supports light, dark or both, so built-in parts (scrollbars, inputs) match.<span class="like-a">Like: telling the hotel you prefer a dark room</span></dd></div>
+      <div class="word k-fn"><dt><code>light-dark()</code><span class="kind">🧮 Function</span></dt><dd>light-dark(white, black) = use the first colour in light mode and the second in dark mode.<span class="like-a">Like: a coat for summer and a coat for winter</span></dd></div>
+      <div class="word k-mood"><dt><code>:has()</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>"Has something inside that matches". Lets a parent change because of its child. The famous "parent selector".<span class="like-a">Like: "any box that has a cat in it"</span></dd></div>
+      <div class="word k-mood"><dt><code>:checked</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>When a checkbox or radio button is ticked, or a select option is chosen.<span class="like-a">Like: a light switch in the ON position</span></dd></div>
+      <div class="word k-ghost"><dt><code>::after</code><span class="kind">👻 Pseudo-element: a "ghost" part</span></dt><dd>An extra box CSS adds at the end of an element (needs content). Used here to write text with CSS.<span class="like-a">Like: a ghost helper at the end</span></dd></div>
+      <div class="word k-prop"><dt><code>content</code><span class="kind">🔧 Property</span></dt><dd>The text or symbol a ::before or ::after ghost shows.<span class="like-a">Like: what the ghost says</span></dd></div>
+      <div class="word k-prop"><dt><code>background</code><span class="kind">🔧 Property</span></dt><dd>The colour or picture behind the element.<span class="like-a">Like: wallpaper</span></dd></div>
+      <div class="word k-prop"><dt><code>background-color</code><span class="kind">🔧 Property</span></dt><dd>Just the background colour.<span class="like-a">Like: the wall paint</span></dd></div>
+      <div class="word k-prop"><dt><code>color</code><span class="kind">🔧 Property</span></dt><dd>The text colour.<span class="like-a">Like: the ink in the pen</span></dd></div>
+      <div class="word k-prop"><dt><code>border-color</code><span class="kind">🔧 Property</span></dt><dd>Just the colour of the border.<span class="like-a">Like: painting the frame</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;button&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A button you can click or press with the keyboard.<span class="like-a">Like: a doorbell</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;div&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain box with no special meaning, used to group things.<span class="like-a">Like: a cardboard box</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;h3&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A heading. h1 is the biggest, h6 the smallest.<span class="like-a">Like: a chapter title</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;span&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain wrapper for a bit of text inside a line.<span class="like-a">Like: a highlighter pen</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;label&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>The name of a form field. Clicking it focuses (or ticks) the field.<span class="like-a">Like: the name sticker on a letterbox</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;input&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A form field. Its type decides what kind: text, email, checkbox, radio...<span class="like-a">Like: a blank on a paper form</span></dd></div>
+      <div class="word k-attr"><dt><code>type</code><span class="kind">⚙️ HTML attribute</span></dt><dd>The kind of input: text, email, checkbox, radio...<span class="like-a">Like: choosing the shape of a blank on a form</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="09-counters.html"><small>◀ Previous</small>09 · Counting with CSS</a>
+    <a class="next" href="11-container-queries.html"><small>Next ▶</small>11 · Container queries</a>
+  </nav>
+</main>
+</body>
+</html>

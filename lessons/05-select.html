@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · Custom select boxes | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { min-height: 320px; align-items: start; padding-top: 3.2rem; }
+.pick { display: grid; gap: .4rem; width: min(100%, 260px); }
+.old-select-current, .new-select {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem; width: 100%;
+  padding: .7rem 1rem; font: inherit; font-weight: 700; color: #1d2340; cursor: pointer;
+  border: 2px solid #d5d9ea; border-radius: 12px; background: #fff;
+}
+.old-select-current::after { content: "▾"; }
+.old-select-option { padding: .55rem .8rem; border-radius: 9px; cursor: pointer; font-weight: 600; }
+.old-select-option:hover { background: #eef0fb; }
+.old-select-option.is-selected { background: #e7fbf4; }
+.opt-ico { font-size: 1.3rem; }
+@supports not (appearance: base-select) { .unsupported { display: flex; } }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="04-tooltip.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="06-autogrow.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 05 / 17 · 🍕 Customizable select</span>
+    <h1>Pretty select boxes that are still real selects</h1>
+    <p class="lead">Designers always want the dropdown to look custom: icons, colours, rounded corners. For 25 years the answer was "rebuild it in JavaScript". Now you can style the real thing.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: Select2 · Choices.js · hand-made fake dropdowns</span>
+      <span class="chip new">Uses: appearance: base-select · ::picker(select) · &lt;selectedcontent&gt;</span>
+      <span class="chip limited">⚠️ Chrome/Edge 135+ only (Sept 2026). Other browsers show a normal select, which still works</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A "pick one" dropdown with icons</h3><p>Like choosing a country, a size, or in our case, dinner. 🍕🍔🌮</p></div>
+      <div class="analogy old"><div class="big">🎭</div><h3><small>😓 The old way</small>Hide the real one, build a costume</h3><p>You couldn't style <code>&lt;select&gt;</code>, so people hid it and built a <b>fake one</b> out of divs. Then they rebuilt keyboard support, screen reader support, mobile... badly.</p></div>
+      <div class="analogy new"><div class="big">👗</div><h3><small>😎 The new way</small>Dress up the real thing</h3><p>One line, <code>appearance: base-select</code>, tells the browser: "let me style this properly". It's still a real select, so everything keeps working.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: pick your dinner</h2>
+    <div class="note warn unsupported" style="margin-bottom:1rem"><span class="ico">⚠️</span><p>Your browser doesn't support customizable selects yet, so you'll see a normal dropdown on the green side. <b>That's the point:</b> it still works for everyone. Open this page in Chrome or Edge to see the styled version.</p></div>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>A fake select made of divs</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="pick">
+              <span class="demo-label">🍽️ Dinner</span>
+              <div class="old-select">
+                <button class="old-select-current" type="button"><span><span class="opt-ico">🍕</span> Pizza</span></button>
+                <ul class="demo-menu old-select-list">
+                  <li class="old-select-option is-selected"><span class="opt-ico">🍕</span> Pizza</li>
+                  <li class="old-select-option"><span class="opt-ico">🍔</span> Burger</li>
+                  <li class="old-select-option"><span class="opt-ico">🌮</span> Taco</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>15</b><span>lines of JS (and it's still broken)</span></div>
+            <div class="stat"><b>60KB+</b><span>if you use a library</span></div>
+            <div class="stat"><b>⌨️❌</b><span>arrow keys don't work</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><div class="old-select">
+  <button class="old-select-current">🍕 Pizza</button>
+  <ul class="old-select-list">
+    <li class="old-select-option">🍕 Pizza</li>
+    <li class="old-select-option">🍔 Burger</li>
+    <li class="old-select-option">🌮 Taco</li>
+  </ul>
+</div></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>.old-select { position: relative; }
+
+.old-select-list {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  z-index: 10;
+}
+.old-select.is-open .old-select-list { display: block; }
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const fakeSelect = document.querySelector('.old-select');
+const current = fakeSelect.querySelector('.old-select-current');
+const options = fakeSelect.querySelectorAll('.old-select-option');
+
+current.addEventListener('click', () => fakeSelect.classList.toggle('is-open'));
+
+options.forEach((option) => {
+  option.addEventListener('click', () => {
+    current.innerHTML = '<span>' + option.innerHTML + '</span>'; // copy the choice
+    options.forEach((o) => o.classList.remove('is-selected'));
+    option.classList.add('is-selected');
+    fakeSelect.classList.remove('is-open');
+  });
+});
+
+document.addEventListener('click', (e) => {
+  if (!fakeSelect.contains(e.target)) fakeSelect.classList.remove('is-open');
+});
+
+// Still missing: arrow keys, type-to-search, screen readers,
+// sending the value with a <form>, the native picker on phones...
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>We build a <b>fake select</b>: a button that shows the choice, and a list that opens below it.</li>
+            <li>Click the button: JS toggles the <code>is-open</code> sticker on the list.</li>
+            <li>Click an option: JS <b>copies</b> its text into the button, moves the "selected" sticker, and closes the list.</li>
+            <li>Click outside: JS closes it (sound familiar? same as Lesson 01).</li>
+            <li><b>The big problem:</b> it's not a real form field. No arrow keys, no screen reader, and it doesn't send a value when a form is submitted. Libraries fix this with 60KB+ of code.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · HTML + CSS</h3><p>A real &lt;select&gt;, fully styled</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <label class="pick"><span class="demo-label">🍽️ Dinner</span>
+              <select class="new-select" name="dinner">
+                <button><selectedcontent></selectedcontent></button>
+                <option value="pizza"><span class="opt-ico">🍕</span> Pizza</option>
+                <option value="burger"><span class="opt-ico">🍔</span> Burger</option>
+                <option value="taco"><span class="opt-ico">🌮</span> Taco</option>
+              </select>
+            </label>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>⌨️✅</b><span>arrow keys + typing work</span></div>
+            <div class="stat"><b>📨</b><span>sends its value in forms</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><select class="new-select" name="dinner">
+  <button><selectedcontent></selectedcontent></button>
+  <option><span>🍕</span> Pizza</option>
+  <option><span>🍔</span> Burger</option>
+  <option><span>🌮</span> Taco</option>
+</select></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: try another background</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* "Let me style this properly, browser" */
+.new-select,
+.new-select::picker(select) {
+  appearance: base-select;
+}
+
+/* the drop-down part */
+.new-select::picker(select) {
+  margin-top: 6px;
+  padding: .4rem;
+  border: 1px solid #e1e4f0;
+  border-radius: 14px;
+  box-shadow: 0 20px 40px -14px rgb(29 35 64 / .4);
+}
+
+.new-select option {
+  padding: .55rem .8rem;
+  border-radius: 9px;
+  font-weight: 600;
+}
+.new-select option:checked { background: #e7fbf4; }
+
+/* the ▾ arrow flips when open */
+.new-select::picker-icon { transition: rotate .2s; }
+.new-select:open::picker-icon { rotate: 180deg; }
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>It's a <b>normal <code>&lt;select&gt;</code></b> with normal <code>&lt;option&gt;</code>s, so forms, keyboard and screen readers just work.</li>
+            <li>New: we can put <b>HTML inside options</b> (like the emoji <code>&lt;span&gt;</code>).</li>
+            <li><code>&lt;selectedcontent&gt;</code> means <b>"copy the chosen option here"</b>. That's the job JS did with <code>innerHTML</code>.</li>
+            <li><code>appearance: base-select</code> is the switch that unlocks styling. <code>::picker(select)</code> is the drop-down panel.</li>
+            <li><code>:open</code> is a new mood 😊: "when the select is open", so the arrow can flip.</li>
+            <li>Old browser? It ignores the new parts and shows a <b>normal select</b>. Nothing breaks. 🪜</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">🙈</span>Hide the real select</li>
+          <li><span class="ico">🎭</span>Build a fake one from divs</li>
+          <li><span class="ico">🔧</span>Rebuild clicking in JS</li>
+          <li><span class="ico">⌨️</span>Rebuild keyboard in JS</li>
+          <li><span class="ico">🦯</span>Rebuild screen reader support...</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">🍕</span>Use a real select</li>
+          <li><span class="ico">👗</span>Add appearance: base-select</li>
+          <li><span class="ico">🎨</span>Style it however you like</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note warn"><span class="ico">🧪</span><p>This is the <b>newest</b> feature in the talk. Chrome and Edge have it; other browsers are working on it. Because it falls back to a normal select, you can use it today as a bonus.</p></div>
+      <div class="note info"><span class="ico">📱</span><p>On phones, a real select can open the phone's own picker, which a fake one never can.</p></div>
+    </div>
+    <p class="takeaway">💡 Stop rebuilding form fields in JavaScript. Style the real ones.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-tag"><dt><code>&lt;select&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A dropdown list to pick one choice from.<span class="like-a">Like: a menu at a restaurant</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;option&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>One choice inside a select.<span class="like-a">Like: one dish on the menu</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;selectedcontent&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>Shows a copy of the chosen option inside the closed select button, pictures and all.<span class="like-a">Like: a photo of the dish you ordered</span></dd></div>
+      <div class="word k-prop"><dt><code>appearance</code><span class="kind">🔧 Property</span></dt><dd>Switches the browser's built-in look. appearance: base-select unlocks a select you can fully style.<span class="like-a">Like: taking the cover off so you can repaint it</span></dd></div>
+      <div class="word k-ghost"><dt><code>::picker()</code><span class="kind">👻 Pseudo-element: a "ghost" part</span></dt><dd>::picker(select) is the pop-up list of a select. Now you can style it.<span class="like-a">Like: the menu the waiter hands you</span></dd></div>
+      <div class="word k-ghost"><dt><code>::picker-icon</code><span class="kind">👻 Pseudo-element: a "ghost" part</span></dt><dd>The little ▾ arrow on a select.<span class="like-a">Like: the arrow on a drawer handle</span></dd></div>
+      <div class="word k-mood"><dt><code>:open</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>When a select, details or dialog is open.<span class="like-a">Like: a door that is open</span></dd></div>
+      <div class="word k-mood"><dt><code>:checked</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>When a checkbox or radio button is ticked, or a select option is chosen.<span class="like-a">Like: a light switch in the ON position</span></dd></div>
+      <div class="word k-attr"><dt><code>name</code><span class="kind">⚙️ HTML attribute</span></dt><dd>A group name. On &lt;details&gt;: the same name means only one can be open at a time. On form fields: the label used when the form is sent.<span class="like-a">Like: a team name</span></dd></div>
+      <div class="word k-prop"><dt><code>rotate</code><span class="kind">🔧 Property</span></dt><dd>Turns an element, e.g. rotate: 180deg flips an arrow upside down.<span class="like-a">Like: turning a steering wheel</span></dd></div>
+      <div class="word k-unit"><dt><code>deg</code><span class="kind">📏 Unit</span></dt><dd>Degrees, for turning. 180deg = half a turn, 360deg = a full turn.<span class="like-a">Like: a compass</span></dd></div>
+      <div class="word k-prop"><dt><code>position</code><span class="kind">🔧 Property</span></dt><dd>How a box is placed: static (normal), relative, absolute (exact spot inside a positioned parent), fixed (stuck to the screen), sticky.<span class="like-a">Like: pinning a note to the board</span></dd></div>
+      <div class="word k-prop"><dt><code>top / right / bottom / left</code><span class="kind">🔧 Property</span></dt><dd>Used with position: how far from each edge the box sits.<span class="like-a">Like: "2 cm from the top of the page"</span></dd></div>
+      <div class="word k-prop"><dt><code>z-index</code><span class="kind">🔧 Property</span></dt><dd>Which box is on top when boxes overlap. The bigger number is closer to you.<span class="like-a">Like: a stack of paper</span></dd></div>
+      <div class="word k-prop"><dt><code>margin-top</code><span class="kind">🔧 Property</span></dt><dd>Space outside the box, on the top side only.<span class="like-a">Like: a gap above you in the queue</span></dd></div>
+      <div class="word k-prop"><dt><code>padding</code><span class="kind">🔧 Property</span></dt><dd>Space INSIDE the border, between the edge and the content.<span class="like-a">Like: bubble wrap inside a box</span></dd></div>
+      <div class="word k-prop"><dt><code>border</code><span class="kind">🔧 Property</span></dt><dd>A line around the box: thickness, style and colour, e.g. 1px solid grey.<span class="like-a">Like: a picture frame</span></dd></div>
+      <div class="word k-prop"><dt><code>border-radius</code><span class="kind">🔧 Property</span></dt><dd>Rounds the corners. Bigger number = rounder.<span class="like-a">Like: sanding the corners of a table</span></dd></div>
+      <div class="word k-prop"><dt><code>box-shadow</code><span class="kind">🔧 Property</span></dt><dd>A shadow around the box: sideways, down, blur and colour.<span class="like-a">Like: the shadow under a floating card</span></dd></div>
+      <div class="word k-prop"><dt><code>font-weight</code><span class="kind">🔧 Property</span></dt><dd>How bold the text is: 400 = normal, 700 = bold.<span class="like-a">Like: pressing harder with a pen</span></dd></div>
+      <div class="word k-prop"><dt><code>background</code><span class="kind">🔧 Property</span></dt><dd>The colour or picture behind the element.<span class="like-a">Like: wallpaper</span></dd></div>
+      <div class="word k-prop"><dt><code>transition</code><span class="kind">🔧 Property</span></dt><dd>Animate smoothly when a value changes, instead of jumping.<span class="like-a">Like: a dimmer switch instead of an on/off switch</span></dd></div>
+      <div class="word k-fn"><dt><code>calc()</code><span class="kind">🧮 Function</span></dt><dd>Does maths with mixed units, e.g. calc(100% - 2rem).<span class="like-a">Like: a calculator</span></dd></div>
+      <div class="word k-fn"><dt><code>rgb()</code><span class="kind">🧮 Function</span></dt><dd>A colour from red, green and blue amounts. rgb(0 0 0 / .5) = half see-through black.<span class="like-a">Like: mixing three paints</span></dd></div>
+      <div class="word k-unit"><dt><code>rem</code><span class="kind">📏 Unit</span></dt><dd>Relative to the page's base text size (usually 16px). 2rem = twice that. Grows if the user picks bigger text.<span class="like-a">Like: "two handfuls": depends on the hand</span></dd></div>
+      <div class="word k-unit"><dt><code>px</code><span class="kind">📏 Unit</span></dt><dd>Pixels: one dot on the screen. A fixed size.<span class="like-a">Like: centimetres on a ruler</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;div&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain box with no special meaning, used to group things.<span class="like-a">Like: a cardboard box</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;button&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A button you can click or press with the keyboard.<span class="like-a">Like: a doorbell</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;ul&gt; / &lt;li&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A list (ul) and each item in it (li).<span class="like-a">Like: a shopping list and its lines</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;span&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain wrapper for a bit of text inside a line.<span class="like-a">Like: a highlighter pen</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="04-tooltip.html"><small>◀ Previous</small>04 · Tooltips</a>
+    <a class="next" href="06-autogrow.html"><small>Next ▶</small>06 · Auto-growing text boxes</a>
+  </nav>
+</main>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 · Container queries | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { display: block; padding-inline: .75rem; }
+.resizer {
+  resize: horizontal; overflow: auto; width: 100%; min-width: 200px; max-width: 100%;
+  padding: .6rem; border: 2px dashed #9aa3c7; border-radius: 16px; background: #eef0fb;
+}
+.resize-hint { margin: .6rem 0 0; font-size: .85rem; font-weight: 700; color: #5b6388; text-align: right; }
+.cq-card { display: grid; gap: .9rem; padding: .9rem; border-radius: 14px; background: #fff; border: 1px solid #e1e4f0; box-shadow: 0 14px 30px -18px rgb(29 35 64 / .5); }
+.cq-img { display: grid; place-items: center; min-height: 120px; border-radius: 10px; font-size: 3rem; background: linear-gradient(135deg, #74b9ff, #a29bfe 60%, #fd79a8); }
+.cq-card h3 { margin: 0; color: #1d2340; }
+.cq-card p { margin: .3rem 0 .8rem; color: #5b6388; font-size: .95rem; }
+.cq-card .btn { font-size: .9rem; padding: .55rem 1rem; }
+.old-cq-card.is-wide { grid-template-columns: 160px 1fr; align-items: center; }
+
+/* window vs box picture */
+.wvb { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); margin-top: 1.25rem; }
+.wvb .panel { text-align: center; }
+.screen { position: relative; margin: .75rem auto; width: 100%; max-width: 280px; aspect-ratio: 16/10; border: 3px solid var(--c); border-radius: 12px; display: grid; grid-template-columns: 1fr 2fr; gap: 8px; padding: 8px; }
+.screen div { border-radius: 6px; background: var(--panel-2); border: 2px solid var(--line); }
+.screen .box { border-color: var(--c); background: color-mix(in srgb, var(--c) 18%, transparent); }
+.screen.win { --c: var(--old); } .screen.win div { border-color: var(--line); }
+.screen.box-q { --c: var(--new); }
+.wvb p { margin: 0; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="10-dark-mode.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="12-entry-animations.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 11 / 17 · 📦 Container queries</span>
+    <h1>Components that fit wherever you put them</h1>
+    <p class="lead">A card in a wide area should sit side by side. The same card in a narrow sidebar should stack. Media queries only know the <b>window</b> size. Container queries know the <b>box</b> size.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: ResizeObserver · "is-wide" classes · duplicate components per layout</span>
+      <span class="chip new">Uses: container-type · @container · cqi units</span>
+      <span class="chip ok">✅ All modern browsers (Baseline 2023)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A card that rearranges itself</h3><p>Plenty of space? Picture on the left, text on the right. Squeezed? Picture on top, text below.</p></div>
+      <div class="analogy old"><div class="big">🧑‍🔧📏</div><h3><small>😓 The old way</small>A person with a tape measure</h3><p>JS uses a <code>ResizeObserver</code> (a tape measure that watches a box) and adds an <code>is-wide</code> sticker when the box gets big enough.</p></div>
+      <div class="analogy new"><div class="big">🛋️</div><h3><small>😎 The new way</small>Furniture that fits the room</h3><p>A sofa doesn't care how big the <b>house</b> is. It cares how big the <b>room</b> is. <code>@container</code> lets a component ask "how big is my room?"</p></div>
+    </div>
+    <div class="wvb">
+      <div class="panel"><h3 style="color:var(--old)">🪟 Media query asks: "how big is the WINDOW?"</h3><div class="screen win"><div></div><div></div></div><p>The whole screen is wide, so every card thinks it has room, even the one squashed in the narrow sidebar. 😬</p></div>
+      <div class="panel"><h3 style="color:var(--new)">📦 Container query asks: "how big is MY BOX?"</h3><div class="screen box-q"><div class="box"></div><div class="box"></div></div><p>Each card checks its own box. The sidebar card stacks and the main card goes wide. 😎</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: drag the ◢ corner to resize each box</h2>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>ResizeObserver + sticker</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="resizer old-cq-wrap">
+              <div class="cq-card old-cq-card">
+                <div class="cq-img">🏝️</div>
+                <div><h3>Island getaway</h3><p>7 nights of sun, sea and zero JavaScript.</p><button class="btn">Book now</button></div>
+              </div>
+            </div>
+            <p class="resize-hint">drag this corner ◢</p>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>6</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>📏</b><span>measures on every resize</span></div>
+            <div class="stat"><b>⏱️</b><span>can flash before JS runs</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><div class="old-cq-wrap">
+  <div class="old-cq-card">
+    <div class="cq-img">🏝️</div>
+    <div>
+      <h3>Island getaway</h3>
+      <button>Book now</button>
+    </div>
+  </div>
+</div></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>.old-cq-card { display: grid; }
+
+.old-cq-card.is-wide {
+  grid-template-columns: 160px 1fr; /* side by side */
+}
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const cqCard = document.querySelector('.old-cq-card');
+
+const tapeMeasure = new ResizeObserver((entries) => {
+  const width = entries[0].contentRect.width;     // how wide is the box?
+  cqCard.classList.toggle('is-wide', width > 420);  // wide? add the sticker
+});
+
+tapeMeasure.observe(document.querySelector('.old-cq-wrap'));
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>ResizeObserver</code> is a <b>tape measure</b> 📏 that JS attaches to a box. It reports every time the box changes size.</li>
+            <li>Each time, JS reads the width and asks "is it more than 420px?"</li>
+            <li>If yes, it adds the <code>is-wide</code> sticker. CSS then puts the picture and text side by side.</li>
+            <li>On slow phones the card can show the wrong layout for a moment before JS runs.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · CSS</h3><p>@container</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="resizer new-cq-wrap">
+              <div class="cq-card new-cq-card">
+                <div class="cq-img">🏝️</div>
+                <div><h3 class="new-cq-title">Island getaway</h3><p>7 nights of sun, sea and zero JavaScript.</p><button class="btn">Book now</button></div>
+              </div>
+            </div>
+            <p class="resize-hint">drag this corner ◢</p>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>⚡</b><span>right layout instantly</span></div>
+            <div class="stat"><b>🔤</b><span>text scales with the box</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><div class="new-cq-wrap">
+  <div class="new-cq-card">
+    <div class="cq-img">🏝️</div>
+    <div>
+      <h3 class="new-cq-title">Island getaway</h3>
+      <button>Book now</button>
+    </div>
+  </div>
+</div></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: change 420px</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* 1. "this box is a room: let children measure it" */
+.new-cq-wrap { container-type: inline-size; }
+
+.new-cq-card { display: grid; }
+
+/* 2. "if my room is wider than 420px..." */
+@container (width > 420px) {
+  .new-cq-card {
+    grid-template-columns: 160px 1fr; /* side by side */
+    align-items: center;
+  }
+}
+
+/* 3. text size based on the ROOM (cqi = 1% of its width) */
+.new-cq-title { font-size: clamp(1.1rem, 6cqi, 1.8rem); }
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>container-type: inline-size</code> turns the wrapper into a <b>room</b> 🏠 whose width its children can check.</li>
+            <li><code>@container (width &gt; 420px)</code> means <b>"if my room is wider than 420px, use these styles"</b>. It works like a media query, but for the box.</li>
+            <li>Inside, we switch the card to two columns: picture left, text right.</li>
+            <li><code>6cqi</code> = "6% of the room's width". The title grows and shrinks with the box. <code>clamp()</code> sets a minimum and maximum size.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">↔️</span>Box changes size</li>
+          <li><span class="ico">📏</span>ResizeObserver reports it</li>
+          <li><span class="ico">🧮</span>JS: "&gt; 420?"</li>
+          <li><span class="ico">🏷️</span>JS adds "is-wide"</li>
+          <li><span class="ico">🎨</span>CSS changes layout</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">↔️</span>Box changes size</li>
+          <li><span class="ico">🛋️</span>@container rule matches</li>
+          <li><span class="ico">🎨</span>New layout, same frame</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note good"><span class="ico">♻️</span><p><b>Why teams love it:</b> build a component once and drop it into a sidebar, a grid or a full-width area. It adapts on its own. No more "card-small" and "card-large" versions.</p></div>
+      <div class="note info"><span class="ico">🏷️</span><p>Name your rooms when you have several: <code>container-name: sidebar</code>, then <code>@container sidebar (width &gt; 300px)</code>.</p></div>
+      <div class="note warn"><span class="ico">🪟</span><p>Media queries are still right for <b>page-level</b> layout (e.g. "hide the sidebar on phones"). Container queries are for <b>components</b>.</p></div>
+    </div>
+    <p class="takeaway">💡 Components should care about the room they're in, not the size of the whole house.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-prop"><dt><code>container-type</code><span class="kind">🔧 Property</span></dt><dd>container-type: inline-size makes a box a "container", so its children can react to ITS width.<span class="like-a">Like: giving a room its own thermostat</span></dd></div>
+      <div class="word k-at"><dt><code>@container</code><span class="kind">📜 @-rule</span></dt><dd>Rules that apply when a container box is a certain size. Like @media, but for a box, not the screen.<span class="like-a">Like: "if the room is small, stack the chairs"</span></dd></div>
+      <div class="word k-unit"><dt><code>cqi</code><span class="kind">📏 Unit</span></dt><dd>1% of the container's width. Text sized in cqi grows with its box, not the screen.<span class="like-a">Like: a slice of your own box</span></dd></div>
+      <div class="word k-prop"><dt><code>display</code><span class="kind">🔧 Property</span></dt><dd>How a box behaves: block (own line), inline (inside text), flex or grid (arranges its children), none (hidden).<span class="like-a">Like: choosing furniture layout for a room</span></dd></div>
+      <div class="word k-prop"><dt><code>grid-template-columns</code><span class="kind">🔧 Property</span></dt><dd>The columns of a grid. 1fr 2fr = two columns, the second twice as wide.<span class="like-a">Like: drawing columns on a table</span></dd></div>
+      <div class="word k-unit"><dt><code>fr</code><span class="kind">📏 Unit</span></dt><dd>A fraction of the free space in a grid. 1fr 2fr = two columns, the second twice as wide.<span class="like-a">Like: sharing pizza slices</span></dd></div>
+      <div class="word k-prop"><dt><code>align-items</code><span class="kind">🔧 Property</span></dt><dd>Lines children up (usually up and down) inside a flex or grid row: start, center, end.<span class="like-a">Like: lining people up by height</span></dd></div>
+      <div class="word k-prop"><dt><code>font-size</code><span class="kind">🔧 Property</span></dt><dd>How big the text is.<span class="like-a">Like: the size of the letters</span></dd></div>
+      <div class="word k-fn"><dt><code>clamp()</code><span class="kind">🧮 Function</span></dt><dd>clamp(smallest, preferred, biggest): grows with the screen but never goes past the limits.<span class="like-a">Like: a belt with a smallest and biggest hole</span></dd></div>
+      <div class="word k-unit"><dt><code>rem</code><span class="kind">📏 Unit</span></dt><dd>Relative to the page's base text size (usually 16px). 2rem = twice that. Grows if the user picks bigger text.<span class="like-a">Like: "two handfuls": depends on the hand</span></dd></div>
+      <div class="word k-unit"><dt><code>px</code><span class="kind">📏 Unit</span></dt><dd>Pixels: one dot on the screen. A fixed size.<span class="like-a">Like: centimetres on a ruler</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;div&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain box with no special meaning, used to group things.<span class="like-a">Like: a cardboard box</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;h3&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A heading. h1 is the biggest, h6 the smallest.<span class="like-a">Like: a chapter title</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;button&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A button you can click or press with the keyboard.<span class="like-a">Like: a doorbell</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="10-dark-mode.html"><small>◀ Previous</small>10 · Dark mode</a>
+    <a class="next" href="12-entry-animations.html"><small>Next ▶</small>12 · Fade in from nothing</a>
+  </nav>
+</main>
+</body>
+</html>

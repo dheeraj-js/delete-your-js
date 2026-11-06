@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · Counting with CSS | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { align-items: start; }
+.toppings { display: grid; gap: .55rem; width: 100%; }
+.toppings h3 { margin: 0 0 .25rem; font-size: 1.1rem; }
+.top-item { display: flex; align-items: center; gap: .7rem; padding: .7rem .95rem; border: 2px solid #e1e4f0; border-radius: 12px; background: #fff; font-weight: 700; cursor: pointer; }
+.top-item:has(:checked) { border-color: #6c5ce7; background: #f1efff; }
+.top-item input { width: 1.2rem; height: 1.2rem; accent-color: #6c5ce7; }
+.count-pill { justify-self: start; margin-top: .4rem; padding: .5rem 1rem; border-radius: 999px; background: #1d2340; color: #fff; font-weight: 800; }
+.counter-pic { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); margin-top: 1.25rem; }
+.counter-pic .panel { text-align: center; }
+.counter-pic .e { font-size: 2.6rem; }
+.counter-pic p { margin: .35rem 0 0; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="08-has.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="10-dark-mode.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 09 / 17 · 🔢 CSS counters</span>
+    <h1>CSS can count. Really.</h1>
+    <p class="lead">"3 toppings selected" is a number that changes as you click. Surely that needs JavaScript? Nope. CSS has had counters for years, and they can count ticked boxes.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: change listeners · querySelectorAll(':checked').length · textContent updates</span>
+      <span class="chip new">Uses: counter-reset · counter-increment · counter()</span>
+      <span class="chip ok">✅ Every browser (it's very old!)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A live "X selected" counter</h3><p>Tick pizza toppings and a label shows how many you've picked, updating instantly.</p></div>
+      <div class="analogy old"><div class="big">🧮</div><h3><small>😓 The old way</small>Someone counts heads every time</h3><p>Every time a box changes, JS runs over, counts all the ticked boxes again, and writes the new number on the label.</p></div>
+      <div class="analogy new"><div class="big">🎟️</div><h3><small>😎 The new way</small>A clicker counter at the door</h3><p>CSS keeps a counter. Each ticked box <b>clicks it up by one</b>. The label at the end shows the total.</p></div>
+    </div>
+    <div class="counter-pic">
+      <div class="panel"><div class="e">0️⃣</div><b>counter-reset</b><p>"Start a new counter at 0 here"</p></div>
+      <div class="panel"><div class="e">➕</div><b>counter-increment</b><p>"Each ticked box adds 1"</p></div>
+      <div class="panel"><div class="e">🪧</div><b>counter()</b><p>"Show the number here"</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: pick some toppings</h2>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>Count on every change</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="toppings">
+              <h3>🍕 Toppings</h3>
+              <label class="top-item"><input type="checkbox" class="old-topping"> 🧀 Cheese</label>
+              <label class="top-item"><input type="checkbox" class="old-topping"> 🍄 Mushroom</label>
+              <label class="top-item"><input type="checkbox" class="old-topping"> 🌶️ Chilli</label>
+              <label class="top-item"><input type="checkbox" class="old-topping"> 🍍 Pineapple (brave)</label>
+              <output class="count-pill old-count">0 selected</output>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>8</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>4</b><span>event listeners</span></div>
+            <div class="stat"><b>🔁</b><span>recounts everything</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><label><input type="checkbox" class="old-topping"> 🧀 Cheese</label>
+<label><input type="checkbox" class="old-topping"> 🍄 Mushroom</label>
+<!-- ... -->
+<output class="old-count">0 selected</output></script></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const toppingBoxes = document.querySelectorAll('.old-topping');
+const countLabel = document.querySelector('.old-count');
+
+function updateCount() {
+  const picked = document.querySelectorAll('.old-topping:checked').length;
+  countLabel.textContent = picked + ' selected';
+}
+
+toppingBoxes.forEach((box) => box.addEventListener('change', updateCount));
+updateCount();
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>JS puts a listener on <b>every</b> checkbox.</li>
+            <li>When any of them changes, JS finds <b>all the ticked ones</b> (<code>:checked</code>) and counts them (<code>.length</code>).</li>
+            <li>It writes the number into the label with <code>textContent</code>.</li>
+            <li>No CSS needed for the counting, but 4 listeners and a recount on every click.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · CSS</h3><p>A built-in counter</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="toppings new-toppings">
+              <h3>🍕 Toppings</h3>
+              <label class="top-item"><input type="checkbox" class="new-topping"> 🧀 Cheese</label>
+              <label class="top-item"><input type="checkbox" class="new-topping"> 🍄 Mushroom</label>
+              <label class="top-item"><input type="checkbox" class="new-topping"> 🌶️ Chilli</label>
+              <label class="top-item"><input type="checkbox" class="new-topping"> 🍍 Pineapple (brave)</label>
+              <div class="count-pill new-count" aria-live="polite"></div>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>3</b><span>CSS lines doing the work</span></div>
+            <div class="stat"><b>🎟️</b><span>counts as you click</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><div class="new-toppings">
+  <label><input type="checkbox" class="new-topping"> 🧀 Cheese</label>
+  <label><input type="checkbox" class="new-topping"> 🍄 Mushroom</label>
+  <!-- ... -->
+  <div class="new-count"></div>
+</div></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: change the words</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* 1. start a counter called "picked" at 0 */
+.new-toppings { counter-reset: picked; }
+
+/* 2. every ticked box adds 1 */
+.new-topping:checked { counter-increment: picked; }
+
+/* 3. print the number (the counter is read at the end) */
+.new-count::after {
+  content: counter(picked) " selected 🍕";
+}
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>counter-reset: picked</code> creates a counter called <b>picked</b>, starting at <b>0</b>, for this box.</li>
+            <li><code>.new-topping:checked</code> = "each ticked box". <code>counter-increment</code> adds 1 for each one.</li>
+            <li>CSS counts <b>in reading order</b> (top to bottom), so the label at the end sees the final total.</li>
+            <li><code>::after</code> is a ghost element 👻. Its <code>content</code> prints the number with <code>counter(picked)</code> plus our text.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">☑️</span>Tick a box</li>
+          <li><span class="ico">👂</span>JS hears it</li>
+          <li><span class="ico">🧮</span>JS counts every ticked box again</li>
+          <li><span class="ico">✏️</span>JS writes the number</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">0️⃣</span>Counter starts at 0</li>
+          <li><span class="ico">➕</span>Each ticked box adds 1</li>
+          <li><span class="ico">🪧</span>Label shows the total</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note info"><span class="ico">📖</span><p>The classic use: <b>automatic numbering</b>. Chapters, steps, figures. All the numbered steps on this site are CSS counters.</p></div>
+      <div class="note warn"><span class="ico">⚠️</span><p><b>Limits:</b> the number only exists for display. You can't send it to a server or use it in maths. If you need the number for logic, that's a real JS job.</p></div>
+      <div class="note good"><span class="ico">🔢</span><p>Styles: <code>counter(picked, upper-roman)</code> gives I, II, III. <code>lower-alpha</code> gives a, b, c. You can even make your own with <code>@counter-style</code>.</p></div>
+    </div>
+    <p class="takeaway">💡 If a number is just for showing, CSS can probably count it for you.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-prop"><dt><code>counter-reset</code><span class="kind">🔧 Property</span></dt><dd>Creates a counter, starting at 0, on an element.<span class="like-a">Like: resetting a tally clicker to zero</span></dd></div>
+      <div class="word k-prop"><dt><code>counter-increment</code><span class="kind">🔧 Property</span></dt><dd>Adds 1 to the counter each time an element matches.<span class="like-a">Like: clicking the tally clicker</span></dd></div>
+      <div class="word k-fn"><dt><code>counter()</code><span class="kind">🧮 Function</span></dt><dd>Shows a counter's current number, inside content.<span class="like-a">Like: reading the number on a tally clicker</span></dd></div>
+      <div class="word k-prop"><dt><code>content</code><span class="kind">🔧 Property</span></dt><dd>The text or symbol a ::before or ::after ghost shows.<span class="like-a">Like: what the ghost says</span></dd></div>
+      <div class="word k-ghost"><dt><code>::after</code><span class="kind">👻 Pseudo-element: a "ghost" part</span></dt><dd>An extra box CSS adds at the end of an element (needs content). Used here to write text with CSS.<span class="like-a">Like: a ghost helper at the end</span></dd></div>
+      <div class="word k-mood"><dt><code>:checked</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>When a checkbox or radio button is ticked, or a select option is chosen.<span class="like-a">Like: a light switch in the ON position</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;label&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>The name of a form field. Clicking it focuses (or ticks) the field.<span class="like-a">Like: the name sticker on a letterbox</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;input&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A form field. Its type decides what kind: text, email, checkbox, radio...<span class="like-a">Like: a blank on a paper form</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;output&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A place to show a result.<span class="like-a">Like: the screen on a calculator</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;div&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain box with no special meaning, used to group things.<span class="like-a">Like: a cardboard box</span></dd></div>
+      <div class="word k-attr"><dt><code>type</code><span class="kind">⚙️ HTML attribute</span></dt><dd>The kind of input: text, email, checkbox, radio...<span class="like-a">Like: choosing the shape of a blank on a form</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="08-has.html"><small>◀ Previous</small>08 · The parent selector</a>
+    <a class="next" href="10-dark-mode.html"><small>Next ▶</small>10 · Dark mode</a>
+  </nav>
+</main>
+</body>
+</html>

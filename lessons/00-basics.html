@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>00 · Context | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+/* ---- The house: HTML / CSS / JS ---- */
+.house { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+.layer { padding: 1.6rem; border-radius: var(--radius); border: 2px solid var(--c); background: linear-gradient(160deg, color-mix(in srgb, var(--c) 22%, transparent), var(--panel) 65%); }
+.layer.h { --c: var(--old-2); } .layer.c { --c: var(--new-2); } .layer.j { --c: var(--warn); }
+.layer .big { font-size: 4rem; line-height: 1; }
+.layer h3 { margin: .6rem 0 .25rem; font-size: 1.6rem; color: var(--c); }
+.layer .job { font-weight: 800; font-size: 1.1rem; }
+.layer p { margin: .5rem 0 0; color: #d3d9f5; }
+.layer .eg { margin-top: .9rem; font-size: .9rem; color: var(--muted); }
+
+/* ---- Live layers demo ---- */
+.switches { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem; }
+.switch { display: inline-flex; align-items: center; gap: .6rem; padding: .6rem 1rem; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); font-weight: 700; cursor: pointer; }
+.switch input { appearance: none; position: relative; width: 48px; height: 28px; margin: 0; border-radius: 99px; background: #3a4470; cursor: pointer; transition: background .2s; }
+.switch input::before { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: translate .2s; }
+.switch input:checked { background: var(--new); }
+.switch input:checked::before { translate: 20px 0; }
+.profile { width: min(100%, 340px); padding: 1.6rem; text-align: center; border-radius: 22px; background: linear-gradient(160deg, #fff, #f0eeff); border: 1px solid #e1e4f0; box-shadow: 0 24px 50px -24px rgb(60 40 160 / .45); }
+.profile .avatar { display: grid; place-items: center; width: 88px; height: 88px; margin: 0 auto .75rem; border-radius: 50%; font-size: 3rem; background: linear-gradient(135deg, #ffd6f5, #c9c2ff); }
+.profile h3 { margin: 0; font-size: 1.4rem; color: #1d2340; }
+.profile p { margin: .3rem 0 1rem; color: #5b6388; }
+.profile .like { font: inherit; font-weight: 800; padding: .7rem 1.3rem; border: 0; border-radius: 999px; cursor: pointer; color: #fff; background: linear-gradient(120deg, #ff5f8f, #ff9f43); }
+/* 🎨 Switch CSS off = throw away all our styles and show the browser's plain defaults */
+.layers:has(#css-on:not(:checked)) :is(.profile, .profile *) { all: revert; }
+.layer-status { margin-top: 1rem; display: grid; gap: .5rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+.layer-status div { padding: .75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-2); border: 1px solid var(--line); font-size: .92rem; }
+.layers:has(#css-on:not(:checked)) .st-css::after { content: " OFF: just plain HTML now 🧱"; color: var(--old); font-weight: 800; }
+.layers:has(#css-on:checked) .st-css::after { content: " ON: it looks nice 🎨"; color: var(--new); font-weight: 800; }
+.layers:has(#js-on:not(:checked)) .st-js::after { content: " OFF: clicking Like does nothing 🫥"; color: var(--old); font-weight: 800; }
+.layers:has(#js-on:checked) .st-js::after { content: " ON: clicking Like counts ⚡"; color: var(--new); font-weight: 800; }
+
+/* ---- Baseline badges ---- */
+.badges { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+.badge { padding: 1.3rem; border-radius: var(--radius); border: 2px solid var(--bc); background: color-mix(in srgb, var(--bc) 10%, var(--panel)); }
+.badge b { display: block; font-size: 1.15rem; color: var(--bc); margin-bottom: .3rem; }
+.badge p { margin: 0; color: #d3d9f5; font-size: .95rem; }
+.badge.w { --bc: var(--new); } .badge.n { --bc: var(--new-2); } .badge.l { --bc: var(--warn); }
+.stairs { display: flex; align-items: flex-end; gap: .5rem; margin-top: 1rem; }
+.stairs div { flex: 1; padding: .7rem; border-radius: 10px 10px 0 0; text-align: center; font-size: .85rem; font-weight: 700; color: #0a0e1f; }
+.stairs .s1 { height: 70px; background: #a7b1d8; } .stairs .s2 { height: 110px; background: var(--new-2); } .stairs .s3 { height: 150px; background: var(--new); }
+
+/* ---- The facts ---- */
+.facts { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
+.fact { display: flex; flex-direction: column; gap: .4rem; padding: 1.3rem; border-radius: var(--radius); border: 1px solid var(--line); background: linear-gradient(160deg, var(--panel-2), var(--panel)); }
+.fact { border-top: 4px solid var(--fc, var(--new)); }
+.fact .fig { font-size: clamp(2.2rem, 1.6rem + 1.8vw, 3.2rem); font-weight: 900; line-height: 1; letter-spacing: -.02em; color: var(--fc, var(--new)); }
+.viz { display: grid; gap: .35rem; margin: .3rem 0 .1rem; }
+.viz > div { display: grid; grid-template-columns: 4.8rem minmax(0, 1fr) auto; align-items: center; gap: .5rem; font-size: .75rem; color: var(--muted); }
+.viz i { display: block; width: var(--w); height: 12px; border-radius: 6px; background: var(--bc); }
+.viz b { font-size: .78rem; color: var(--text); }
+.grades { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .4rem; margin: .3rem 0 .1rem; }
+.grades span { padding: .45rem .3rem; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-2); text-align: center; font-size: .72rem; line-height: 1.3; color: var(--muted); }
+.grades b { display: block; font-size: 1rem; color: var(--accent); }
+.fact h3 { margin: 0; font-size: 1.05rem; }
+.fact p { flex: 1; margin: 0; font-size: .92rem; color: #d3d9f5; }
+.fact .like-a { font-size: .85rem; font-weight: 700; color: var(--warn); }
+.fact .src { font-size: .8rem; font-weight: 700; }
+
+/* ---- Thesis section ---- */
+.thesis { display: grid; gap: 1.1rem; margin-bottom: 1.75rem; }
+.th-split { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr); }
+.th-split > div { display: grid; align-content: center; gap: .6rem; padding: clamp(1.1rem, 2.5vw, 1.75rem); border-radius: var(--radius); }
+.th-no { border: 2px dashed #ff6b6b66; background: #ff6b6b0f; }
+.th-no p { margin: 0; font-size: clamp(1.1rem, 1rem + .6vw, 1.4rem); font-weight: 800; color: var(--muted); text-decoration: line-through; text-decoration-color: var(--old); text-decoration-thickness: 3px; }
+.th-yes { border: 2px solid #2ee6a688; background: linear-gradient(135deg, #2ee6a622, #3ec5ff14 70%); box-shadow: 0 24px 50px -28px #2ee6a6aa; }
+.th-yes p { margin: 0; font-size: clamp(1.2rem, 1rem + 1vw, 1.75rem); font-weight: 800; line-height: 1.35; text-wrap: balance; }
+.th-yes b { color: var(--new); }
+.th-badge { justify-self: start; padding: .2rem .7rem; border-radius: 999px; font-size: .72rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; background: var(--bg-2); border: 1px solid var(--line); }
+.th-why { margin: .2rem 0 0; text-align: center; color: var(--muted); }
+.th-gains { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+.th-gains div { display: flex; align-items: center; gap: .8rem; padding: .9rem 1.1rem; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--panel); }
+.th-gains span { display: grid; place-items: center; flex: none; width: 2.8rem; aspect-ratio: 1; border-radius: 50%; font-size: 1.4rem; background: var(--panel-2); }
+.th-gains p { display: grid; gap: .15rem; margin: 0; }
+.th-gains .cost { font-size: .78rem; font-weight: 600; color: #ff9a9a; }
+.th-gains b { font-size: 1rem; line-height: 1.3; color: var(--new); }
+.th-quotes { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
+.th-quotes blockquote { margin: 0; padding: 1rem 1.25rem; border-radius: var(--radius-sm); border-left: 4px solid var(--accent); background: var(--bg-2); }
+.th-quotes blockquote p { margin: 0 0 .4rem; font-size: 1.1rem; font-style: italic; font-weight: 700; }
+.th-quotes footer { font-size: .8rem; color: var(--muted); }
+@media (max-width: 700px) { .th-split { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- "Jump to" bar ---- */
+.toc { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; padding: .9rem 1rem; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); }
+.toc-label { margin-right: .3rem; font-size: .8rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.toc a { display: inline-flex; align-items: center; gap: .4rem; padding: .3rem .75rem .3rem .3rem; border-radius: 999px; border: 1px solid var(--line); background: var(--bg-2); color: var(--text); text-decoration: none; font-size: .85rem; font-weight: 600; transition: border-color .2s, background .2s; }
+.toc a:hover { border-color: var(--accent); background: var(--panel-2); }
+.toc a b { display: grid; place-items: center; min-width: 1.5rem; height: 1.5rem; padding: 0 .3rem; border-radius: 999px; font-size: .72rem; background: linear-gradient(135deg, var(--accent), var(--new-2)); color: #0a0e1f; }
+.section-title { scroll-margin-top: 80px; }
+
+/* ---- Building a page: the assembly line ---- */
+.line { position: relative; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1rem .5rem; margin-top: 1.5rem; }
+.line::before { content: ""; position: absolute; z-index: 0; top: 2.1rem; left: 7%; right: 7%; height: 6px; border-radius: 3px; background: repeating-linear-gradient(90deg, #ffffff30 0 14px, #ffffff10 14px 24px), var(--panel-2); } /* the conveyor belt */
+.station { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 0 .15rem .5rem; border-radius: var(--radius-sm); text-align: center; color: var(--text); text-decoration: none; transition: translate .2s; }
+.station:hover, .station:focus-visible { translate: 0 -4px; }
+.st-ico { position: relative; display: grid; place-items: center; width: 4.2rem; aspect-ratio: 1; border-radius: 50%; font-size: 2rem; background: var(--panel-2); border: 3px solid var(--sc, var(--line)); box-shadow: 0 0 0 6px var(--bg), 0 10px 24px -10px var(--sc, #000); }
+.st-ico::after { content: attr(data-n); position: absolute; top: -6px; right: -6px; display: grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; font-size: .75rem; font-weight: 900; background: var(--accent); color: #0a0e1f; }
+.st-text { display: flex; flex-direction: column; align-items: center; gap: .2rem; }
+.station b { font-size: .95rem; line-height: 1.2; }
+.station small { font-size: .78rem; font-weight: 700; color: var(--warn); }
+.st-tag { margin-top: .3rem; padding: .25rem .55rem; border-radius: 999px; border: 1px solid; font-size: .72rem; font-weight: 800; line-height: 1.3; }
+.st-tag.html { color: var(--old-2); border-color: #ff9f4366; background: #ff9f431a; }
+.st-tag.css { color: var(--new); border-color: #2ee6a666; background: #2ee6a61a; }
+.st-tag.js { color: var(--old); border-color: #ff6b6b66; background: #ff6b6b1a; }
+.station.has-html { --sc: var(--old-2); } .station.has-css { --sc: var(--new); } .station.has-js { --sc: var(--old); }
+.line-loop { grid-row: 2; grid-column: 4 / 7; padding: .65rem .9rem; border-radius: 14px; border: 2px dashed #ff6b6b99; background: #ff6b6b12; text-align: center; font-size: .88rem; color: #ffd6d6; }
+@media (max-width: 900px) {
+  .line { grid-template-columns: minmax(0, 1fr); gap: .6rem; }
+  .line::before { top: 1rem; bottom: 1rem; left: calc(2.1rem - 3px); right: auto; width: 6px; height: auto; background: repeating-linear-gradient(180deg, #ffffff30 0 14px, #ffffff10 14px 24px), var(--panel-2); }
+  .station { flex-direction: row; align-items: center; gap: 1rem; text-align: left; padding: 0; }
+  .st-text { align-items: flex-start; }
+  .line-loop { grid-row: auto; grid-column: auto; margin-left: 5.2rem; text-align: left; }
+}
+
+/* ---- "When does each one come in?" ---- */
+.when { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+.when > div { display: grid; align-content: start; gap: .4rem; padding: 1.2rem 1.3rem; border-radius: var(--radius); border: 2px solid var(--wc); background: color-mix(in srgb, var(--wc) 10%, var(--panel)); }
+.when .w-html { --wc: #ff9f4388; } .when .w-css { --wc: #2ee6a688; } .when .w-js { --wc: #ff6b6b88; }
+.when > div > b:first-child { font-size: 1.25rem; }
+.w-steps { justify-self: start; padding: .15rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 800; background: var(--bg-2); border: 1px solid var(--line); }
+.when p { margin: 0; color: #d3d9f5; font-size: .95rem; }
+
+/* ---- Building a page, step by step ---- */
+.build { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: .8rem; counter-reset: b; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); }
+.build > li:target { outline: 3px solid var(--warn); outline-offset: 2px; }
+.build > li { scroll-margin-top: 90px; counter-increment: b; display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); gap: 1rem; align-items: start; padding: 1rem 1.2rem; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); }
+.step-ico { position: relative; display: grid; place-items: center; width: 3.4rem; aspect-ratio: 1; border-radius: 50%; font-size: 1.7rem; background: var(--panel-2); }
+.step-ico::after { content: counter(b); position: absolute; top: -4px; right: -4px; display: grid; place-items: center; width: 1.4rem; height: 1.4rem; border-radius: 50%; font-size: .75rem; font-weight: 900; background: var(--accent); color: #0a0e1f; }
+.build h3 { margin: .2rem 0 0; font-size: 1.15rem; }
+.build h3 small { display: inline-block; margin-left: .3rem; font-size: .85rem; color: var(--warn); }
+.build p { margin: .3rem 0 0; color: #d3d9f5; font-size: .95rem; }
+.joins { display: grid; gap: .5rem; margin-top: .7rem; }
+.join { padding: .6rem .85rem; border-radius: 10px; border: 1px solid; font-size: .9rem; }
+.join.html { border-color: #ff9f4366; background: #ff9f4314; }
+.join.css { border-color: #2ee6a666; background: #2ee6a614; }
+.join.js { border-color: #ff6b6b66; background: #ff6b6b14; }
+ol.ticks { padding-left: 1.4rem; }
+
+/* ---- 3 ways to load a script ---- */
+.ways { display: grid; gap: 1rem; margin-top: 1rem; }
+.way { display: grid; gap: .5rem; padding: 1.1rem 1.25rem; border-radius: var(--radius); border: 2px solid var(--wc); background: color-mix(in srgb, var(--wc) 7%, var(--panel)); }
+.way.bad { --wc: #ff6b6b77; } .way.meh { --wc: #ffd16677; } .way.good { --wc: #2ee6a677; }
+.way h3 { margin: 0; font-size: 1.15rem; }
+.way h3 small { margin-left: .4rem; font-size: .85rem; font-weight: 600; color: var(--muted); }
+.way p { margin: 0 0 .3rem; color: #d3d9f5; font-size: .95rem; }
+.ways .g-row { grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); }
+.g-pin.works { background: var(--new); } .g-pin.works::after { color: var(--new); }
+.ways .g-pin::after { left: auto; right: 8px; padding: 0 .35rem; border-radius: 4px; background: var(--bg); }
+.g-none { position: absolute; inset: 0; display: grid; place-items: center start; padding-left: .7rem; font-size: .8rem; color: var(--muted); font-style: italic; }
+.qa { display: grid; gap: .6rem; margin-top: .75rem; }
+.qa details { border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg-2); }
+.qa summary { padding: .8rem 1rem; font-weight: 700; cursor: pointer; }
+.qa details p { margin: 0; padding: 0 1rem 1rem; color: #d3d9f5; }
+.qa-body { padding: 0 1rem .4rem; color: #d3d9f5; }
+.qa-body p { padding: 0 0 .7rem !important; }
+.qa-body .ticks { margin: 0 0 .7rem; }
+
+/* ---- defer/async scorecard ---- */
+.score-wrap { overflow-x: auto; margin-top: .75rem; border-radius: var(--radius); border: 1px solid var(--line); }
+.score { width: 100%; min-width: 720px; border-collapse: collapse; font-size: .92rem; }
+.score th, .score td { padding: .7rem .8rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.score thead th { background: var(--panel-2); font-size: .85rem; }
+.score tbody th { width: 30%; background: var(--panel); }
+.score tbody th small, .score td small { display: block; margin-top: .2rem; font-size: .75rem; font-weight: 600; color: var(--muted); }
+.score td.yes { background: #2ee6a614; } .score td.no { background: #ff6b6b14; } .score td.mid { background: #ffd16612; } .score td.na { color: var(--muted); }
+.score tr:last-child > * { border-bottom: 0; }
+
+/* ---- How a browser paints ---- */
+.flow-row.neutral { --tone: var(--accent); --c: #9b8cff55; }
+.flow li small { display: block; color: var(--muted); }
+.ticks { margin: .75rem 0 0; padding-left: 1.2rem; color: #d3d9f5; font-size: .95rem; }
+.ticks li { margin: .35rem 0; }
+.gantt { --max: 2000; display: grid; gap: .45rem; margin-top: 1rem; }
+.g-group { margin-top: .6rem; font-weight: 800; }
+.g-group.before { color: var(--old); } .g-group.after { color: var(--new); }
+.g-row { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: .75rem; align-items: center; font-size: .9rem; }
+.g-track { position: relative; height: 26px; border-radius: 8px; background: linear-gradient(90deg, transparent calc(100% - 1px), #ffffff14 0) 0 0 / 25% 100%, var(--bg-2); }
+.g-bar { position: absolute; top: 4px; bottom: 4px; left: calc(var(--a) / var(--max) * 100%); width: calc((var(--b) - var(--a)) / var(--max) * 100%); border-radius: 5px; background: var(--bc); }
+.g-bar.net { --bc: var(--new-2); } .g-bar.jsdl { --bc: var(--old-2); } .g-bar.cpu { --bc: var(--old); } .g-bar.paint { --bc: var(--new); }
+.g-pin { position: absolute; top: -4px; bottom: -4px; left: calc(var(--a) / var(--max) * 100%); width: 4px; border-radius: 2px; background: var(--warn); }
+.g-pin::after { content: attr(data-t); position: absolute; left: 8px; top: 50%; translate: 0 -50%; white-space: nowrap; font-weight: 900; color: var(--warn); }
+.g-axis { position: relative; height: 1.2rem; font-size: .75rem; color: var(--muted); }
+.g-axis span { position: absolute; left: calc(var(--at) / var(--max) * 100%); translate: -50% 0; }
+.g-axis span:first-child { translate: 0 0; }
+.legend { display: flex; flex-wrap: wrap; gap: .5rem 1.1rem; margin-top: 1rem; font-size: .85rem; color: var(--muted); }
+.legend i { display: inline-block; width: 14px; height: 14px; margin-right: .35rem; border-radius: 4px; vertical-align: -2px; background: var(--bc); }
+@media (max-width: 640px) { .g-row { grid-template-columns: minmax(0, 1fr); gap: .2rem; } .g-row > :empty:first-child { display: none; } }
+
+/* ---- Frozen-brain test ---- */
+.stage.jank { place-items: stretch; gap: 1rem; }
+.lane { display: grid; gap: .3rem; }
+.lane-tag { font-weight: 800; font-size: .9rem; }
+.track { container-type: inline-size; height: 56px; border-radius: 999px; border: 1px solid #e1e4f0; background: #fff; overflow: hidden; }
+.ball { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; font-size: 1.8rem; }
+.js-ball { background: #ffe0da; } .css-ball { background: #d7f8ec; }
+.jank-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+
+/* ---- Web Vitals playground ---- */
+.lab-controls { display: grid; gap: 1rem; }
+.speeds { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0; padding: 0; border: 0; }
+.speeds legend { width: 100%; margin-bottom: .4rem; padding: 0; font-weight: 800; }
+.speeds label { display: inline-flex; align-items: center; gap: .5rem; padding: .5rem .9rem; border-radius: 999px; border: 1px solid var(--line); background: var(--bg-2); font-size: .92rem; cursor: pointer; }
+.speeds label:has(:checked) { border-color: var(--new); background: #2ee6a61f; }
+.speeds input { margin: 0; accent-color: var(--new); }
+#lab-run { justify-self: start; font-size: 1.1rem; }
+#lab-run:disabled { opacity: .6; cursor: progress; }
+.lab-status { margin: 0; color: var(--muted); }
+/* The line under the visitor buttons: shown with :has(), no JavaScript */
+.speed-info p { display: none; margin: 0; padding: .8rem 1rem; border-radius: var(--radius-sm); border-left: 4px solid var(--new-2); background: var(--bg-2); font-size: .95rem; }
+.lab-controls:has([value="laptop"]:checked) .si-laptop,
+.lab-controls:has([value="mid"]:checked) .si-mid, .lab-controls:has([value="lighthouse"]:checked) .si-lighthouse { display: block; }
+.speed-info a { font-weight: 700; }
+/* "What the visitor sees" chart */
+.xp-bar { position: relative; display: flex; height: 34px; border-radius: 8px; overflow: hidden; background: var(--bg-2); }
+.xp-bar i { display: grid; place-items: center; min-width: 0; overflow: hidden; white-space: nowrap; font-size: .75rem; font-weight: 800; font-style: normal; color: #0a0e1f; }
+.xp-blank { background: #6b7394; } .xp-dead { background: var(--warn); } .xp-works { background: var(--new); }
+/* While racing: a shimmer that repaints every frame (it also keeps the measured frames flowing in every browser) */
+.lab-status.racing, .lab-col.loading h3 { padding: .4rem .7rem; border-radius: 8px; color: var(--text); background: linear-gradient(90deg, transparent 30%, #2ee6a633, transparent 70%) 0 0 / 300% 100%, var(--bg-2); animation: lab-shimmer 1.4s linear infinite; }
+.lab-status.racing::before, .lab-col.loading h3::before { content: "⏳ "; }
+@keyframes lab-shimmer { from { background-position: 100% 0, 0 0; } to { background-position: 0 0, 0 0; } }
+.lab-grid { display: grid; gap: 1rem; margin-top: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.lab-col { min-width: 0; display: grid; gap: .75rem; align-content: start; padding: 1rem; border-radius: var(--radius); border: 2px solid var(--c); background: var(--panel); }
+.lab-col[data-lab="css"] { --c: #2ee6a666; } .lab-col:not([data-lab="css"]) { --c: #ff6b6b66; }
+.lab-col h3 { margin: 0; font-size: 1.05rem; }
+.lab-col h3 small { display: block; font-size: .8rem; font-weight: 600; color: var(--muted); }
+.lab-col iframe { width: 100%; height: 440px; border: 0; border-radius: var(--radius-sm); background: #f6f7fc; }
+.metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin: 0; }
+.metric { padding: .55rem .7rem; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-2); }
+.metric dt { font-size: .75rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.metric dt small { display: block; font-size: .7rem; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.metric dd { margin: 0; font-size: 1.35rem; font-weight: 900; line-height: 1.25; }
+.metric.good { border-color: #2ee6a688; } .metric.good dd { color: var(--new); }
+.metric.ni { border-color: #ffd16688; } .metric.ni dd { color: var(--warn); }
+.metric.poor { border-color: #ff6b6b88; } .metric.poor dd { color: var(--old); }
+.self-metrics { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-top: .75rem; }
+.lt-row { display: grid; grid-template-columns: minmax(0, 12rem) minmax(0, 1fr); gap: .75rem; align-items: center; margin: .7rem 0; }
+.lt-label small { display: block; color: var(--muted); }
+.lt-track { position: relative; height: 34px; border-radius: 8px; background: var(--bg-2); }
+.lt-bar { position: absolute; top: 7px; bottom: 7px; left: var(--a); width: var(--w); border-radius: 5px; background: var(--old); }
+.lt-pin { position: absolute; top: -3px; bottom: -3px; left: var(--a); width: 4px; border-radius: 2px; background: var(--bc); }
+.lt-axis { position: relative; height: 1.2rem; font-size: .75rem; color: var(--muted); }
+.lt-axis span { position: absolute; left: var(--a); translate: -50% 0; }
+.lt-axis span:first-child { translate: 0 0; }
+.lab-verdict { margin-top: 1rem; font-size: 1.1rem; }
+.lab-verdict p { margin: .3rem 0; }
+@media (max-width: 640px) { .lt-row { grid-template-columns: minmax(0, 1fr); gap: .3rem; } }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="../index.html">All lessons</a>
+    <a href="01-popover.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 00 · Context</span>
+    <h1>Why we're deleting JavaScript</h1>
+    <p class="lead">We're not anti-JavaScript. We're anti-using-JavaScript-for-things-the-browser-already-does. Here's why it matters, and why now.</p>
+  </section>
+  <nav class="toc" aria-label="On this page"><span class="toc-label">Jump to:</span><a href="#s1"><b>1</b>🎯 The thesis</a><a href="#s2"><b>2</b>🏠 What each layer does</a><a href="#s3"><b>3</b>📊 The numbers</a><a href="#s4"><b>4</b>📈 What CSS improves</a><a href="#s5"><b>5</b>🧊 Frozen brain</a><a href="#s6"><b>6</b>🧪 Playground</a><a href="#s7"><b>7</b>✅ Browser support</a></nav>
+
+
+  <!-- 1. The thesis -->
+  <section class="section">
+    <h2 class="section-title" id="s1">1 · The thesis 🎯</h2>
+    <div class="thesis">
+      <div class="th-split">
+        <div class="th-no"><span class="th-badge">❌ Not this</span><p>"Never use JavaScript."</p></div>
+        <div class="th-yes"><span class="th-badge">✅ This</span><p>Let <b>HTML &amp; CSS</b> do every job they already can.<br>Keep <b>JavaScript</b> for the jobs only it can do.</p></div>
+      </div>
+      <p class="th-why"><b>Why?</b> Because every line of JavaScript <b>costs your visitors something</b>. Hand the job to HTML &amp; CSS and they win it back:</p>
+      <div class="th-gains">
+        <div><span>📦</span><p><small class="cost">JavaScript costs download time</small><b>✅ Less to download</b></p></div>
+        <div><span>👷</span><p><small class="cost">It keeps the one worker busy</small><b>✅ Taps answered sooner</b></p></div>
+        <div><span>⭐</span><p><small class="cost">It can drag down Google's scores</small><b>✅ Better Web Vitals</b></p></div>
+        <div><span>🧯</span><p><small class="cost">If it fails, the feature fails</small><b>✅ Still works without it</b></p></div>
+      </div>
+    </div>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 A JavaScript feature: 5 steps before your first tap works</h3>
+        <ol class="flow">
+          <li><span class="ico">📦</span>Download the JS file<br><small>over the network</small></li>
+          <li><span class="ico">🔍</span>Parse and compile it<br><small>into instructions the chip can run</small></li>
+          <li><span class="ico">⚙️</span>Execute it<br><small>the main thread is blocked</small></li>
+          <li><span class="ico">👂</span>Register event listeners<br><small>"when clicked, do this"</small></li>
+          <li><span class="ico">🙂</span>Now it works<br><small>unless the file never arrived, or one line threw 💥</small></li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 A built-in HTML feature, styled by your existing CSS</h3>
+        <ol class="flow">
+          <li><span class="ico">🧠</span>Behaviour is built into the browser<br><small>opening, closing, Escape, focus: nothing to download</small></li>
+          <li><span class="ico">📄</span>Works as soon as the HTML arrives<br><small>your CSS in the <code>&lt;head&gt;</code> makes it look right from first paint</small></li>
+          <li><span class="ico">♿</span>Keyboard and screen-reader support<br><small>come with it, for free</small></li>
+        </ol>
+      </div>
+    </div>
+    <div class="notes" style="margin-top:1.25rem">
+      <div class="note good"><span class="ico">✅</span><p><b>Less code</b> = less to write, test, review and fix. <b>Faster pages</b> = less to download. <b>Accessibility for free</b> = the browser handles keyboards and screen readers. <b>More robust</b> = still works if a script fails to load.</p></div>
+      <div class="note warn"><span class="ico">❤️</span><p><b>JavaScript is not bad.</b> We still need it for real "brain" jobs: saving data, talking to servers, complex logic. The rule is simple: don't use a brain to do a paintbrush's job.</p></div>
+    </div>
+  </section>
+
+  <!-- 2. What each layer does -->
+  <section class="section layers">
+    <h2 class="section-title" id="s2">2 · What each layer does 🏠</h2>
+    <div class="house">
+      <div class="layer h"><div class="big">🧱</div><h3>HTML</h3><div class="job">= structure and content</div><p>Says <b>what</b> is on the page: a heading, a button, a menu. Also carries semantic meaning: this is a dialog, this is a nav.</p><div class="eg">"There is a button here that says <i>Buy</i>."</div></div>
+      <div class="layer c"><div class="big">🎨</div><h3>CSS</h3><div class="job">= appearance and state</div><p>Says how things <b>look</b> and <b>which state they're in</b>: colours, sizes, animations, open/closed, hovered, checked.</p><div class="eg">"Make the button green. Show the menu when it's open."</div></div>
+      <div class="layer j"><div class="big">🧠</div><h3>JavaScript</h3><div class="job">= behaviour and data</div><p>Says what <b>happens</b>: server calls, complex logic, timers, anything that needs real computation.</p><div class="eg">"When someone clicks Buy, POST to the cart API."</div></div>
+    </div>
+
+    <h3 style="margin-top:1.75rem">See it live: switch layers off</h3>
+    <p style="color:var(--muted);margin-top:.25rem">The card below has all three layers active. Toggle them off to see exactly what each one contributes. Notice which layer handles the toggle itself.</p>
+    <div class="switches">
+      <label class="switch"><input type="checkbox" id="css-on" checked> 🎨 CSS</label>
+      <label class="switch"><input type="checkbox" id="js-on" checked> 🧠 JavaScript</label>
+    </div>
+    <div class="stage">
+      <div class="profile">
+        <div class="avatar">🦄</div>
+        <h3>Una the Unicorn</h3>
+        <p>Frontend developer. Loves CSS.</p>
+        <button class="like" type="button">❤️ Like · <span class="count">0</span></button>
+      </div>
+    </div>
+    <div class="layer-status">
+      <div class="st-html">🧱 <b>HTML</b> ALWAYS ON: the content is there</div>
+      <div class="st-css">🎨 <b>CSS</b></div>
+      <div class="st-js">🧠 <b>JS</b></div>
+    </div>
+    <script>
+      // The only job of this little script: count likes (a real "brain" job!)
+      const likeBtn = document.querySelector('.profile .like');
+      const likeCount = likeBtn.querySelector('.count');
+      likeBtn.addEventListener('click', () => {
+        if (!document.querySelector('#js-on').checked) return; // pretend JS is switched off
+        likeCount.textContent = Number(likeCount.textContent) + 1;
+      });
+    </script>
+    <div class="notes" style="margin-top:1rem">
+      <div class="note info"><span class="ico">🤫</span><p>The <b>CSS switch</b> above uses <b>no JavaScript</b>. CSS itself detects the checkbox state and strips the styles using <code>:has()</code>. That's Lesson 08.</p></div>
+    </div>
+  </section>
+
+  <!-- 3. The numbers -->
+  <section class="section">
+    <h2 class="section-title" id="s3">3 · The numbers 📊</h2>
+    <p class="lead">Ten data points on what JavaScript actually costs, each with its source.</p>
+    <div class="facts">
+      <article class="fact" style="--fc:var(--old)"><div class="fig">8×</div><h3>more JavaScript than CSS</h3>
+        <div class="viz"><div><span>JavaScript</span><i style="--w:100%;--bc:var(--old)"></i><b>650 KB</b></div><div><span>CSS</span><i style="--w:12%;--bc:var(--new)"></i><b>79 KB</b></div></div>
+        <p>On the typical phone web page, 2025.</p><a class="src" href="https://almanac.httparchive.org/en/2025/page-weight">Web Almanac 2025 ↗</a></article>
+      <article class="fact" style="--fc:var(--old)"><div class="fig">1.9 s</div><h3>too busy to answer a tap</h3>
+        <div class="viz"><div><span>📱 Phone</span><i style="--w:100%;--bc:var(--old)"></i><b>1,916 ms</b></div><div><span>💻 Desktop</span><i style="--w:5%;--bc:var(--new)"></i><b>92 ms</b></div></div>
+        <p>Typical page while loading (Lighthouse). Up 58% in a year.</p><a class="src" href="https://almanac.httparchive.org/en/2025/performance">Web Almanac 2025 ↗</a></article>
+      <article class="fact" style="--fc:var(--warn)"><div class="fig">3–6×</div><h3>slower on ordinary phones</h3>
+        <div class="viz"><div><span>High-end</span><i style="--w:16%;--bc:var(--new)"></i><b>1×</b></div><div><span>Median</span><i style="--w:58%;--bc:var(--warn)"></i><b>3–4×</b></div><div><span>Low-end</span><i style="--w:100%;--bc:var(--old)"></i><b>6×+</b></div></div>
+        <p>Same JavaScript. Your dev machine hides this.</p><a class="src" href="https://v8.dev/blog/cost-of-javascript-2019">V8, 2019 ↗</a></article>
+      <article class="fact" style="--fc:var(--warn)"><div class="fig">48%</div><h3>of phone sites pass Google's scores</h3>
+        <div class="viz"><div><span>Pass</span><i style="--w:48%;--bc:var(--new)"></i><b>48%</b></div><div><span>Fail</span><i style="--w:52%;--bc:var(--old)"></i><b>52%</b></div></div>
+        <p>All three Core Web Vitals "good", on mobile, 2025.</p><a class="src" href="https://almanac.httparchive.org/en/2025/performance">Web Almanac 2025 ↗</a></article>
+      <article class="fact" style="--fc:var(--new-2)"><div class="fig">1 worker</div><h3>does everything, one job at a time</h3>
+        <p><b>JavaScript is single-threaded.</b> It runs your code, draws the page and answers taps. While it's busy, your tap waits in line.</p><span class="like-a">🛒 One cashier, one queue.</span><a class="src" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model">MDN ↗</a></article>
+      <article class="fact" style="--fc:var(--new-2)"><div class="fig">16.7 ms</div><h3>per frame budget. JS eats into it.</h3>
+        <p>At 60 fps each frame has 16.7 ms. A JS task over <b>50 ms</b> misses the deadline and the user sees a stutter. CSS <code>transform</code> and <code>opacity</code> animations run on the compositor thread and <b>use none of that budget</b>. They never stutter, even when JS is blocking.</p><span class="like-a">📖 A flip-book where the animator is on a phone call.</span><a class="src" href="https://web.dev/articles/optimize-long-tasks">web.dev ↗</a></article>
+      <article class="fact" style="--fc:var(--old)"><div class="fig">🛑</div><h3>a normal &lt;script&gt; blocks the parser</h3>
+        <p>Nothing below it renders until the script has downloaded and executed. Blank screen until then.</p><span class="like-a">🚧 Road works: all traffic stops.</span><a class="src" href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script">MDN ↗</a></article>
+      <article class="fact" style="--fc:var(--warn)"><div class="fig">1 in 93</div><h3>visits: JS failed, feature broken</h3>
+        <p>Network timeout, ad blocker, or one uncaught exception in a third-party script. Your JS feature is gone. HTML and CSS features keep working: they have no script to fail and render from the first byte.</p><span class="like-a">🚆 One person in every full train carriage. Invisible, but real.</span><a class="src" href="https://gds.blog.gov.uk/2013/10/21/how-many-people-are-missing-out-on-javascript-enhancement/">GOV.UK, 2013 ↗</a></article>
+      <article class="fact" style="--fc:var(--accent)"><div class="fig">⭐ ⭐ ⭐</div><h3>Google's report card</h3>
+        <div class="grades"><span><b>LCP</b>shows in<br>&lt; 2.5 s</span><span><b>INP</b>reacts in<br>&lt; 0.2 s</span><span><b>CLS</b>jumps<br>&lt; 0.1</span></div>
+        <p>Used in search ranking. Heavy JavaScript can hurt all three.</p><a class="src" href="https://web.dev/articles/vitals">web.dev ↗</a></article>
+      <article class="fact" style="--fc:var(--new)"><div class="fig">≈240</div><h3>lines of JavaScript deleted in this talk</h3>
+        <p>Less to write, test, fix and secure. Keyboard and screen-reader support come free.</p><a class="src" href="18-cheatsheet.html">See the cheat sheet ▶</a></article>
+    </div>
+    <div class="panel" style="margin-top:1.25rem">
+      <h3>🤝 Objections, answered</h3>
+      <div class="qa">
+        <details name="fair"><summary>"But the browser waits for CSS too!"</summary>
+          <p>Yes. One wait. It already happened.</p>
+          <p>Every page loads a stylesheet. That one CSS wait is unavoidable. The features in this talk are a few extra lines added to that same file. No extra wait.</p>
+          <p><b>With a JS solution you pay twice, in order:</b></p>
+          <ol style="margin:.4rem 0 .4rem 1.2rem;line-height:1.8">
+            <li>CSS loads and blocks first paint. (Same as always.)</li>
+            <li>JS file downloads. (Extra network wait.)</li>
+            <li>JS executes on the main thread. (Extra CPU wait.)</li>
+            <li>Feature becomes usable. (After all three.)</li>
+          </ol>
+          <p>With CSS alone you stop at step 1. The feature is ready at first paint.</p>
+          <p style="font-size:.9rem;color:var(--muted)"><b>Using CSS-in-JS or CSS modules in React?</b> Same story. The extracted CSS ends up in a stylesheet the browser loads once and caches. The extra rules for these features add a few bytes. Still one wait, still no JavaScript to execute for the feature itself.</p>
+        </details>
+        <details name="fair"><summary>"Just add <code>defer</code> or <code>async</code> to the script."</summary><p>They change <b>when</b> the JavaScript runs, not <b>whether</b> it runs. The same code is still downloaded and executed on the same main thread. Until then the feature doesn't work, and things can jump when the script mutates the DOM.</p></details>
+        <details name="fair"><summary>"Won't all this CSS bloat my bundle?"</summary>
+          <div class="qa-body">
+            <p style="font-size:.95rem;color:var(--muted);margin-bottom:.5rem">CSS is parsed once and cached. It is never executed. No long tasks, no main-thread cost.</p>
+            <p><b>Your CSS grows a little. Your JavaScript shrinks a lot.</b> We measured every "after" example in this talk:</p>
+            <div class="viz" style="max-width:520px;margin:.2rem 0 .8rem">
+              <div><span>Before: JS</span><i style="--w:100%;--bc:var(--old)"></i><b>2.8 KB</b></div>
+              <div><span>Before: CSS</span><i style="--w:25%;--bc:var(--new-2)"></i><b>0.7 KB</b></div>
+              <div><span>After: CSS</span><i style="--w:64%;--bc:var(--new)"></i><b>1.8 KB</b></div>
+            </div>
+            <p style="font-size:.85rem;color:var(--muted)">All 15 lessons with live code, gzip compressed. After: 0 KB of JavaScript.</p>
+            <ul class="ticks">
+              <li>Each feature's CSS ships only on pages that use it, same as its JavaScript would have.</li>
+              <li>Real projects use libraries. Removing the library removes its CSS file too.</li>
+            </ul>
+            <p style="margin-top:.75rem"><b>And unlike <code>defer</code> or <code>async</code>:</b></p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.4rem 0">
+              <div style="background:var(--old-bg,#fff1f0);border-radius:8px;padding:.75rem;font-size:.88rem">
+                <b>🧠 defer (JavaScript)</b>
+                <ol style="margin:.4rem 0 0 1.1rem;line-height:1.8">
+                  <li>Page appears.</li>
+                  <li>JS file downloads (~700 ms).</li>
+                  <li>JS parses and executes on main thread.</li>
+                  <li>Feature works.</li>
+                </ol>
+              </div>
+              <div style="background:var(--new-bg,#f0fff4);border-radius:8px;padding:.75rem;font-size:.88rem">
+                <b>🎨 CSS version</b>
+                <ol style="margin:.4rem 0 0 1.1rem;line-height:1.8">
+                  <li>Page appears.</li>
+                  <li>Feature works. <b>Already done.</b></li>
+                </ol>
+                <p style="margin:.5rem 0 0;color:var(--new)">0 ms download. 0 ms main-thread cost.</p>
+              </div>
+            </div>
+          </div></details>
+        <details name="fair"><summary>"My machine is fast. Who cares?"</summary><p>Your visitors aren't on your machine. An ordinary phone runs the same JavaScript <b>3–6× slower</b>, and the typical phone page is blocked for <b>1.9 seconds</b> while it loads. Try the "Google's phone test" in the playground.</p></details>
+        <details name="fair"><summary>"So JavaScript is bad?"</summary><p>No. JavaScript is the right tool for server calls, real logic, timers, and anything stateful. The question is just: <b>can HTML or CSS already do this?</b> If yes, use them.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. What CSS actually improves -->
+  <section class="section">
+    <h2 class="section-title" id="s4">4 · What CSS actually improves 📈</h2>
+    <p class="lead">This is not about when JavaScript loads. It is about removing the cost entirely. CSS has no download phase, no parse phase, no execution phase on the main thread. The browser already handles it as part of normal rendering.</p>
+
+    <div class="vitals-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0">
+      <div class="vital-card" style="background:var(--surface);border:2px solid var(--new);border-radius:12px;padding:1.25rem">
+        <div style="font-size:2rem;font-weight:800;color:var(--new)">LCP</div>
+        <div style="font-weight:700;margin:.25rem 0">Largest Contentful Paint</div>
+        <p style="margin:0;font-size:.9rem;color:var(--muted)">Good: under 2.5 s. JS delays it by blocking the parser and holding up first paint. CSS features are already part of the paint.</p>
+      </div>
+      <div class="vital-card" style="background:var(--surface);border:2px solid var(--new);border-radius:12px;padding:1.25rem">
+        <div style="font-size:2rem;font-weight:800;color:var(--new)">INP</div>
+        <div style="font-weight:700;margin:.25rem 0">Interaction to Next Paint</div>
+        <p style="margin:0;font-size:.9rem;color:var(--muted)">Good: under 200 ms. JS running on the main thread blocks tap responses. CSS animations run on the compositor thread and never block.</p>
+      </div>
+      <div class="vital-card" style="background:var(--surface);border:2px solid var(--new);border-radius:12px;padding:1.25rem">
+        <div style="font-size:2rem;font-weight:800;color:var(--new)">CLS</div>
+        <div style="font-weight:700;margin:.25rem 0">Cumulative Layout Shift</div>
+        <p style="margin:0;font-size:.9rem;color:var(--muted)">Good: under 0.1. JS mutates the DOM after content is visible, causing things to jump. CSS state is resolved at first paint: no jump.</p>
+      </div>
+    </div>
+
+    <div class="note warn" style="margin-top:1rem"><span class="ico">⚖️</span><p><b><code>defer</code> and <code>async</code> do not fix these.</b> They reschedule when JavaScript runs, but the download still happens, the execution still happens on the main thread, and the feature is still dead until then. The Core Web Vitals row for INP, CLS and main-thread blocking stays red regardless of how you load the script.</p></div>
+
+    <p class="takeaway">The browser already knows how to open a menu, show a tooltip, animate a transition. CSS just tells it to. JavaScript re-teaches it every page load. That re-teaching is what costs LCP, INP and CLS.</p>
+  </section>
+
+  <!-- 6. Frozen-brain test -->
+  <section class="section">
+    <h2 class="section-title" id="s5">5 · The frozen-brain test 🧊</h2>
+    <p class="lead">Both balls slide back and forth. JavaScript moves the top one, CSS moves the bottom one. Press the blue button to block the main thread for 3 seconds, as a heavy script does on a slow phone.</p>
+    <div class="stage jank">
+      <div class="lane"><span class="lane-tag">🧠 Moved by JavaScript (requestAnimationFrame)</span><div class="track"><span class="ball js-ball">🧠</span></div></div>
+      <div class="lane"><span class="lane-tag">🎨 Moved by CSS (animation on compositor thread)</span><div class="track"><span class="ball css-ball">🎨</span></div></div>
+      <div class="jank-actions">
+        <button class="btn" id="freeze" type="button">🧊 Block the main thread for 3 seconds</button>
+        <button class="btn light" id="poke" type="button">👆 Click me: <span>0</span></button>
+      </div>
+      <output id="freeze-out" class="demo-muted">Press the blue button, then quickly click "Click me" a few times.</output>
+    </div>
+    <div class="compare" style="margin-top:1.25rem">
+      <figure class="code"><figcaption><span class="lang js">JavaScript</span><span>moves the ball via rAF, needs the main thread every frame</span></figcaption><script>const jsBall = document.querySelector('.js-ball');
+function move(time) {
+  const room = jsBall.parentElement.clientWidth - jsBall.offsetWidth;
+  const p = (time / 2000) % 2;           // goes 0 → 2 every 4 seconds
+  const x = (p < 1 ? p : 2 - p) * room;  // there and back again
+  jsBall.style.transform = `translateX(${x}px)`;
+  requestAnimationFrame(move);           // "call me again next frame"
+}
+requestAnimationFrame(move);</script></figure>
+      <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: try 1s or 6s</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">.css-ball {
+  animation: slide 2s linear infinite alternate;
+}
+@keyframes slide {
+  to { transform: translateX(calc(100cqi - 100%)); }
+}</style></figure>
+    </div>
+    <script>
+      // The "freeze" button: a busy loop that hogs the main thread, just like a heavy script
+      const freezeOut = document.querySelector('#freeze-out');
+      document.querySelector('#freeze').addEventListener('click', () => {
+        freezeOut.textContent = '🧊 Thread busy... try clicking "Click me" now!';
+        setTimeout(() => {
+          const end = performance.now() + 3000;
+          while (performance.now() < end) {}
+          freezeOut.textContent = '✅ Done. For 3 seconds the 🧠 ball froze and your clicks queued. The 🎨 ball never stopped.';
+        }, 60);
+      });
+      const pokeCount = document.querySelector('#poke span');
+      document.querySelector('#poke').addEventListener('click', () => { pokeCount.textContent = Number(pokeCount.textContent) + 1; });
+    </script>
+    <div class="notes" style="margin-top:1rem">
+      <div class="note info"><span class="ico">🔍</span><p><b>Why?</b> The JS ball calls <code>requestAnimationFrame</code>, which needs the main thread every frame. The CSS animation runs on the <b>compositor thread</b>, which is independent. That's why <code>transform</code> and <code>opacity</code> animations stay smooth even when the main thread is saturated.</p></div>
+    </div>
+  </section>
+
+  <!-- 7. Web Vitals playground -->
+  <section class="section" id="playground">
+    <h2 class="section-title" id="s6">6 · Playground: measure it live 🧪</h2>
+    <p class="lead">Four copies of the same tiny donut shop: same content, same CSS. The only difference is how the Menu button and the FAQ work. Press Run, and the browser's own performance API times each one.</p>
+    <div class="plain">
+      <div class="analogy new"><div class="big">🎨</div><h3><small>Shop 1</small>HTML &amp; CSS only</h3><p>Menu is a <code>popover</code>, FAQ is <code>&lt;details&gt;</code>. Both built into the browser. Zero script.</p></div>
+      <div class="analogy old"><div class="big">🛑</div><h3><small>Shop 2</small>Normal <code>&lt;script&gt;</code></h3><p>Page waits for the JavaScript before rendering anything.</p></div>
+      <div class="analogy old"><div class="big">🌙</div><h3><small>Shop 3</small><code>&lt;script defer&gt;</code></h3><p>Page renders first. Buttons are dead until the script has run.</p></div>
+      <div class="analogy old"><div class="big">⚡</div><h3><small>Shop 4</small><code>&lt;script async&gt;</code></h3><p>Script runs whenever it arrives, interrupting parsing.</p></div>
+    </div>
+    <ol class="steps" style="margin-top:1.25rem">
+      <li><b>Pick a visitor</b> below.</li>
+      <li>Press <b>▶ Run the race</b>. Shops load one at a time.</li>
+      <li>Read the <b>"What the visitor sees"</b> chart: grey = blank, yellow = looks ready but dead, green = works.</li>
+      <li><b>Tap Menu and a question</b> inside each shop. INP shows how fast each reacted.</li>
+    </ol>
+    <div class="panel lab-controls" style="margin-top:1.25rem">
+      <fieldset class="speeds"><legend>👤 Who is opening the shop?</legend>
+        <label><input type="radio" name="speed" value="laptop"> 💻 Fast laptop, fast Wi-Fi</label>
+        <label><input type="radio" name="speed" value="mid" checked> 📱 Mid-range phone on 4G</label>
+        <label><input type="radio" name="speed" value="lighthouse"> 📱 Google's Lighthouse conditions</label>
+      </fieldset>
+      <div class="speed-info">
+        <p class="si-laptop">💻 <b>650 KB of JavaScript</b> on a fast laptop: <b>0.1 s to download</b> (50 Mbps), <b>0.15 s to run</b>. (<a href="https://almanac.httparchive.org/en/2025/performance">Web Almanac 2025</a>)</p>
+        <p class="si-mid">📱 <b>650 KB of JavaScript</b> on a mid-range phone: <b>0.75 s to download</b> (Chrome's Fast 4G: 9 Mbps, 165 ms RTT), <b>0.6 s to run</b>. We're being conservative. The real median is 1.9 s.</p>
+        <p class="si-lighthouse">📱 <b>Google's own Lighthouse conditions:</b> <b>3.4 s to download</b> (1.6 Mbps, 150 ms RTT, <a href="https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md">Lighthouse docs</a>), <b>1.9 s to run</b> (<a href="https://almanac.httparchive.org/en/2025/performance">Web Almanac 2025</a>).</p>
+      </div>
+      <button class="btn green" id="lab-run" type="button">▶ Run the race</button>
+      <p class="lab-status" id="lab-status" aria-live="polite">Press Run to start.</p>
+    </div>
+    <div class="lab-grid">
+      <article class="lab-col" data-lab="css"><h3>🎨 Shop 1: HTML &amp; CSS only<small>built into the browser, no script</small></h3><iframe title="Shop 1: HTML and CSS only" data-src="lab/lab-css.html"></iframe><dl class="metrics"></dl></article>
+      <article class="lab-col" data-lab="blocking"><h3>🛑 Shop 2: normal script<small>page waits for JavaScript</small></h3><iframe title="Shop 2: JavaScript with a normal script tag" data-src="lab/lab-js-blocking.html"></iframe><dl class="metrics"></dl></article>
+      <article class="lab-col" data-lab="defer"><h3>🌙 Shop 3: script with defer<small>visible first, interactive later</small></h3><iframe title="Shop 3: JavaScript with defer" data-src="lab/lab-js-defer.html"></iframe><dl class="metrics"></dl></article>
+      <article class="lab-col" data-lab="async"><h3>⚡ Shop 4: script with async<small>runs whenever it arrives</small></h3><iframe title="Shop 4: JavaScript with async" data-src="lab/lab-js-async.html"></iframe><dl class="metrics"></dl></article>
+    </div>
+    <div class="panel lab-verdict" id="lab-verdict" hidden></div>
+    <div class="panel" id="lab-timeline" style="margin-top:1rem" hidden>
+      <h3>⏱️ The race, in milliseconds (measured)</h3>
+      <div id="lt-rows"></div>
+      <div class="legend"><span><i style="--bc:var(--old-2)"></i>Downloading JavaScript</span><span><i style="--bc:var(--old)"></i>Main thread executing JavaScript</span><span><i style="--bc:var(--new-2)"></i>FCP</span><span><i style="--bc:var(--accent)"></i>LCP</span><span><i style="--bc:var(--new)"></i>Interactive</span></div>
+    </div>
+
+    <h3 style="margin-top:2rem">📏 What each metric means</h3>
+    <div class="facts" style="grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));">
+      <article class="fact"><div class="fig" style="font-size:1.6rem">TTFB</div><h3>Time To First Byte</h3><p>First byte of the page from the server. Depends on the server, not JS or CSS. Same for all four shops.</p></article>
+      <article class="fact"><div class="fig" style="font-size:1.6rem">FCP</div><h3>First Contentful Paint</h3><p>First text or image on screen. Shop 2 is late here. It waits for its script. Good: &lt; 1.8 s.</p></article>
+      <article class="fact" style="--fc:var(--accent)"><div class="fig" style="font-size:1.6rem">LCP ⭐</div><h3>Largest Contentful Paint</h3><p>When the main content appears. Good: &lt; 2.5 s. Core Web Vital, used in search ranking.</p></article>
+      <article class="fact"><div class="fig" style="font-size:1.6rem">Ready</div><h3>Visible and interactive</h3><p>When you can see it <b>and</b> buttons work. Shops 3 and 4 look ready before they are.</p></article>
+      <article class="fact" style="--fc:var(--accent)"><div class="fig" style="font-size:1.6rem">CLS ⭐</div><h3>Cumulative Layout Shift</h3><p>How much things jump while loading. 0 = nothing moved. JS shops hide answers after you've seen them. Things jump. Good: &lt; 0.1.</p></article>
+      <article class="fact"><div class="fig" style="font-size:1.6rem">TBT</div><h3>Total Blocking Time</h3><p>Time the main thread was blocked by long tasks (&gt; 50 ms). Good: &lt; 200 ms.</p></article>
+      <article class="fact" style="--fc:var(--accent)"><div class="fig" style="font-size:1.6rem">INP ⭐</div><h3>Interaction to Next Paint</h3><p>Tap → screen update. Fills in after you interact with a shop. Good: &lt; 200 ms. Core Web Vital.</p></article>
+    </div>
+    <p style="color:var(--muted)">⭐ = Core Web Vital, one of three scores Google uses in search ranking. <b style="color:var(--new)">Green = good</b>, <b style="color:var(--warn)">yellow = needs work</b>, <b style="color:var(--old)">red = poor</b>.</p>
+
+    <div class="notes">
+      <div class="note info"><span class="ico">🔬</span><p><b>How this works:</b> all four shops have the same HTML and CSS. A service worker delays the JS file's arrival to simulate the chosen network, and the script blocks the thread as long as that much code would on the chosen device. Numbers come from published sources (listed under the visitor buttons).</p></div>
+      <div class="note warn"><span class="ico">🧪</span><p>For real-world data, run <b>Lighthouse</b> (DevTools → Lighthouse) or <a href="https://pagespeed.web.dev/">PageSpeed Insights</a> on your own site.</p></div>
+      <div class="note good"><span class="ico">👆</span><p>After the race, tap Menu and a question inside each shop to measure INP.</p></div>
+    </div>
+
+    <div class="panel" style="margin-top:1.25rem">
+      <h3>📍 This page, right now</h3>
+      <p style="color:var(--muted);margin:0">Live scores for this lesson page. Freeze the thread in section 6, then scroll back here and watch INP spike.</p>
+      <dl class="metrics self-metrics"></dl>
+    </div>
+
+    <script>
+      // The playground's scoreboard. Measuring and drawing charts is a real "brain" job, so it's JavaScript.
+      (() => {
+        const METRICS = [
+          { id: 'ttfb', name: 'TTFB', what: 'first bit of the page arrived', good: 800, poor: 1800 },
+          { id: 'fcp', name: 'FCP', what: 'first thing appeared', good: 1800, poor: 3000 },
+          { id: 'lcp', name: 'LCP ⭐', what: 'main content appeared', good: 2500, poor: 4000 },
+          { id: 'ready', name: 'Ready to tap', what: 'you can see it AND use it', good: 1800, poor: 3000 },
+          { id: 'cls', name: 'CLS ⭐', what: 'things jumped (0 = nothing)', good: 0.1, poor: 0.25, score: true },
+          { id: 'busy', name: 'Brain busy', what: 'too busy to answer a tap', good: 200, poor: 600 },
+          { id: 'inp', name: 'INP ⭐', what: 'tap → reaction (tap the shop!)', good: 200, poor: 500 },
+        ];
+        const ms = v => v >= 1000 ? (v / 1000).toFixed(2) + ' s' : Math.round(v) + ' ms';
+        const fmt = (m, v) => m.score ? v.toFixed(3) : ms(v);
+
+        // Draw empty score cards, return a function that fills one in
+        function board(dl, ids = METRICS.map(m => m.id)) {
+          const list = METRICS.filter(m => ids.includes(m.id));
+          dl.innerHTML = list.map(m => `<div class="metric" data-m="${m.id}"><dt>${m.name} <small>${m.what}</small></dt><dd>–</dd></div>`).join('');
+          return (id, v) => {
+            const m = list.find(x => x.id === id), box = dl.querySelector(`[data-m="${id}"]`);
+            if (!m || !box || typeof v !== 'number') return;
+            box.querySelector('dd').textContent = fmt(m, v);
+            box.className = 'metric ' + (v <= m.good ? 'good' : v <= m.poor ? 'ni' : 'poor');
+          };
+        }
+
+        // ---- The race ----
+        const LABS = ['css', 'blocking', 'defer', 'async'];
+        const NAMES = { css: '🎨 Shop 1: HTML & CSS', blocking: '🛑 Shop 2: normal script', defer: '🌙 Shop 3: defer', async: '⚡ Shop 4: async' };
+        const cols = {};
+        for (const lab of LABS) {
+          const el = document.querySelector(`.lab-col[data-lab="${lab}"]`);
+          cols[lab] = { el, frame: el.querySelector('iframe'), dl: el.querySelector('.metrics') };
+          cols[lab].show = board(cols[lab].dl);
+        }
+        const runBtn = document.querySelector('#lab-run');
+        const status = document.querySelector('#lab-status');
+        const verdict = document.querySelector('#lab-verdict');
+        const timeline = document.querySelector('#lab-timeline');
+        let run = 0, results = {}, finished = null;
+
+        addEventListener('message', e => {
+          const d = e.data, col = d && cols[d.lab];
+          if (!col || e.source !== col.frame.contentWindow || d.run !== String(run)) return;
+          if (d.name === 'done') {
+            // No layout shifts reported = nothing jumped, which is a real score of 0
+            if (results[d.lab].cls == null && PerformanceObserver.supportedEntryTypes?.includes('layout-shift')) col.show('cls', results[d.lab].cls = 0);
+            Object.assign(results[d.lab], d.value);
+            finished?.(d.lab);
+            return;
+          }
+          results[d.lab][d.name] = d.value;
+          col.show(d.name, d.value);
+        });
+
+        // How long a ~650 KB app takes to download (net) and to read + run (cpu), in ms. Rough examples.
+        // rounds: how many times to run each shop (fast settings need more, to beat timer noise)
+        const SPEEDS = { laptop: { net: 100, cpu: 150, rounds: 3 }, mid: { net: 750, cpu: 600, rounds: 3 }, lighthouse: { net: 3400, cpu: 1900 } };
+        // Where the numbers come from (650 KB = 5,200 kilobits):
+        //   laptop: ~50 Mbps Wi-Fi → 0.1 s. Typical desktop page busy time 92 ms (Web Almanac 2025).
+        //   mid: Chrome DevTools "Fast 4G" (9 Mbps + 165 ms) → 0.75 s. Run time: a third of the typical phone page's 1.9 s.
+        //   lighthouse: Lighthouse mobile (1.6 Mbps + 150 ms) → 3.4 s. Run time: median mobile TBT 1,916 ms (Web Almanac 2025).
+
+        // A tiny helper (service worker) that slows down only the JS file's download, like a real network
+        let helper;
+        const getHelper = () => helper ??= ('serviceWorker' in navigator
+          ? navigator.serviceWorker.register('lab/lab-sw.js', { scope: 'lab/' }).then(reg => new Promise(done => {
+              const w = reg.installing || reg.waiting || reg.active;
+              if (w.state === 'activated') return done(w);
+              w.addEventListener('statechange', () => w.state === 'activated' && done(w));
+            })).catch(() => null)
+          : Promise.resolve(null));
+
+        // Tell the helper the download delay, and wait until it answers (it may need waking up first)
+        async function tellHelper(delay) {
+          const w = await getHelper();
+          if (!w) return;
+          await new Promise(done => {
+            const ch = new MessageChannel();
+            ch.port1.onmessage = done;
+            w.postMessage({ delay }, [ch.port2]);
+            setTimeout(done, 1000);
+          });
+        }
+
+        let warmed = false;
+        async function warmUp() {
+          await tellHelper(0);
+          await Promise.all(['lab/lab.css', 'lab/lab-measure.js', 'lab/lab-heavy.js'].map(u => fetch(u).catch(() => {})));
+          window.__lab = { cost: '0', run: 'warm-up' }; // messages from this run are ignored
+          for (const lab of LABS) {
+            await new Promise(done => {
+              const f = cols[lab].frame;
+              f.addEventListener('load', done, { once: true });
+              setTimeout(done, 5000);
+              f.src = f.dataset.src;
+            });
+          }
+        }
+
+        async function load(lab, speed) {
+          await tellHelper(speed.net);
+          // Browsers skip painting frames that are off screen, so bring each shop into view first
+          const box = cols[lab].frame.getBoundingClientRect();
+          if (box.top < 0 || box.bottom > innerHeight) {
+            cols[lab].frame.scrollIntoView({ block: 'nearest' });
+            await new Promise(r => setTimeout(r, 500));
+          }
+          const cost = speed.cpu;
+          return new Promise(resolve => {
+            const col = cols[lab];
+            results[lab] = {};
+            col.show = board(col.dl);
+            col.el.classList.add('loading');
+            const stop = () => { clearTimeout(timer); finished = null; col.el.classList.remove('loading'); resolve(); };
+            const timer = setTimeout(stop, 15000);
+            finished = l => l === lab && stop();
+            window.__lab = { cost: String(cost), run: String(run) }; // read by the lab page
+            col.frame.src = `${col.frame.dataset.src}?cost=${cost}&run=${run}`;
+          });
+        }
+
+        runBtn.addEventListener('click', async () => {
+          const key = document.querySelector('input[name="speed"]:checked').value;
+          run++;
+          runBtn.disabled = true;
+          verdict.hidden = timeline.hidden = true;
+          status.classList.add('racing');
+          if (!warmed) {
+            // The first page a browser opens pays a one-off start-up cost. Open each shop once
+            // (not measured) so no shop gets that penalty in the race.
+            status.textContent = 'Warming up (not measured)...';
+            await warmUp();
+            warmed = true;
+          }
+          await new Promise(r => setTimeout(r, 400)); // let the page settle after the click
+          // On the fast settings the shops differ by only a few ms, so timer noise matters:
+          // run each shop 3 times (taking turns to go first) and keep the middle run.
+          const rounds = SPEEDS[key].rounds || 1;
+          const all = Object.fromEntries(LABS.map(l => [l, []]));
+          for (let round = 0; round < rounds; round++) {
+            const order = LABS.map((_, i) => LABS[(i + round) % LABS.length]);
+            for (const lab of order) {
+              status.textContent = `Loading ${NAMES[lab]}...` + (rounds > 1 ? ` (run ${round + 1} of ${rounds})` : '');
+              await load(lab, SPEEDS[key]);
+              all[lab].push(results[lab]);
+            }
+          }
+          for (const lab of LABS) {
+            const sorted = all[lab].filter(x => x.ready != null).sort((a, b) => a.ready - b.ready);
+            results[lab] = sorted[Math.floor((sorted.length - 1) / 2)] || all[lab].at(-1);
+            cols[lab].show = board(cols[lab].dl);
+            for (const [k, v] of Object.entries(results[lab])) cols[lab].show(k, v);
+          }
+          status.classList.remove('racing');
+          status.textContent = '✅ Done! Now tap Menu and a question inside each shop to measure INP.';
+          runBtn.disabled = false;
+          runBtn.textContent = '🔁 Run again';
+          drawVerdict(key);
+          drawTimeline();
+          if (!verdict.hidden) verdict.scrollIntoView({ block: 'nearest' });
+        });
+
+        function drawVerdict(key) {
+          const r = results, c = r.css.ready;
+          if (LABS.some(l => r[l].ready == null)) return;
+          // Under 30 ms is timer noise, not a real difference
+          const vs = v => Math.abs(v) < 30 ? ' (about the same as Shop 1)' : v > 0 ? ` (<b>${ms(v)} later</b> than Shop 1)` : ` (${ms(-v)} sooner than Shop 1)`;
+          const line = l => {
+            const x = r[l], seen = x.fcp ?? x.ready, dead = x.ready - seen;
+            if (l === 'css') return `<li>${NAMES[l]}: visible <b>and</b> interactive at <b>${ms(x.ready)}</b>.</li>`;
+            if (dead < 30) return `<li>${NAMES[l]}: interactive at <b>${ms(x.ready)}</b>${vs(x.ready - c)}.</li>`;
+            return `<li>${NAMES[l]}: visible at ${ms(seen)}, interactive at <b>${ms(x.ready)}</b>${vs(x.ready - c)}. Dead for <b>${ms(dead)}</b>.</li>`;
+          };
+          let html = `<p>🏁 <b>Tap "Menu" the moment you can:</b></p><ul class="ticks">${LABS.map(line).join('')}</ul>`;
+          // A gap smaller than one screen refresh (16.7 ms at 60 Hz) can't be seen: call it a tie
+          const readies = LABS.map(l => r[l].ready), spread = Math.max(...readies) - Math.min(...readies);
+          if (spread < 16.7) html += `<p>🤝 <b>It's a tie.</b> All four shops were ready within <b>${ms(spread)}</b> of each other. At near-zero JS, <b>how</b> you load it doesn't matter. <b>How much</b> you load is what hurts. Switch to a phone setting to see that.</p>`;
+          const busy = LABS.filter(l => l !== 'css' && (r[l].busy || 0) >= 50);
+          if (busy.length) html += `<p>🧠 <b>The work didn't disappear:</b> ${busy.map(l => `${NAMES[l]} blocked the thread for <b>${ms(r[l].busy)}</b>`).join(', ')}. <code>defer</code> and <code>async</code> moved that work to a different moment. Shop 1: ${ms(r.css.busy || 0)}.</p>`;
+          const jumped = LABS.filter(l => l !== 'css' && (r[l].cls || 0) > (r.css.cls || 0) + 0.01);
+          if (jumped.length) html += `<p>🦘 ${jumped.map(l => `${NAMES[l]} (CLS ${r[l].cls.toFixed(3)})`).join(', ')} shifted: the script hid answers after you'd already seen them. Shop 1 never moved.</p>`;
+          if (SPEEDS[key].rounds > 1) html += `<p style="color:var(--muted)">🔁 Each shop ran ${SPEEDS[key].rounds} times, rotating start order. You're seeing each shop's median run.</p>`;
+          verdict.innerHTML = html;
+          verdict.hidden = false;
+        }
+
+        function drawTimeline() {
+          const r = results;
+          const max = Math.max(200, ...LABS.flatMap(l => [r[l].fcp, r[l].lcp, r[l].ready].filter(v => v != null))) * 1.15;
+          const pct = v => (v / max * 100).toFixed(2) + '%';
+          const step = [50, 100, 200, 250, 500, 1000, 2000].find(s => max / s <= 6) || 5000;
+          const ticks = Array.from({ length: Math.floor(max / step) + 1 }, (_, i) => `<span style="--a:${pct(i * step)}">${ms(i * step)}</span>`).join('');
+          const axis = `<div class="lt-row"><span></span><div class="lt-axis">${ticks}</div></div>`;
+
+          // 1. What the visitor sees: blank → looks ready (but isn't) → works
+          const xp = LABS.map(l => {
+            const seen = r[l].fcp ?? r[l].ready ?? 0, works = Math.max(seen, r[l].ready ?? seen);
+            const seg = (cls, from, to, label) => to - from > 0
+              ? `<i class="${cls}" style="flex:${to - from}" title="${label}: ${ms(to - from)}">${(to - from) / max > .14 ? label : ''}</i>` : '';
+            return `<div class="lt-row"><span class="lt-label"><b>${NAMES[l]}</b><small>interactive at ${ms(works)}</small></span><div class="xp-bar">${seg('xp-blank', 0, seen, 'blank')}${seg('xp-dead', seen, works, 'looks ready, taps do nothing')}${seg('xp-works', works, max, 'works')}</div></div>`;
+          }).join('');
+
+          // 2. What happened inside: download, JavaScript running, and the paint moments
+          const rows = LABS.map(l => {
+            const dl = r[l].dl ? `<i class="lt-bar" style="--a:${pct(r[l].dl[0])};--w:${pct(Math.max(r[l].dl[1] - r[l].dl[0], max / 150))};background:var(--old-2)" title="Downloading JavaScript: ${ms(r[l].dl[1] - r[l].dl[0])}"></i>` : '';
+            const bars = dl + (r[l].js || []).map(([a, b]) => `<i class="lt-bar" style="--a:${pct(a)};--w:${pct(Math.max(b - a, max / 150))}" title="JavaScript running: ${ms(b - a)}"></i>`).join('');
+            const pins = [['fcp', 'var(--new-2)'], ['lcp', 'var(--accent)'], ['ready', 'var(--new)']]
+              .filter(([k]) => r[l][k] != null)
+              .map(([k, c]) => `<i class="lt-pin" style="--a:${pct(r[l][k])};--bc:${c}" title="${k.toUpperCase()}: ${ms(r[l][k])}"></i>`).join('');
+            return `<div class="lt-row"><span class="lt-label"><b>${NAMES[l]}</b><small>interactive at ${r[l].ready != null ? ms(r[l].ready) : '–'}</small></span><div class="lt-track">${bars}${pins}</div></div>`;
+          }).join('');
+
+          document.querySelector('#lt-rows').innerHTML =
+            `<h4>👀 What the visitor sees</h4>${xp}${axis}
+             <div class="legend"><span><i style="--bc:#6b7394"></i>Blank screen</span><span><i style="--bc:var(--warn)"></i>Visible but not interactive</span><span><i style="--bc:var(--new)"></i>Interactive</span></div>
+             <h4 style="margin-top:1.5rem">🔬 Inside the browser</h4>${rows}${axis}`;
+          timeline.hidden = false;
+        }
+
+        // ---- This page's own live scores ----
+        const self = board(document.querySelector('.self-metrics'), ['ttfb', 'fcp', 'lcp', 'cls', 'inp']);
+        const watch = (type, cb, opts = {}) => {
+          try { new PerformanceObserver(l => l.getEntries().forEach(cb)).observe({ type, buffered: true, ...opts }); } catch {}
+        };
+        const nav = performance.getEntriesByType('navigation')[0];
+        if (nav) self('ttfb', nav.responseStart);
+        watch('paint', e => e.name === 'first-contentful-paint' && self('fcp', e.startTime));
+        watch('largest-contentful-paint', e => self('lcp', e.startTime));
+        let cls = 0, inp = 0;
+        watch('layout-shift', e => { if (!e.hadRecentInput) self('cls', cls += e.value); });
+        watch('event', e => { if (e.interactionId && e.duration > inp) self('inp', inp = e.duration); }, { durationThreshold: 16 });
+      })();
+    </script>
+  </section>
+
+  <!-- 8. Browser support -->
+  <section class="section">
+    <h2 class="section-title" id="s7">7 · Browser support ✅</h2>
+    <div class="badges">
+      <div class="badge w"><b>✅ Widely available</b><p>Works in Chrome, Edge, Firefox and Safari, and has for 2.5+ years. Use it without conditions.</p></div>
+      <div class="badge n"><b>🆕 Newly available</b><p>Works in all major browsers now, but recently. Fine for most production sites today.</p></div>
+      <div class="badge l"><b>⚠️ Limited</b><p>Only some browsers so far. Use as a progressive enhancement. Everyone still gets a working page.</p></div>
+    </div>
+    <div class="panel" style="margin-top:1.25rem">
+      <h3>🪜 Progressive enhancement</h3>
+      <p style="color:var(--muted);margin:0">Everyone gets the bottom step. It works. Newer browsers climb higher and get the polished extras. Nobody falls off.</p>
+      <div class="stairs"><div class="s1">Works for everyone</div><div class="s2">Looks nicer</div><div class="s3">Animated &amp; fancy ✨</div></div>
+    </div>
+    <p class="takeaway">Ready. <a href="01-popover.html">Lesson 01: Dropdown menus ▶</a></p>
+  </section>
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="../index.html"><small>◀ Back</small>All lessons</a>
+    <a class="next" href="01-popover.html"><small>Next ▶</small>01 · Dropdown menus</a>
+  </nav>
+</main>
+</body>
+</html>

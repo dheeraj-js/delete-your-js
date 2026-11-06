@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>14 · Carousels | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { display: block; padding: 2.4rem 1rem 1.25rem; }
+.slide {
+  display: grid; place-items: center; align-content: center; gap: .3rem; min-height: 190px; border-radius: 16px;
+  color: #fff; font-weight: 800; font-size: 1.3rem; text-align: center; text-shadow: 0 2px 10px rgb(0 0 0 / .25);
+}
+.slide .e { font-size: 3.2rem; }
+.s1 { background: linear-gradient(135deg, #ff9f43, #ff6b6b); }
+.s2 { background: linear-gradient(135deg, #3ec5ff, #6c5ce7); }
+.s3 { background: linear-gradient(135deg, #2ee6a6, #00a8a8); }
+.s4 { background: linear-gradient(135deg, #fd79a8, #a29bfe); }
+.old-viewport { overflow: hidden; border-radius: 16px; }
+.car-controls { display: flex; justify-content: center; align-items: center; gap: .75rem; margin-top: .9rem; }
+.round { display: grid; place-items: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; }
+.old-dot { width: 12px; height: 12px; padding: 0; border: 0; border-radius: 50%; background: #c9cde0; cursor: pointer; }
+.old-dot.is-active { background: #1d2340; scale: 1.25; }
+@supports not selector(::scroll-button(*)) { .unsupported { display: flex; } }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="13-scroll-animations.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="15-smooth-scroll.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 14 / 17 · 🎠 Scroll snap + scroll buttons</span>
+    <h1>Carousels without a slider library</h1>
+    <p class="lead">Swipe on phones, snap neatly to each slide, arrow buttons and dots. We used to download a slider library for this. The basics (swipe + snap) work in every browser today, and arrows and dots are arriving now.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: Slick · Swiper · Owl Carousel · touch event code</span>
+      <span class="chip new">Uses: scroll-snap · ::scroll-button() · ::scroll-marker</span>
+      <span class="chip ok">✅ Swipe + snap: all browsers</span>
+      <span class="chip limited">⚠️ Arrows + dots: Chrome/Edge 135+ (others still swipe fine)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A slideshow of pictures</h3><p>One slide at a time. Swipe or press arrows to move. Dots show where you are.</p></div>
+      <div class="analogy old"><div class="big">🚂</div><h3><small>😓 The old way</small>Push the train by hand</h3><p>All slides sit in a long row, like train carriages. JS keeps a slide number and <b>pushes the whole train sideways</b> with <code>translateX</code>. Swiping on phones needs even more code.</p></div>
+      <div class="analogy new"><div class="big">🧲</div><h3><small>😎 The new way</small>Magnets on the rails</h3><p>Make the row <b>scrollable</b> and add <b>magnets</b> (<code>scroll-snap</code>), so each slide clicks into place. Phones can swipe it for free. New CSS even creates the arrows and dots for you.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: use the arrows, dots, or swipe</h2>
+    <div class="note warn unsupported" style="margin-bottom:1rem"><span class="ico">⚠️</span><p>Your browser can't draw CSS scroll buttons and dots yet. The green carousel still <b>scrolls and snaps</b> (trackpad, shift+wheel, or swipe), just without arrows. That's progressive enhancement 🪜.</p></div>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>Keep count, push the track</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="old-viewport">
+              <div class="old-track">
+                <div class="slide s1"><span class="e">🏖️</span>Beach</div>
+                <div class="slide s2"><span class="e">🏔️</span>Mountains</div>
+                <div class="slide s3"><span class="e">🌆</span>City</div>
+                <div class="slide s4"><span class="e">🌋</span>Volcano</div>
+              </div>
+            </div>
+            <div class="car-controls">
+              <button class="btn round old-prev" aria-label="Previous slide">◀</button>
+              <button class="old-dot is-active" aria-label="Slide 1"></button>
+              <button class="old-dot" aria-label="Slide 2"></button>
+              <button class="old-dot" aria-label="Slide 3"></button>
+              <button class="old-dot" aria-label="Slide 4"></button>
+              <button class="btn round old-next" aria-label="Next slide">▶</button>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>13</b><span>lines of JS (no swipe yet!)</span></div>
+            <div class="stat"><b>+30</b><span>more lines for touch swipe</span></div>
+            <div class="stat"><b>📦</b><span>or a 40KB+ library</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><div class="old-viewport">
+  <div class="old-track">
+    <div class="slide">🏖️ Beach</div>
+    <div class="slide">🏔️ Mountains</div>
+    <!-- ... -->
+  </div>
+</div>
+<button class="old-prev">◀</button>
+<button class="old-dot"></button> <!-- one per slide -->
+<button class="old-next">▶</button></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>.old-viewport { overflow: hidden; }  /* a window onto the train */
+
+.old-track {
+  display: flex;
+  transition: transform .45s ease;
+}
+.old-track > * { flex: 0 0 100%; }    /* each carriage = full width */
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const track = document.querySelector('.old-track');
+const slides = track.children;
+const dots = document.querySelectorAll('.old-dot');
+let index = 0;                                      // which slide are we on?
+
+function goTo(i) {
+  index = (i + slides.length) % slides.length;     // wrap around 4 -> 0
+  track.style.transform = `translateX(-${index * 100}%)`; // push the train
+  dots.forEach((dot, n) => dot.classList.toggle('is-active', n === index));
+}
+
+document.querySelector('.old-prev').addEventListener('click', () => goTo(index - 1));
+document.querySelector('.old-next').addEventListener('click', () => goTo(index + 1));
+dots.forEach((dot, n) => dot.addEventListener('click', () => goTo(n)));
+
+// + swipe on phones? That's touchstart / touchmove / touchend... another 30 lines
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>All slides sit in one long row (<code>display: flex</code>), each one full width. A "window" with <code>overflow: hidden</code> shows only one.</li>
+            <li>JS remembers a number: <b>which slide we're on</b> (<code>index</code>).</li>
+            <li>Arrow clicked: add or subtract 1. The <code>%</code> maths makes it wrap from the last slide back to the first.</li>
+            <li>JS <b>pushes the whole row sideways</b>: slide 2 = <code>translateX(-100%)</code>, slide 3 = <code>-200%</code>...</li>
+            <li>JS moves the "active" sticker to the right dot. <b>Swiping on a phone still doesn't work.</b></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · CSS</h3><p>Scroll, snap, auto-controls</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <ul class="new-track" aria-label="Holiday destinations">
+              <li class="slide s1"><span class="e">🏖️</span>Beach</li>
+              <li class="slide s2"><span class="e">🏔️</span>Mountains</li>
+              <li class="slide s3"><span class="e">🌆</span>City</li>
+              <li class="slide s4"><span class="e">🌋</span>Volcano</li>
+            </ul>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>👆</b><span>swipe works for free</span></div>
+            <div class="stat"><b>⌨️</b><span>keyboard scroll works</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><ul class="new-track">
+  <li class="slide">🏖️ Beach</li>
+  <li class="slide">🏔️ Mountains</li>
+  <li class="slide">🌆 City</li>
+  <li class="slide">🌋 Volcano</li>
+</ul>
+<!-- no buttons, no dots: CSS makes them! --></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: try 80% slides</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* 1. a scrollable row with magnets 🧲 */
+.new-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;       /* each slide = full width */
+  gap: 1rem;
+  margin: 0; padding: 0; list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory; /* always stop on a slide */
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  anchor-name: --carousel;
+  scroll-marker-group: after;    /* ✨ please make dots */
+}
+.new-track > li { scroll-snap-align: center; }
+
+/* 2. ✨ arrows made by CSS */
+.new-track::scroll-button(*) {
+  position: fixed;
+  position-anchor: --carousel;
+  width: 42px; height: 42px;
+  border: 0; border-radius: 50%;
+  background: #1d2340; color: #fff; cursor: pointer;
+}
+.new-track::scroll-button(*):disabled { opacity: .3; }
+.new-track::scroll-button(left)  { content: "◀"; position-area: left center; translate: 55px 0; }
+.new-track::scroll-button(right) { content: "▶"; position-area: right center; translate: -55px 0; }
+
+/* 3. ✨ dots made by CSS */
+.new-track::scroll-marker-group {
+  display: flex; justify-content: center; gap: .75rem; margin-top: .9rem;
+}
+.new-track > li::scroll-marker {
+  content: "";
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #c9cde0;
+}
+.new-track > li::scroll-marker:target-current {
+  background: #1d2340; scale: 1.25;   /* the current slide's dot */
+}
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>The slides sit in a <b>row you can scroll sideways</b> (<code>overflow-x: auto</code>). Phones can swipe it, and trackpads and keyboards can scroll it. No code.</li>
+            <li><code>scroll-snap-type: x mandatory</code> adds <b>magnets 🧲</b>: when you let go, it always settles on a slide. <code>scroll-snap-align: center</code> says where each magnet is.</li>
+            <li><code>::scroll-button(left/right)</code> asks the browser to <b>create arrow buttons</b>. They scroll by one slide and grey out at the ends.</li>
+            <li><code>scroll-marker-group</code> + <code>::scroll-marker</code> ask the browser to <b>create the dots</b>. <code>:target-current</code> is the dot for the slide you're on.</li>
+            <li>The arrows use <b>anchor positioning</b> (Lesson 04) to sit on the carousel's edges.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click ▶</li>
+          <li><span class="ico">🔢</span>JS: index = index + 1</li>
+          <li><span class="ico">🚂</span>JS pushes the track -100%</li>
+          <li><span class="ico">🏷️</span>JS moves the active dot</li>
+          <li><span class="ico">📱❌</span>Swipe? More code</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click ▶ or swipe</li>
+          <li><span class="ico">📜</span>Browser scrolls</li>
+          <li><span class="ico">🧲</span>Snaps to the next slide, dot updates</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note good"><span class="ico">🪜</span><p><b>Ship it today:</b> scroll-snap works everywhere, so every user can swipe. Chrome and Edge users get arrows and dots as a bonus.</p></div>
+      <div class="note info"><span class="ico">🎞️</span><p>Want a "Netflix row" with several cards visible? Change <code>grid-auto-columns: 100%</code> to <code>40%</code>. Done.</p></div>
+      <div class="note warn"><span class="ico">⏯️</span><p>Auto-playing carousels still need JS (a timer). They are also bad for accessibility, so maybe that's a feature. 😉</p></div>
+    </div>
+    <p class="takeaway">💡 A carousel is just a scrollable row with magnets.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-prop"><dt><code>scroll-snap-type</code><span class="kind">🔧 Property</span></dt><dd>Makes a scroll area stop neatly on items. x mandatory = always snap sideways.<span class="like-a">Like: magnets that pull each slide into place</span></dd></div>
+      <div class="word k-prop"><dt><code>scroll-snap-align</code><span class="kind">🔧 Property</span></dt><dd>Which edge of an item snaps into place: start, center or end.<span class="like-a">Like: where the magnet sits</span></dd></div>
+      <div class="word k-prop"><dt><code>overflow-x</code><span class="kind">🔧 Property</span></dt><dd>Overflow for left-to-right only. auto = scroll sideways when needed.<span class="like-a">Like: a sideways conveyor belt</span></dd></div>
+      <div class="word k-prop"><dt><code>scroll-behavior</code><span class="kind">🔧 Property</span></dt><dd>scroll-behavior: smooth makes jumps glide instead of teleport.<span class="like-a">Like: a slide instead of a trapdoor</span></dd></div>
+      <div class="word k-prop"><dt><code>scrollbar-width</code><span class="kind">🔧 Property</span></dt><dd>How thick the scrollbar is: auto, thin or none.<span class="like-a">Like: a thin or thick handrail</span></dd></div>
+      <div class="word k-ghost"><dt><code>::scroll-button()</code><span class="kind">👻 Pseudo-element: a "ghost" part</span></dt><dd>Previous and next buttons that the browser makes for a scroll area. ::scroll-button(left) is the left one.<span class="like-a">Like: the arrows on a lift</span></dd></div>
+      <div class="word k-mood"><dt><code>:disabled</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>When a button or field is switched off and can't be used.<span class="like-a">Like: a greyed-out lift button</span></dd></div>
+      <div class="word k-prop"><dt><code>scroll-marker-group</code><span class="kind">🔧 Property</span></dt><dd>Switches on the row of dots for a carousel, before or after the slides.<span class="like-a">Like: switching on the page dots</span></dd></div>
+      <div class="word k-ghost"><dt><code>::scroll-marker-group</code><span class="kind">👻 Pseudo-element: a "ghost" part</span></dt><dd>The row that holds a carousel's dots.<span class="like-a">Like: the washing line the dots hang on</span></dd></div>
+      <div class="word k-ghost"><dt><code>::scroll-marker</code><span class="kind">👻 Pseudo-element: a "ghost" part</span></dt><dd>One dot per slide. Click it to jump to that slide.<span class="like-a">Like: a bookmark for each slide</span></dd></div>
+      <div class="word k-mood"><dt><code>:target-current</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>In a carousel, the dot (scroll marker) for the slide you can see right now.<span class="like-a">Like: the lit-up floor number in a lift</span></dd></div>
+      <div class="word k-prop"><dt><code>display</code><span class="kind">🔧 Property</span></dt><dd>How a box behaves: block (own line), inline (inside text), flex or grid (arranges its children), none (hidden).<span class="like-a">Like: choosing furniture layout for a room</span></dd></div>
+      <div class="word k-prop"><dt><code>grid-auto-flow</code><span class="kind">🔧 Property</span></dt><dd>Where new grid items go. column = each new item starts a new column (side by side).<span class="like-a">Like: adding train carriages at the end</span></dd></div>
+      <div class="word k-prop"><dt><code>grid-auto-columns</code><span class="kind">🔧 Property</span></dt><dd>How wide each automatic column is. 100% = one slide fills the view.<span class="like-a">Like: the size of each carriage</span></dd></div>
+      <div class="word k-prop"><dt><code>gap</code><span class="kind">🔧 Property</span></dt><dd>The space between items in a flex or grid layout.<span class="like-a">Like: the gaps between tiles</span></dd></div>
+      <div class="word k-prop"><dt><code>flex</code><span class="kind">🔧 Property</span></dt><dd>How an item in a flex row grows or shrinks to share the space.<span class="like-a">Like: people squeezing up on a bench</span></dd></div>
+      <div class="word k-prop"><dt><code>justify-content</code><span class="kind">🔧 Property</span></dt><dd>Spreads children along the row: start, center, space-between...<span class="like-a">Like: spacing chairs along a table</span></dd></div>
+      <div class="word k-prop"><dt><code>overflow</code><span class="kind">🔧 Property</span></dt><dd>What to do with content too big for its box: visible (spill out), hidden (cut off), auto (scrollbars when needed).<span class="like-a">Like: a suitcase that is too full</span></dd></div>
+      <div class="word k-prop"><dt><code>list-style</code><span class="kind">🔧 Property</span></dt><dd>The bullet points of a list. none removes them (and removes the ▶ triangle on a summary).<span class="like-a">Like: the dots on a shopping list</span></dd></div>
+      <div class="word k-prop"><dt><code>margin</code><span class="kind">🔧 Property</span></dt><dd>Space OUTSIDE the border, pushing other things away.<span class="like-a">Like: personal space</span></dd></div>
+      <div class="word k-prop"><dt><code>padding</code><span class="kind">🔧 Property</span></dt><dd>Space INSIDE the border, between the edge and the content.<span class="like-a">Like: bubble wrap inside a box</span></dd></div>
+      <div class="word k-prop"><dt><code>anchor-name</code><span class="kind">🔧 Property</span></dt><dd>Gives an element a name so other elements can be placed next to it.<span class="like-a">Like: dropping a pin on a map</span></dd></div>
+      <div class="word k-prop"><dt><code>position-anchor</code><span class="kind">🔧 Property</span></dt><dd>Says which anchor (by name) this element should stick to.<span class="like-a">Like: "follow that pin"</span></dd></div>
+      <div class="word k-prop"><dt><code>position-area</code><span class="kind">🔧 Property</span></dt><dd>Places an element around its anchor using a simple 3×3 grid, e.g. top or bottom center.<span class="like-a">Like: "sit in the seat above"</span></dd></div>
+      <div class="word k-prop"><dt><code>position</code><span class="kind">🔧 Property</span></dt><dd>How a box is placed: static (normal), relative, absolute (exact spot inside a positioned parent), fixed (stuck to the screen), sticky.<span class="like-a">Like: pinning a note to the board</span></dd></div>
+      <div class="word k-prop"><dt><code>width / height</code><span class="kind">🔧 Property</span></dt><dd>How wide and how tall the box is.<span class="like-a">Like: the size of a picture frame</span></dd></div>
+      <div class="word k-prop"><dt><code>border</code><span class="kind">🔧 Property</span></dt><dd>A line around the box: thickness, style and colour, e.g. 1px solid grey.<span class="like-a">Like: a picture frame</span></dd></div>
+      <div class="word k-prop"><dt><code>border-radius</code><span class="kind">🔧 Property</span></dt><dd>Rounds the corners. Bigger number = rounder.<span class="like-a">Like: sanding the corners of a table</span></dd></div>
+      <div class="word k-prop"><dt><code>background</code><span class="kind">🔧 Property</span></dt><dd>The colour or picture behind the element.<span class="like-a">Like: wallpaper</span></dd></div>
+      <div class="word k-prop"><dt><code>color</code><span class="kind">🔧 Property</span></dt><dd>The text colour.<span class="like-a">Like: the ink in the pen</span></dd></div>
+      <div class="word k-prop"><dt><code>cursor</code><span class="kind">🔧 Property</span></dt><dd>The shape of the mouse pointer: pointer (a hand), not-allowed (a no-entry sign).<span class="like-a">Like: a sign on the door</span></dd></div>
+      <div class="word k-prop"><dt><code>opacity</code><span class="kind">🔧 Property</span></dt><dd>How see-through: 0 = invisible, 1 = solid.<span class="like-a">Like: a dimmer for glass</span></dd></div>
+      <div class="word k-prop"><dt><code>content</code><span class="kind">🔧 Property</span></dt><dd>The text or symbol a ::before or ::after ghost shows.<span class="like-a">Like: what the ghost says</span></dd></div>
+      <div class="word k-prop"><dt><code>translate</code><span class="kind">🔧 Property</span></dt><dd>Moves an element sideways or up and down without moving anything else. Cheap to animate.<span class="like-a">Like: sliding a sticker on glass</span></dd></div>
+      <div class="word k-prop"><dt><code>scale</code><span class="kind">🔧 Property</span></dt><dd>Makes an element bigger or smaller. 1 = normal size, 2 = double.<span class="like-a">Like: a zoom lens</span></dd></div>
+      <div class="word k-prop"><dt><code>transition</code><span class="kind">🔧 Property</span></dt><dd>Animate smoothly when a value changes, instead of jumping.<span class="like-a">Like: a dimmer switch instead of an on/off switch</span></dd></div>
+      <div class="word k-unit"><dt><code>rem</code><span class="kind">📏 Unit</span></dt><dd>Relative to the page's base text size (usually 16px). 2rem = twice that. Grows if the user picks bigger text.<span class="like-a">Like: "two handfuls": depends on the hand</span></dd></div>
+      <div class="word k-unit"><dt><code>px</code><span class="kind">📏 Unit</span></dt><dd>Pixels: one dot on the screen. A fixed size.<span class="like-a">Like: centimetres on a ruler</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;div&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain box with no special meaning, used to group things.<span class="like-a">Like: a cardboard box</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;button&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A button you can click or press with the keyboard.<span class="like-a">Like: a doorbell</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;ul&gt; / &lt;li&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A list (ul) and each item in it (li).<span class="like-a">Like: a shopping list and its lines</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="13-scroll-animations.html"><small>◀ Previous</small>13 · Scroll animations</a>
+    <a class="next" href="15-smooth-scroll.html"><small>Next ▶</small>15 · Smooth scroll</a>
+  </nav>
+</main>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Auto-growing text boxes | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { align-items: start; }
+.form-demo { display: grid; gap: 1rem; width: 100%; }
+.form-demo textarea { resize: none; line-height: 1.5; }
+.new-grow-input { width: auto; }
+.tag-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+@supports not (field-sizing: content) { .unsupported { display: flex; } }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="05-select.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="07-validation.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 06 / 17 · 📝 field-sizing</span>
+    <h1>Text boxes that grow as you type</h1>
+    <p class="lead">A message box that starts small and grows with your text, like in chat apps. It used to need JavaScript on every key press. Now it's one CSS line.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: input listeners · scrollHeight measuring · hidden "measuring" spans</span>
+      <span class="chip new">Uses: field-sizing: content</span>
+      <span class="chip ok">🆕 Newly available in all browsers (June 2026)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A box that fits its words</h3><p>Type more lines and the box gets taller. Delete them and it shrinks. No ugly scrollbar inside.</p></div>
+      <div class="analogy old"><div class="big">📏</div><h3><small>😓 The old way</small>Measure after every single letter</h3><p>After <b>every key press</b>, JS squashes the box, measures how tall the text is, and sets the height. Type 100 letters, measure 100 times.</p></div>
+      <div class="analogy new"><div class="big">🎈</div><h3><small>😎 The new way</small>A balloon that fills with air</h3><p><code>field-sizing: content</code> says "be as big as what's inside you". The box stretches like a balloon on its own.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: type a few lines in each</h2>
+    <div class="note warn unsupported" style="margin-bottom:1rem"><span class="ico">⚠️</span><p>Your browser doesn't support <code>field-sizing</code> yet. The green boxes will stay a fixed size. Update your browser to see it grow.</p></div>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>Measure on every key press</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="form-demo">
+              <label><span class="demo-label">💬 Your message</span><textarea class="demo-input old-grow" rows="2">Type here... press Enter a few times ⏎</textarea></label>
+              <div class="tag-row"><span class="demo-label" style="margin:0">🏷️ Tag:</span><input class="demo-input" style="width:12ch" value="stays the same width"></div>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>7</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>1×</b><span>per key press</span></div>
+            <div class="stat"><b>😩</b><span>input width needs more JS</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><textarea class="old-grow" rows="2"></textarea></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>.old-grow {
+  overflow: hidden;   /* hide the scrollbar while JS resizes */
+}
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const growBox = document.querySelector('.old-grow');
+
+function grow() {
+  growBox.style.height = 'auto';                    // 1. squash it back down
+  growBox.style.height = growBox.scrollHeight + 'px'; // 2. measure & set height
+}
+
+growBox.addEventListener('input', grow);  // run on EVERY key press
+grow();                                   // and once at the start
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>JS listens for <code>input</code>, which fires <b>every time you type or delete a character</b>.</li>
+            <li>It sets the height to <code>auto</code> first, so the box can also <b>shrink</b> when you delete text.</li>
+            <li>Then it reads <code>scrollHeight</code> ("how tall is ALL the text, including the hidden part?") and uses that as the height.</li>
+            <li>The one-line <b>tag box</b> doesn't grow at all. Making an input grow <i>sideways</i> needs even more JS (people copy the text into a hidden span to measure its width!).</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · CSS</h3><p>One property</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="form-demo">
+              <label><span class="demo-label">💬 Your message</span><textarea class="demo-input new-grow">Type here... press Enter a few times ⏎</textarea></label>
+              <div class="tag-row"><span class="demo-label" style="margin:0">🏷️ Tag:</span><input class="demo-input new-grow-input" value="I grow sideways!"></div>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>1</b><span>line of CSS</span></div>
+            <div class="stat"><b>↔️↕️</b><span>grows both ways</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><textarea class="new-grow"></textarea>
+
+<input class="new-grow-input" value="I grow sideways!"></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: change 8lh to 4lh</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">.new-grow {
+  field-sizing: content;  /* ✨ the magic line */
+  min-block-size: 3lh;    /* at least 3 lines tall */
+  max-block-size: 8lh;    /* then scroll after 8 lines */
+}
+
+.new-grow-input {
+  field-sizing: content;  /* grows sideways too! */
+  min-inline-size: 8ch;
+  max-inline-size: 100%;
+}
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>field-sizing: content</code> means <b>"make this box the size of the text inside it"</b>. That's the whole feature.</li>
+            <li><code>min-block-size: 3lh</code> = "at least 3 <b>l</b>ines <b>h</b>igh". <code>lh</code> is a unit meaning "one line of text".</li>
+            <li><code>max-block-size: 8lh</code> = "stop growing after 8 lines, then show a scrollbar".</li>
+            <li>It works on a one-line <code>&lt;input&gt;</code> too: it grows <b>sideways</b>. <code>ch</code> is a unit roughly "one character wide".</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before: on every single key press</h3>
+        <ol class="flow">
+          <li><span class="ico">⌨️</span>You type a letter</li>
+          <li><span class="ico">👂</span>JS hears it</li>
+          <li><span class="ico">🗜️</span>JS squashes the box</li>
+          <li><span class="ico">📏</span>JS measures the text</li>
+          <li><span class="ico">✏️</span>JS sets the height</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">⌨️</span>You type</li>
+          <li><span class="ico">🎈</span>The box fits its content, like any other element</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note info"><span class="ico">🧰</span><p>Works on <code>&lt;textarea&gt;</code>, <code>&lt;input&gt;</code> and <code>&lt;select&gt;</code>. Always set a <b>max</b> size so a huge paste doesn't make a giant box.</p></div>
+      <div class="note good"><span class="ico">🪜</span><p>Old browsers simply keep the normal fixed size, so it's a safe upgrade.</p></div>
+    </div>
+    <p class="takeaway">💡 7 lines of JS that ran on every key press, replaced by 1 line of CSS.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-tag"><dt><code>&lt;textarea&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A text box for many lines of text.<span class="like-a">Like: a notepad</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;input&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A form field. Its type decides what kind: text, email, checkbox, radio...<span class="like-a">Like: a blank on a paper form</span></dd></div>
+      <div class="word k-attr"><dt><code>rows</code><span class="kind">⚙️ HTML attribute</span></dt><dd>How many lines tall a textarea starts.<span class="like-a">Like: the size of the notepad</span></dd></div>
+      <div class="word k-attr"><dt><code>value</code><span class="kind">⚙️ HTML attribute</span></dt><dd>The starting text (or value) of a field.<span class="like-a">Like: a form that is already filled in</span></dd></div>
+      <div class="word k-prop"><dt><code>field-sizing</code><span class="kind">🔧 Property</span></dt><dd>field-sizing: content makes a text box grow and shrink to fit what you type.<span class="like-a">Like: a balloon that grows as you blow</span></dd></div>
+      <div class="word k-prop"><dt><code>min-block-size / max-block-size</code><span class="kind">🔧 Property</span></dt><dd>The smallest and biggest the box can be in height.<span class="like-a">Like: a lift that only goes between floors 1 and 10</span></dd></div>
+      <div class="word k-prop"><dt><code>min-inline-size / max-inline-size</code><span class="kind">🔧 Property</span></dt><dd>The smallest and biggest the box can be in width.<span class="like-a">Like: a belt with a smallest and biggest hole</span></dd></div>
+      <div class="word k-prop"><dt><code>overflow</code><span class="kind">🔧 Property</span></dt><dd>What to do with content too big for its box: visible (spill out), hidden (cut off), auto (scrollbars when needed).<span class="like-a">Like: a suitcase that is too full</span></dd></div>
+      <div class="word k-unit"><dt><code>lh</code><span class="kind">📏 Unit</span></dt><dd>The height of one line of text. 3lh = three lines tall.<span class="like-a">Like: lines on writing paper</span></dd></div>
+      <div class="word k-unit"><dt><code>ch</code><span class="kind">📏 Unit</span></dt><dd>The width of the "0" character. 20ch = about 20 letters wide.<span class="like-a">Like: counting letters</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="05-select.html"><small>◀ Previous</small>05 · Custom select boxes</a>
+    <a class="next" href="07-validation.html"><small>Next ▶</small>07 · Friendly form errors</a>
+  </nav>
+</main>
+</body>
+</html>

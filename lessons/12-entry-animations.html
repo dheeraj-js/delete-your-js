@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12 · Fade in from nothing | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+/* only set display when shown, so [hidden] and popover can still hide them */
+.old-toast:not([hidden]), #new-toast:popover-open { display: flex; }
+.toast {
+  align-items: center; gap: .8rem; width: min(90vw, 340px);
+  padding: 1rem 1.2rem; border-radius: 16px; color: #1d2340; background: #fff; border: 1px solid #e1e4f0;
+  box-shadow: 0 24px 50px -18px rgb(0 0 0 / .55); font-weight: 700;
+}
+.toast .e { font-size: 1.8rem; }
+.toast small { display: block; font-weight: 500; color: #5b6388; }
+.old-toast { position: fixed; bottom: 1.25rem; left: 1.25rem; z-index: 70; border-left: 6px solid #ff6b6b; }
+#new-toast { margin: 0; inset: auto 1.25rem 1.25rem auto; border-left: 6px solid #2ee6a6; }
+.timeline { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); margin-top: 1.25rem; }
+.frames { display: flex; gap: .5rem; margin-top: .75rem; }
+.frames span { flex: 1; padding: .6rem .3rem; border-radius: 10px; text-align: center; font-size: .8rem; font-weight: 700; background: var(--bg-2); border: 1px solid var(--line); }
+.frames .hl { border-color: var(--warn); color: var(--warn); }
+.frames .ok { border-color: var(--new); color: var(--new); }
+@supports not selector(:popover-open) { .unsupported { display: flex; } }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="11-container-queries.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="13-scroll-animations.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 12 / 17 · ✨ @starting-style</span>
+    <h1>Fade in from nothing, and out again</h1>
+    <p class="lead">Animating something that was hidden with <code>display: none</code> used to be impossible in CSS. The animation got skipped. We used timing hacks in JS. Now CSS can animate things appearing <b>and</b> disappearing.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: requestAnimationFrame hacks · setTimeout · transitionend listeners</span>
+      <span class="chip new">Uses: @starting-style · transition-behavior: allow-discrete</span>
+      <span class="chip ok">✅ All modern browsers (Baseline 2024)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A notification that slides in</h3><p>Click a button and a message ("toast" 🍞) fades and slides up in the corner. Click again and it fades away.</p></div>
+      <div class="analogy old"><div class="big">🎬</div><h3><small>😓 The old way</small>The actor skips the entrance</h3><p>When something goes from <code>display: none</code> to visible, the browser puts it straight in its final spot. To make it animate, JS had to show it, <b>wait two frames</b>, then start the animation.</p></div>
+      <div class="analogy new"><div class="big">🎭</div><h3><small>😎 The new way</small>Tell the actor where to start</h3><p><code>@starting-style</code> says <i>"when you first appear, start from HERE"</i> (invisible, a bit lower). The browser then animates to the normal style.</p></div>
+    </div>
+    <div class="timeline">
+      <div class="panel"><h3>😓 Why it failed: no "before" frame</h3><div class="frames"><span>hidden<br>(none)</span><span class="hl">💥 jump<br>to visible</span><span>no animation</span></div></div>
+      <div class="panel"><h3>😎 @starting-style gives it a first frame</h3><div class="frames"><span class="ok">start:<br>opacity 0</span><span class="ok">→ animating</span><span class="ok">end:<br>opacity 1</span></div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: show and hide each toast</h2>
+    <div class="note warn unsupported" style="margin-bottom:1rem"><span class="ico">⚠️</span><p>Your browser is missing popover support, so the green demo won't work here.</p></div>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>The double-rAF hack</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <button class="btn old-toast-btn">🔔 Toggle old toast (bottom left)</button>
+            <div class="toast old-toast" hidden><span class="e">🍞</span><div>Saved!<small>I needed JS timing hacks to fade in.</small></div></div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>17</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>2</b><span>frames of waiting (really)</span></div>
+            <div class="stat"><b>🐛</b><span>double-click = glitches</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><button class="old-toast-btn">🔔 Toggle old toast</button>
+<div class="old-toast" hidden>🍞 Saved!</div></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>.old-toast {
+  opacity: 0;
+  translate: 0 20px;
+  transition: opacity .4s, translate .4s;
+}
+.old-toast.is-visible {
+  opacity: 1;
+  translate: 0 0;
+}
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const toastBtn = document.querySelector('.old-toast-btn');
+const toast = document.querySelector('.old-toast');
+
+toastBtn.addEventListener('click', () => {
+  if (!toast.classList.contains('is-visible')) {
+    toast.hidden = false;                   // 1. put it on the page
+    requestAnimationFrame(() => {           // 2. wait one frame...
+      requestAnimationFrame(() => {         // 3. ...and another (yes, really!)
+        toast.classList.add('is-visible');  // 4. NOW the fade-in can run
+      });
+    });
+  } else {
+    toast.classList.remove('is-visible');   // 5. start fading out
+    toast.addEventListener('transitionend', () => {
+      toast.hidden = true;                  // 6. hide it AFTER the fade ends
+    }, { once: true });
+  }
+});
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><b>Showing:</b> remove <code>hidden</code> so it exists on the page. But if we add <code>is-visible</code> straight away, the browser skips the animation.</li>
+            <li>So we wait with <code>requestAnimationFrame</code> ("do this on the next frame") <b>twice</b>, to be sure the browser has drawn the invisible version first.</li>
+            <li>Only then do we add <code>is-visible</code> and the fade runs.</li>
+            <li><b>Hiding:</b> remove <code>is-visible</code> to start fading, then wait for <code>transitionend</code> ("the animation finished") before setting <code>hidden</code>. Otherwise it vanishes instantly.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · HTML + CSS</h3><p>@starting-style</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <button class="btn green" popovertarget="new-toast">🔔 Toggle new toast (bottom right)</button>
+            <div class="toast" id="new-toast" popover><span class="e">🍞</span><div>Saved!<small>I fade in and out with pure CSS.</small></div></div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>0</b><span>timing hacks</span></div>
+            <div class="stat"><b>↩️</b><span>animates out too</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><button popovertarget="new-toast">🔔 Toggle new toast</button>
+<div id="new-toast" popover>🍞 Saved!</div></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: try translate: 0 100px</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* hidden state (also where it goes when closing) */
+#new-toast {
+  opacity: 0;
+  translate: 0 20px;
+  transition: opacity .4s, translate .4s,
+              display .4s allow-discrete,
+              overlay .4s allow-discrete;
+}
+
+/* open state */
+#new-toast:popover-open {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* "when you FIRST appear, start from here" */
+@starting-style {
+  #new-toast:popover-open {
+    opacity: 0;
+    translate: 0 20px;
+  }
+}
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>The toast is a <b>popover</b> (Lesson 01), so the button can open and close it with no JS.</li>
+            <li><code>:popover-open</code> is the "open" mood 😊: fully visible, in its normal spot.</li>
+            <li><code>@starting-style</code> = <b>"on the very first frame after appearing, pretend you look like THIS"</b>: invisible and 20px lower. The browser then animates to the open style. That's the job of JS steps 1-4.</li>
+            <li><code>display .4s allow-discrete</code> says <b>"when closing, keep me on screen for 0.4s so the fade-out can play"</b>. That replaces the <code>transitionend</code> code.</li>
+            <li><code>overlay</code> does the same for the top layer 🥞, so it stays on top while fading out.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click</li>
+          <li><span class="ico">👀</span>JS: un-hide it</li>
+          <li><span class="ico">⏳</span>Wait a frame</li>
+          <li><span class="ico">⏳</span>Wait another frame</li>
+          <li><span class="ico">🏷️</span>JS adds "is-visible"</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click</li>
+          <li><span class="ico">🎭</span>@starting-style gives the first frame</li>
+          <li><span class="ico">✨</span>Browser animates in (and out)</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note good"><span class="ico">🪟</span><p>The same trick animates <b>dialogs</b> (Lesson 02) and <b>their backdrop</b>: <code>dialog[open]</code> plus <code>@starting-style</code>.</p></div>
+      <div class="note info"><span class="ico">🆕</span><p>It also works for elements <b>just added to the page</b> by JS (like a new item in a list). They animate in automatically.</p></div>
+      <div class="note warn"><span class="ico">♿</span><p>Be kind: wrap big movements in <code>@media (prefers-reduced-motion: no-preference)</code> for people who get motion sick.</p></div>
+    </div>
+    <p class="takeaway">💡 No more "wait two frames" hacks. Tell CSS where the animation starts.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-at"><dt><code>@starting-style</code><span class="kind">📜 @-rule</span></dt><dd>The "before" style for an element's first appearance, so it can animate in (e.g. from invisible).<span class="like-a">Like: where the actor stands before walking on stage</span></dd></div>
+      <div class="word k-mood"><dt><code>:popover-open</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>When a popover is showing.<span class="like-a">Like: "when the jack-in-the-box is out"</span></dd></div>
+      <div class="word k-attr"><dt><code>popover</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Turns an element into a pop-up that starts hidden, shows on the top layer, and closes on Esc or a click outside.<span class="like-a">Like: a jack-in-the-box</span></dd></div>
+      <div class="word k-attr"><dt><code>popovertarget</code><span class="kind">⚙️ HTML attribute</span></dt><dd>On a button: clicking it opens and closes the popover with that id.<span class="like-a">Like: a remote paired with one TV</span></dd></div>
+      <div class="word k-attr"><dt><code>hidden</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Hides the element until the attribute is removed.<span class="like-a">Like: an invisibility cloak</span></dd></div>
+      <div class="word k-attr"><dt><code>id</code><span class="kind">⚙️ HTML attribute</span></dt><dd>A unique name for ONE element. Buttons, labels and links point at it.<span class="like-a">Like: a house number</span></dd></div>
+      <div class="word k-prop"><dt><code>opacity</code><span class="kind">🔧 Property</span></dt><dd>How see-through: 0 = invisible, 1 = solid.<span class="like-a">Like: a dimmer for glass</span></dd></div>
+      <div class="word k-prop"><dt><code>translate</code><span class="kind">🔧 Property</span></dt><dd>Moves an element sideways or up and down without moving anything else. Cheap to animate.<span class="like-a">Like: sliding a sticker on glass</span></dd></div>
+      <div class="word k-prop"><dt><code>transition</code><span class="kind">🔧 Property</span></dt><dd>Animate smoothly when a value changes, instead of jumping.<span class="like-a">Like: a dimmer switch instead of an on/off switch</span></dd></div>
+      <div class="word k-unit"><dt><code>s / ms</code><span class="kind">📏 Unit</span></dt><dd>Seconds and milliseconds, for timings. 1000ms = 1s, so .3s = 300ms.<span class="like-a">Like: a stopwatch</span></dd></div>
+      <div class="word k-unit"><dt><code>px</code><span class="kind">📏 Unit</span></dt><dd>Pixels: one dot on the screen. A fixed size.<span class="like-a">Like: centimetres on a ruler</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;button&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A button you can click or press with the keyboard.<span class="like-a">Like: a doorbell</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;div&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain box with no special meaning, used to group things.<span class="like-a">Like: a cardboard box</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="11-container-queries.html"><small>◀ Previous</small>11 · Container queries</a>
+    <a class="next" href="13-scroll-animations.html"><small>Next ▶</small>13 · Scroll animations</a>
+  </nav>
+</main>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 · The parent selector :has() | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { align-items: start; }
+.todo { display: grid; gap: .6rem; width: 100%; }
+.task {
+  display: flex; align-items: center; gap: .8rem; padding: .85rem 1rem; cursor: pointer;
+  border: 2px solid #e1e4f0; border-radius: 14px; background: #fff; font-weight: 700;
+  transition: background .25s, border-color .25s, opacity .25s;
+}
+.task input { width: 1.3rem; height: 1.3rem; accent-color: #00b894; }
+.agree-row { display: flex; align-items: center; gap: .6rem; margin-top: .6rem; font-weight: 600; }
+.agree-row input { width: 1.2rem; height: 1.2rem; accent-color: #6c5ce7; }
+.old-submit:disabled { opacity: .35; cursor: not-allowed; }
+.new-submit { transition: opacity .25s; }
+
+/* ---- family tree picture ---- */
+.fam { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); margin-top: 1.25rem; }
+.fam .panel { text-align: center; }
+.fam .who { display: inline-block; padding: .8rem 1.1rem; border-radius: 14px; border: 2px solid var(--line); background: var(--panel-2); font-weight: 800; }
+.fam .who.lit { border-color: var(--new); background: #2ee6a622; }
+.fam .arrow { font-size: 2rem; line-height: 1.4; }
+.fam .arrow.up { color: var(--new); }
+.fam .arrow.down { color: var(--muted); }
+.fam p { color: var(--muted); margin: .75rem 0 0; }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="07-validation.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="09-counters.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 08 / 17 · 👨‍👧 :has()</span>
+    <h1>The parent selector: style a box by what's inside it</h1>
+    <p class="lead">For 25 years developers asked for one thing: "let CSS style a <b>parent</b> based on its <b>child</b>." Now we have it. It might be the most powerful CSS feature in years.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: change listeners · closest() · classList.toggle on parents</span>
+      <span class="chip new">Uses: :has()</span>
+      <span class="chip ok">✅ All modern browsers (Baseline 2023)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A to-do list + a "Sign up" button</h3><p>Tick a task and its whole card turns green. The Sign up button stays greyed out until you tick "I agree".</p></div>
+      <div class="analogy old"><div class="big">🧗</div><h3><small>😓 The old way</small>JS climbs up the family tree</h3><p>CSS could only look <b>down</b> (parent to child). To style the card when the checkbox inside it changes, JS had to <b>climb up</b> from the checkbox to the card and put a sticker on it.</p></div>
+      <div class="analogy new"><div class="big">🔭</div><h3><small>😎 The new way</small>The parent can look inside itself</h3><p><code>.card:has(input:checked)</code> reads like English: <b>"a card that HAS a ticked checkbox inside it"</b>.</p></div>
+    </div>
+    <div class="fam">
+      <div class="panel"><h3>😓 CSS before: only looks down ⬇️</h3><div class="who">📦 card</div><div class="arrow down">⬇️</div><div class="who lit">☑️ checkbox</div><p>"Style the checkbox inside the card": ✅ easy<br>"Style the card because of the checkbox": ❌ impossible</p></div>
+      <div class="panel"><h3>😎 CSS with :has(): looks up too ⬆️</h3><div class="who lit">📦 card</div><div class="arrow up">⬆️</div><div class="who">☑️ checkbox</div><p><code>.card:has(:checked)</code><br>"The card that has a ticked box": ✅ easy</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: tick the boxes</h2>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>Climb up and add stickers</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="todo">
+              <label class="task old-task"><input type="checkbox"> 🥛 Buy milk</label>
+              <label class="task old-task"><input type="checkbox"> 🐕 Walk the dog</label>
+              <label class="task old-task"><input type="checkbox"> 💻 Delete some JS</label>
+              <label class="agree-row"><input type="checkbox" class="old-agree"> I agree to the terms</label>
+              <button class="btn old-submit" disabled>Sign up</button>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>10</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>4</b><span>event listeners</span></div>
+            <div class="stat"><b>🧗</b><span>climbing the DOM</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><label class="old-task">
+  <input type="checkbox"> 🥛 Buy milk
+</label>
+<!-- ...more tasks... -->
+
+<label><input type="checkbox" class="old-agree"> I agree</label>
+<button class="old-submit" disabled>Sign up</button></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>.old-task.is-done {
+  background: #e7fbf4;
+  border-color: #00b894;
+  text-decoration: line-through;
+}
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>// 1. tick a task -> climb up to its card and add a sticker
+document.querySelectorAll('.old-task input').forEach((box) => {
+  box.addEventListener('change', () => {
+    box.closest('.old-task').classList.toggle('is-done', box.checked);
+  });
+});
+
+// 2. "I agree" -> switch the button on or off
+const agreeBox = document.querySelector('.old-agree');
+const signUpBtn = document.querySelector('.old-submit');
+agreeBox.addEventListener('change', () => {
+  signUpBtn.disabled = !agreeBox.checked;
+});
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>JS finds every checkbox and <b>listens for <code>change</code></b> (ticked or unticked).</li>
+            <li>When one changes, <code>closest('.old-task')</code> <b>climbs up the family tree</b> 🧗 to find the card it lives in.</li>
+            <li>JS puts the <code>is-done</code> sticker on the card (or takes it off). CSS styles the sticker.</li>
+            <li>A separate listener switches the Sign up button on or off when "I agree" changes.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · CSS</h3><p>:has() looks inside</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <form class="todo new-form" method="dialog">
+              <label class="task new-task"><input type="checkbox"> 🥛 Buy milk</label>
+              <label class="task new-task"><input type="checkbox"> 🐕 Walk the dog</label>
+              <label class="task new-task"><input type="checkbox"> 💻 Delete some JS</label>
+              <label class="agree-row"><input type="checkbox" class="new-agree" required> I agree to the terms</label>
+              <button class="btn new-submit">Sign up</button>
+            </form>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>2</b><span>CSS rules</span></div>
+            <div class="stat"><b>🔭</b><span>reads like English</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><form class="new-form">
+  <label class="new-task">
+    <input type="checkbox"> 🥛 Buy milk
+  </label>
+  <!-- ...more tasks... -->
+
+  <label><input type="checkbox" class="new-agree" required> I agree</label>
+  <button class="new-submit">Sign up</button>
+</form></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: change the green</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* "a task card that HAS a ticked checkbox" */
+.new-task:has(input:checked) {
+  background: #e7fbf4;
+  border-color: #00b894;
+  text-decoration: line-through;
+}
+
+/* "a form that HAS an unticked agree box:
+    dim its submit button" */
+.new-form:has(.new-agree:not(:checked)) .new-submit {
+  opacity: .35;
+  cursor: not-allowed;
+}
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>Read <code>:has()</code> as the word <b>"has"</b>. <code>.new-task:has(input:checked)</code> = <b>"a task that has a ticked input inside it"</b>.</li>
+            <li><code>:checked</code> is a mood 😊 meaning "ticked". CSS always knows it, so nobody needs to tell it.</li>
+            <li>Rule 2: <b>"a form that has an agree box that is NOT ticked: dim its button"</b>. <code>:not()</code> means "not".</li>
+            <li><code>required</code> on the checkbox means the browser <b>won't submit the form</b> until it's ticked, even if someone clicks the dimmed button.</li>
+            <li>No listeners and no climbing. When a box changes, the browser re-checks the rules instantly.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">☑️</span>You tick a box</li>
+          <li><span class="ico">👂</span>JS hears "change"</li>
+          <li><span class="ico">🧗</span>JS climbs up to the card</li>
+          <li><span class="ico">🏷️</span>JS adds "is-done"</li>
+          <li><span class="ico">🎨</span>CSS colours the card</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">☑️</span>You tick a box</li>
+          <li><span class="ico">🔭</span>CSS: "this card HAS a ticked box"</li>
+          <li><span class="ico">🎨</span>Card turns green</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> More :has() superpowers</h2>
+    <div class="notes">
+      <div class="note good"><span class="ico">🖼️</span><p><code>.card:has(img)</code>: cards <b>with</b> a picture get a different layout from cards without one.</p></div>
+      <div class="note good"><span class="ico">🚫</span><p><code>html:has(dialog[open])</code>: stop the page scrolling when a modal is open (Lesson 02).</p></div>
+      <div class="note good"><span class="ico">🎨</span><p><code>body:has(#dark:checked)</code>: a whole-site theme switch with no JS (Lesson 10).</p></div>
+      <div class="note good"><span class="ico">❗</span><p><code>form:has(:user-invalid)</code>: highlight the whole form if any field is wrong (Lesson 07).</p></div>
+      <div class="note info"><span class="ico">🤫</span><p>Remember the <b>CSS switch</b> in Lesson 00? That was <code>:has(#css-on:not(:checked))</code>.</p></div>
+    </div>
+    <p class="takeaway">💡 If you're writing JS just to put a class on a parent, <code>:has()</code> can probably do it.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-mood"><dt><code>:has()</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>"Has something inside that matches". Lets a parent change because of its child. The famous "parent selector".<span class="like-a">Like: "any box that has a cat in it"</span></dd></div>
+      <div class="word k-mood"><dt><code>:checked</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>When a checkbox or radio button is ticked, or a select option is chosen.<span class="like-a">Like: a light switch in the ON position</span></dd></div>
+      <div class="word k-mood"><dt><code>:not()</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>"Is NOT ...". :not(:checked) means "not ticked".<span class="like-a">Like: "everyone except..."</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;form&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A group of fields that can be sent together.<span class="like-a">Like: a paper form</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;label&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>The name of a form field. Clicking it focuses (or ticks) the field.<span class="like-a">Like: the name sticker on a letterbox</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;input&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A form field. Its type decides what kind: text, email, checkbox, radio...<span class="like-a">Like: a blank on a paper form</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;button&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A button you can click or press with the keyboard.<span class="like-a">Like: a doorbell</span></dd></div>
+      <div class="word k-attr"><dt><code>type</code><span class="kind">⚙️ HTML attribute</span></dt><dd>The kind of input: text, email, checkbox, radio...<span class="like-a">Like: choosing the shape of a blank on a form</span></dd></div>
+      <div class="word k-attr"><dt><code>required</code><span class="kind">⚙️ HTML attribute</span></dt><dd>The field must be filled in before the form can be sent.<span class="like-a">Like: a box marked with a red star</span></dd></div>
+      <div class="word k-attr"><dt><code>disabled</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Switches the button or field off: greyed out and unclickable.<span class="like-a">Like: a lift button with tape over it</span></dd></div>
+      <div class="word k-prop"><dt><code>background</code><span class="kind">🔧 Property</span></dt><dd>The colour or picture behind the element.<span class="like-a">Like: wallpaper</span></dd></div>
+      <div class="word k-prop"><dt><code>border-color</code><span class="kind">🔧 Property</span></dt><dd>Just the colour of the border.<span class="like-a">Like: painting the frame</span></dd></div>
+      <div class="word k-prop"><dt><code>text-decoration</code><span class="kind">🔧 Property</span></dt><dd>Lines on text: underline, or line-through (crossed out).<span class="like-a">Like: underlining with a pen</span></dd></div>
+      <div class="word k-prop"><dt><code>opacity</code><span class="kind">🔧 Property</span></dt><dd>How see-through: 0 = invisible, 1 = solid.<span class="like-a">Like: a dimmer for glass</span></dd></div>
+      <div class="word k-prop"><dt><code>cursor</code><span class="kind">🔧 Property</span></dt><dd>The shape of the mouse pointer: pointer (a hand), not-allowed (a no-entry sign).<span class="like-a">Like: a sign on the door</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="07-validation.html"><small>◀ Previous</small>07 · Friendly form errors</a>
+    <a class="next" href="09-counters.html"><small>Next ▶</small>09 · Counting with CSS</a>
+  </nav>
+</main>
+</body>
+</html>

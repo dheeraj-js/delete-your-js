@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Morph demo · Treats | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.treats { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); padding-bottom: 3rem; }
+.treat { display: grid; gap: .6rem; padding: .8rem; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); color: var(--text); text-decoration: none; transition: translate .2s, border-color .2s; }
+a.treat:hover { translate: 0 -4px; border-color: var(--new); }
+.treat .pic { display: grid; place-items: center; aspect-ratio: 1; border-radius: 14px; font-size: 4rem; }
+.treat b { font-size: 1.1rem; }
+.treat small { color: var(--muted); }
+.treat.off { opacity: .45; }
+.p1 { background: linear-gradient(135deg, #fd79a8, #ff9f43); }
+.p2 { background: linear-gradient(135deg, #74b9ff, #a29bfe); }
+.p3 { background: linear-gradient(135deg, #55efc4, #00b894); }
+.p4 { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); }
+.p5 { background: linear-gradient(135deg, #fab1a0, #e17055); }
+.p6 { background: linear-gradient(135deg, #dfe6e9, #b2bec3); }
+
+/* ✨ THE MORPH: same names on the detail page */
+.donut-pic  { view-transition-name: donut; }
+.donut-name { view-transition-name: donut-name; }
+::view-transition-group(donut) { animation-duration: .55s; animation-timing-function: cubic-bezier(.2, .8, .2, 1); }
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Demo"><a href="17-page-transitions.html">◀ Back to Lesson 17</a></nav>
+</div></header>
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">🍩 Morph demo · page 1 of 2</span>
+    <h1>Pick a treat</h1>
+    <p class="lead">Click the <b>donut</b>. Watch its picture fly into the next page. These are two ordinary HTML files, and there's no JavaScript on either.</p>
+  </section>
+  <div class="treats">
+    <a class="treat" href="vt-demo-detail.html"><div class="pic p1 donut-pic">🍩</div><b class="donut-name">Donut</b><small>👉 Click me!</small></a>
+    <div class="treat off"><div class="pic p2">🧁</div><b>Cupcake</b><small>Coming soon</small></div>
+    <div class="treat off"><div class="pic p3">🍦</div><b>Ice cream</b><small>Coming soon</small></div>
+    <div class="treat off"><div class="pic p4">🍪</div><b>Cookie</b><small>Coming soon</small></div>
+    <div class="treat off"><div class="pic p5">🍰</div><b>Cake</b><small>Coming soon</small></div>
+    <div class="treat off"><div class="pic p6">🥐</div><b>Croissant</b><small>Coming soon</small></div>
+  </div>
+</main>
+</body>
+</html>

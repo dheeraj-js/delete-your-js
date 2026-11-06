@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delete your JS | Modern CSS that replaces JavaScript</title>
+<link rel="stylesheet" href="assets/site.css">
+<style>
+.home-hero { padding: clamp(3rem, 9vw, 7rem) 0 2rem; text-align: center; }
+.home-hero h1 { font-size: clamp(3rem, 1.5rem + 8vw, 8rem); line-height: 1; margin-inline: auto; }
+.home-hero .lead { margin: 1.25rem auto 0; }
+.strike { position: relative; display: inline-block; color: var(--old); -webkit-text-fill-color: var(--old); }
+.strike::after {
+  content: ""; position: absolute; left: -6%; right: -6%; top: 52%; height: .12em; border-radius: 99px;
+  background: var(--text); transform-origin: left; scale: 0 1;
+  animation: strike 900ms 500ms cubic-bezier(.7, 0, .3, 1) forwards;
+}
+@keyframes strike { to { scale: 1 1; } }
+.cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 2rem; }
+.cta a {
+  padding: .95rem 1.6rem; border-radius: 999px; font-weight: 800; text-decoration: none;
+  background: linear-gradient(120deg, var(--new), var(--new-2)); color: #0a0e1f;
+  box-shadow: 0 14px 30px -12px #2ee6a699; transition: translate .2s;
+}
+.cta a.ghost { background: var(--panel); color: var(--text); border: 1px solid var(--line); box-shadow: none; }
+.cta a:hover { translate: 0 -3px; }
+
+.big-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 1rem; margin-top: 3rem; }
+.big-stats div { padding: 1.4rem; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); text-align: center; }
+.big-stats b { display: block; font-size: clamp(2rem, 1.5rem + 2vw, 3.2rem); line-height: 1.1;
+  background: linear-gradient(120deg, var(--new), var(--new-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.big-stats span { color: var(--muted); }
+
+
+/* "What you'll learn today" */
+.idea { display: grid; gap: 2.2rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.idea-card { position: relative; display: flex; flex-direction: column; gap: .7rem; padding: 1.5rem; border-radius: var(--radius); border: 2px solid var(--ic); background: linear-gradient(160deg, color-mix(in srgb, var(--ic) 16%, var(--panel)), var(--panel) 70%); }
+.idea-card:not(:last-child)::after { content: "➜"; position: absolute; top: 50%; right: -1.85rem; translate: 0 -50%; font-size: 1.5rem; color: var(--muted); }
+.i-problem { --ic: #ff6b6b99; } .i-idea { --ic: #2ee6a699; } .i-keep { --ic: #ffd16699; }
+.i-top { display: flex; align-items: center; gap: .7rem; }
+.i-ico { font-size: 2.4rem; line-height: 1; }
+.i-top small { font-size: .75rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.idea-card h3 { margin: 0; font-size: 1.3rem; text-wrap: balance; }
+.idea-card p { margin: 0; color: #d3d9f5; }
+.idea-card ul { display: grid; gap: .45rem; margin: 0; padding: 0; list-style: none; }
+.i-facts li { padding: .5rem .75rem; border-radius: 10px; background: #ff6b6b14; color: #d3d9f5; }
+.i-facts b { color: var(--old); font-size: 1.1rem; }
+.i-src { margin-top: auto !important; font-size: .75rem; color: var(--muted) !important; }
+.i-wins, .i-jobs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.i-wins li, .i-jobs li { padding: .45rem .6rem; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-2); font-size: .88rem; font-weight: 700; }
+.idea-rule { margin: 1.5rem 0 0; padding: 1.1rem 1.4rem; border-radius: var(--radius); text-align: center; font-size: clamp(1.05rem, 1rem + .6vw, 1.35rem); background: linear-gradient(120deg, #9b8cff33, #2ee6a62a); border: 1px solid #9b8cff66; text-wrap: balance; }
+@media (max-width: 900px) {
+  .idea { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+  .idea-card:not(:last-child)::after { content: "⬇"; top: auto; right: auto; bottom: -1.9rem; left: 50%; translate: -50% 0; }
+}
+
+.grid-lessons { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
+.card {
+  display: flex; flex-direction: column; gap: .5rem; padding: 1.4rem;
+  border-radius: var(--radius); border: 1px solid var(--line); color: var(--text); text-decoration: none;
+  background: linear-gradient(160deg, var(--panel-2), var(--panel));
+  transition: translate .25s, border-color .25s, box-shadow .25s;
+}
+.card:hover { translate: 0 -5px; border-color: var(--accent); box-shadow: 0 22px 44px -22px #9b8cffaa; }
+.card .top { display: flex; justify-content: space-between; align-items: center; }
+.card .n { font: 800 .8rem var(--mono); color: var(--muted); }
+.card .e { font-size: 2.4rem; line-height: 1; }
+.card h3 { margin: .25rem 0 0; font-size: 1.2rem; }
+.card p { margin: 0; color: var(--muted); font-size: .92rem; }
+.card .swap { margin-top: auto; padding-top: .5rem; display: flex; flex-wrap: wrap; gap: .35rem .6rem; font-size: .78rem; font-weight: 700; }
+.card .swap .x { color: var(--old); text-decoration: line-through; }
+.card .swap .y { color: var(--new); }
+.card.special { background: linear-gradient(160deg, #3a2a8a, var(--panel)); border-color: #9b8cff88; }
+footer { padding: 3rem 0 4rem; text-align: center; color: var(--muted); font-size: .9rem; }
+.th-quotes { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
+.th-quotes blockquote { margin: 0; padding: 1rem 1.25rem; border-radius: var(--radius-sm); border-left: 4px solid var(--accent); background: var(--bg-2); }
+.th-quotes blockquote p { margin: 0 0 .4rem; font-size: 1.1rem; font-style: italic; font-weight: 700; }
+.th-quotes footer { font-size: .8rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Main">
+    <a href="lessons/00-basics.html">Start here</a>
+    <a href="lessons/18-cheatsheet.html">Cheat sheet</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="home-hero">
+    <span class="kicker">Frontend Knowledge Share · 2026</span>
+    <h1>Delete your <span class="strike">JS</span></h1>
+    <p class="lead">17 everyday things we used to build with JavaScript that the browser can now do with a few lines of <b>HTML and CSS</b>. Every example has a live <b>before</b> and <b>after</b> you can click. <b>Not "no JavaScript"</b>: HTML and CSS for every job they can do, JavaScript for the rest.</p>
+    <div class="cta">
+      <a href="lessons/00-basics.html">🧒 Start with the basics</a>
+      <a class="ghost" href="lessons/01-popover.html">Jump to lesson 1 ▶</a>
+    </div>
+    <div class="big-stats">
+      <div><b>17</b><span>real examples</span></div>
+      <div><b>~240</b><span>lines of JS deleted</span></div>
+      <div><b>0</b><span>frameworks or libraries</span></div>
+      <div><b>0</b><span>build steps: just open the file</span></div>
+    </div>
+  </section>
+
+  <section class="section" id="idea">
+    <h2 class="section-title"><span class="num">🎯</span> What you'll learn today, in 30 seconds</h2>
+    <div class="idea">
+      <article class="idea-card i-problem"><div class="i-top"><span class="i-ico">😓</span><small>1 · The problem</small></div>
+        <h3>Websites use JavaScript for jobs the browser can already do</h3>
+        <ul class="i-facts">
+          <li><b>650 KB</b> of JavaScript on a typical phone page</li>
+          <li><b>1.9 s</b> the phone is too busy to answer a tap</li>
+          <li>Only <b>48%</b> of phone sites pass Google's speed scores</li>
+        </ul>
+        <p class="i-src">Web Almanac 2025</p></article>
+      <article class="idea-card i-idea"><div class="i-top"><span class="i-ico">💡</span><small>2 · The idea</small></div>
+        <h3>Let HTML &amp; CSS do every job they already can</h3>
+        <p>Menus, pop-ups, accordions, tooltips, carousels, dark mode, form checks: the browser has them <b>built in</b> now.</p>
+        <ul class="i-wins"><li>📦 Less to download</li><li>👷 Less for the phone to run</li><li>⭐ Better Web Vitals</li><li>♿ Accessible for free</li></ul></article>
+      <article class="idea-card i-keep"><div class="i-top"><span class="i-ico">🧠</span><small>3 · Keep JavaScript for</small></div>
+        <h3>The jobs only a brain can do</h3>
+        <ul class="i-jobs"><li>💾 Saving &amp; remembering</li><li>🌐 Talking to servers</li><li>🧮 Real logic &amp; maths</li><li>⏱️ Timers &amp; auto-play</li><li>📊 Analytics</li><li>🎮 Truly interactive apps</li></ul></article>
+    </div>
+    <p class="idea-rule">🧭 The one question to take home: <b>"Can HTML or CSS already do this?"</b> If yes, you don't need the JavaScript.</p>
+    <div class="th-quotes" style="margin-top:1.25rem">
+      <blockquote><p>"Use the least powerful language suitable for the job."</p><footer>📜 W3C · <a href="https://www.w3.org/2001/tag/doc/leastPower.html">The Rule of Least Power</a> · Tim Berners-Lee, 2006</footer></blockquote>
+      <blockquote><p>"Make your page work with HTML first."</p><footer>🏛️ <a href="https://www.gov.uk/service-manual/technology/using-progressive-enhancement">GOV.UK Service Manual</a> · how every UK government service is built</footer></blockquote>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">▶</span> The lessons</h2>
+    <div class="grid-lessons">
+      <a class="card special" href="lessons/00-basics.html"><div class="top"><span class="n">00</span><span class="e">🧒</span></div><h3>The basics (start here!)</h3><p>What are HTML, CSS and JavaScript? Explained with a house, a doorbell and some stickers.</p><div class="swap"><span class="y">Zero knowledge needed</span></div></a>
+      <a class="card" href="lessons/01-popover.html"><div class="top"><span class="n">01</span><span class="e">📋</span></div><h3>Dropdown menus</h3><p>Open, close, click outside, press Escape. All built in.</p><div class="swap"><span class="x">click listeners</span><span class="y">popover</span></div></a>
+      <a class="card" href="lessons/02-dialog.html"><div class="top"><span class="n">02</span><span class="e">🪟</span></div><h3>Modal pop-ups</h3><p>Dark overlay, focus handling and scroll lock with no JS.</p><div class="swap"><span class="x">modal libraries</span><span class="y">&lt;dialog&gt; + commandfor</span></div></a>
+      <a class="card" href="lessons/03-accordion.html"><div class="top"><span class="n">03</span><span class="e">🪗</span></div><h3>Accordions / FAQs</h3><p>Only one open at a time, with smooth animation.</p><div class="swap"><span class="x">height maths</span><span class="y">&lt;details name&gt;</span></div></a>
+      <a class="card" href="lessons/04-tooltip.html"><div class="top"><span class="n">04</span><span class="e">💬</span></div><h3>Tooltips that stick</h3><p>Attach one thing to another and it flips when there's no room.</p><div class="swap"><span class="x">Popper.js</span><span class="y">anchor positioning</span></div></a>
+      <a class="card" href="lessons/05-select.html"><div class="top"><span class="n">05</span><span class="e">🍕</span></div><h3>Custom select boxes</h3><p>A fully styled dropdown that is still a real &lt;select&gt;.</p><div class="swap"><span class="x">Select2 (60KB)</span><span class="y">base-select</span></div></a>
+      <a class="card" href="lessons/06-autogrow.html"><div class="top"><span class="n">06</span><span class="e">📝</span></div><h3>Auto-growing text boxes</h3><p>Text areas that grow as you type.</p><div class="swap"><span class="x">scrollHeight</span><span class="y">field-sizing</span></div></a>
+      <a class="card" href="lessons/07-validation.html"><div class="top"><span class="n">07</span><span class="e">✅</span></div><h3>Friendly form errors</h3><p>Only show red once the user has actually had a go.</p><div class="swap"><span class="x">blur listeners</span><span class="y">:user-invalid</span></div></a>
+      <a class="card" href="lessons/08-has.html"><div class="top"><span class="n">08</span><span class="e">👨‍👧</span></div><h3>The parent selector</h3><p>Style a box based on what's inside it.</p><div class="swap"><span class="x">closest() + classList</span><span class="y">:has()</span></div></a>
+      <a class="card" href="lessons/09-counters.html"><div class="top"><span class="n">09</span><span class="e">🔢</span></div><h3>Counting with CSS</h3><p>"3 selected" updates live, with no JS at all.</p><div class="swap"><span class="x">change listeners</span><span class="y">CSS counters</span></div></a>
+      <a class="card" href="lessons/10-dark-mode.html"><div class="top"><span class="n">10</span><span class="e">🌙</span></div><h3>Dark mode</h3><p>Two colours in one line, and a toggle with no JS.</p><div class="swap"><span class="x">class toggling</span><span class="y">light-dark()</span></div></a>
+      <a class="card" href="lessons/11-container-queries.html"><div class="top"><span class="n">11</span><span class="e">📦</span></div><h3>Components that fit anywhere</h3><p>Cards that change layout based on their own space.</p><div class="swap"><span class="x">ResizeObserver</span><span class="y">@container</span></div></a>
+      <a class="card" href="lessons/12-entry-animations.html"><div class="top"><span class="n">12</span><span class="e">✨</span></div><h3>Fade in from nothing</h3><p>Animate things that appear from display: none.</p><div class="swap"><span class="x">double rAF hack</span><span class="y">@starting-style</span></div></a>
+      <a class="card" href="lessons/13-scroll-animations.html"><div class="top"><span class="n">13</span><span class="e">📜</span></div><h3>Scroll animations</h3><p>Progress bars and reveal-on-scroll effects.</p><div class="swap"><span class="x">scroll listeners</span><span class="y">animation-timeline</span></div></a>
+      <a class="card" href="lessons/14-carousel.html"><div class="top"><span class="n">14</span><span class="e">🎠</span></div><h3>Carousels</h3><p>Swipe, snap, arrows and dots.</p><div class="swap"><span class="x">slider libraries</span><span class="y">scroll-snap + ::scroll-button</span></div></a>
+      <a class="card" href="lessons/15-smooth-scroll.html"><div class="top"><span class="n">15</span><span class="e">🛷</span></div><h3>Smooth scroll to section</h3><p>Glide to a section, not hidden under the header.</p><div class="swap"><span class="x">scrollTo maths</span><span class="y">scroll-margin</span></div></a>
+      <a class="card" href="lessons/16-balanced-text.html"><div class="top"><span class="n">16</span><span class="e">⚖️</span></div><h3>Beautiful headlines</h3><p>No more one lonely word on the last line.</p><div class="swap"><span class="x">balance-text.js</span><span class="y">text-wrap: balance</span></div></a>
+      <a class="card" href="lessons/17-page-transitions.html"><div class="top"><span class="n">17</span><span class="e">🎬</span></div><h3>Page transitions</h3><p>App-like animations between normal web pages.</p><div class="swap"><span class="x">SPA routers</span><span class="y">@view-transition</span></div></a>
+      <a class="card special" href="lessons/18-cheatsheet.html"><div class="top"><span class="n">18</span><span class="e">📄</span></div><h3>Cheat sheet &amp; wrap-up</h3><p>Everything on one page, plus when you still need JavaScript.</p><div class="swap"><span class="y">Take-home summary</span></div></a>
+    </div>
+  </section>
+</main>
+</body>
+</html>

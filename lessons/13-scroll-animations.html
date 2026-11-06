@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>13 · Scroll animations | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { display: block; padding: 2.2rem .75rem .75rem; }
+.scroller { position: relative; height: 340px; overflow-y: auto; border-radius: 14px; background: #fff; border: 1px solid #e1e4f0; }
+.bar-track { position: sticky; top: 0; z-index: 2; height: 8px; background: #eef0fb; }
+.bar { height: 100%; }
+.old-bar { width: 0; background: linear-gradient(90deg, #ff9f43, #ff6b6b); }
+.new-bar { background: linear-gradient(90deg, #2ee6a6, #3ec5ff); }
+.article { padding: 1rem 1.2rem 2rem; color: #1d2340; }
+.article h3 { margin: .5rem 0 1rem; }
+.reveal-card { display: flex; align-items: center; gap: .9rem; margin: 0 0 1.1rem; padding: 1rem; border-radius: 14px; background: #f6f7fc; border: 1px solid #e1e4f0; font-weight: 700; }
+.reveal-card .e { font-size: 2rem; }
+.old-reveal { opacity: 0; translate: 0 40px; transition: opacity .5s, translate .5s; }
+.old-reveal.is-shown { opacity: 1; translate: 0 0; }
+.spacer { height: 140px; display: grid; place-items: center; color: #9aa3c7; font-weight: 700; }
+@supports not (animation-timeline: view()) { .unsupported { display: flex; } }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="12-entry-animations.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="14-carousel.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 13 / 17 · 📜 Scroll-driven animations</span>
+    <h1>Animations controlled by scrolling</h1>
+    <p class="lead">A reading progress bar. Cards that fade in as they scroll into view. We used to listen to scroll events hundreds of times a second. Now the <b>scrollbar itself</b> can drive a CSS animation. (Look at the top of this page: that green bar is pure CSS.)</p>
+    <div class="chips">
+      <span class="chip old">Replaces: scroll listeners · IntersectionObserver · GSAP ScrollTrigger / AOS libraries</span>
+      <span class="chip new">Uses: animation-timeline: scroll() · view() · animation-range</span>
+      <span class="chip limited">🆕 Chrome/Edge, Safari 26+. Firefox: still coming, check caniuse</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A progress bar + fade-in cards</h3><p>As you scroll the article, a bar at the top fills up, and each card gently fades in as it comes into view.</p></div>
+      <div class="analogy old"><div class="big">⏱️</div><h3><small>😓 The old way</small>Animation runs on a stopwatch</h3><p>Normal CSS animations run on <b>time</b> ("take 1 second"). To link them to scrolling, JS had to watch the scroll position constantly and update styles by hand.</p></div>
+      <div class="analogy new"><div class="big">📼</div><h3><small>😎 The new way</small>Scrolling = the play head</h3><p>Imagine a video where <b>you</b> drag the play head. <code>animation-timeline: scroll()</code> swaps the stopwatch for the scrollbar: scroll down = play forward, scroll up = rewind.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: scroll inside each box</h2>
+    <div class="note warn unsupported" style="margin-bottom:1rem"><span class="ico">⚠️</span><p>Your browser doesn't support scroll-driven animations yet. The green bar will just look full and the cards visible, which is a safe fallback. Try Chrome, Edge or Safari 26+.</p></div>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>Scroll listener + IntersectionObserver</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="scroller old-scroll">
+              <div class="bar-track"><div class="bar old-bar"></div></div>
+              <div class="article">
+                <h3>📰 A long article</h3>
+                <div class="spacer">⬇️ keep scrolling</div>
+                <div class="reveal-card old-reveal"><span class="e">🐢</span>JS saw me with an IntersectionObserver</div>
+                <div class="reveal-card old-reveal"><span class="e">🦊</span>Then added an "is-shown" sticker</div>
+                <div class="reveal-card old-reveal"><span class="e">🐙</span>And CSS faded me in</div>
+                <div class="reveal-card old-reveal"><span class="e">🦄</span>Every single one needs watching</div>
+                <div class="spacer">🏁 the end</div>
+              </div>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>15</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>60+</b><span>scroll events per second</span></div>
+            <div class="stat"><b>🐌</b><span>can make scrolling janky</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><div class="old-scroll">
+  <div class="old-bar"></div>
+  <div class="old-reveal">🐢 ...</div>
+  <div class="old-reveal">🦊 ...</div>
+</div></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>.old-reveal {
+  opacity: 0;
+  translate: 0 40px;
+  transition: opacity .5s, translate .5s;
+}
+.old-reveal.is-shown { opacity: 1; translate: 0 0; }
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const oldScroller = document.querySelector('.old-scroll');
+const oldBar = document.querySelector('.old-bar');
+
+// 1. Progress bar: runs on EVERY scroll movement
+oldScroller.addEventListener('scroll', () => {
+  const max = oldScroller.scrollHeight - oldScroller.clientHeight;
+  const percent = (oldScroller.scrollTop / max) * 100;
+  oldBar.style.width = percent + '%';
+});
+
+// 2. Reveal cards when they come into view
+const watcher = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    entry.target.classList.toggle('is-shown', entry.isIntersecting);
+  });
+}, { root: oldScroller, threshold: 0.3 });
+
+document.querySelectorAll('.old-reveal').forEach((card) => watcher.observe(card));
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><b>Progress bar:</b> on every scroll, JS works out "how far down am I?" as a percentage: <code>scrollTop ÷ (total height − visible height)</code>.</li>
+            <li>It writes that into the bar's <code>width</code>. This can run <b>60+ times per second</b> while you scroll.</li>
+            <li><b>Reveal:</b> an <code>IntersectionObserver</code> is a lookout 🔭 that says "this card is now 30% visible".</li>
+            <li>JS then adds the <code>is-shown</code> sticker and a CSS transition fades the card in.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · CSS</h3><p>Scroll is the timeline</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="scroller">
+              <div class="bar-track"><div class="bar new-bar"></div></div>
+              <div class="article">
+                <h3>📰 A long article</h3>
+                <div class="spacer">⬇️ keep scrolling</div>
+                <div class="reveal-card new-reveal"><span class="e">🐢</span>CSS knows where I am</div>
+                <div class="reveal-card new-reveal"><span class="e">🦊</span>My animation follows your scroll</div>
+                <div class="reveal-card new-reveal"><span class="e">🐙</span>Scroll back up: I rewind!</div>
+                <div class="reveal-card new-reveal"><span class="e">🦄</span>And no JavaScript at all</div>
+                <div class="spacer">🏁 the end</div>
+              </div>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>🧈</b><span>smooth: the browser's busy main worker isn't needed</span></div>
+            <div class="stat"><b>⏪</b><span>rewinds when you scroll up</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><div class="scroller">
+  <div class="new-bar"></div>
+  <div class="new-reveal">🐢 ...</div>
+  <div class="new-reveal">🦊 ...</div>
+</div></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: try rotate in the keyframes</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* 1. progress bar: scrolling drives the animation */
+.new-bar {
+  transform-origin: left;
+  animation: fill-up linear both;
+  animation-timeline: scroll();   /* the nearest scrollbar */
+}
+@keyframes fill-up {
+  from { scale: 0 1; }            /* 0% wide */
+  to   { scale: 1 1; }            /* 100% wide */
+}
+
+/* 2. cards: animate while they enter the view */
+.new-reveal {
+  animation: pop-in linear both;
+  animation-timeline: view();     /* "me, entering the view" */
+  animation-range: entry 0% cover 35%;
+}
+@keyframes pop-in {
+  from { opacity: 0; translate: 0 40px; scale: .9; }
+  to   { opacity: 1; translate: 0 0; scale: 1; }
+}
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>@keyframes</code> is a normal CSS animation: <b>"go from THIS to THAT"</b> (bar from 0% to 100% wide).</li>
+            <li>Normally it would play over time. <code>animation-timeline: scroll()</code> says <b>"use the scrollbar as the play head instead"</b>: top = start, bottom = end.</li>
+            <li><code>view()</code> is a different play head: <b>"how far through the visible area is THIS card?"</b>. Each card gets its own.</li>
+            <li><code>animation-range: entry 0% cover 35%</code> = "play from when the card <b>starts entering</b> until it's <b>35% of the way</b> through".</li>
+            <li>No listeners. The browser runs it smoothly, even when JS is busy.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before: 60 times a second</h3>
+        <ol class="flow">
+          <li><span class="ico">🖱️</span>You scroll a tiny bit</li>
+          <li><span class="ico">👂</span>JS "scroll" event fires</li>
+          <li><span class="ico">🧮</span>JS calculates %</li>
+          <li><span class="ico">✏️</span>JS writes the width</li>
+          <li><span class="ico">🔁</span>Again... and again...</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">🖱️</span>You scroll</li>
+          <li><span class="ico">📼</span>Scroll position = animation play head</li>
+          <li><span class="ico">✨</span>Browser draws the right frame</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note good"><span class="ico">👆</span><p>This site dogfoods it: the <b>coloured bar at the very top of this page</b> is <code>animation-timeline: scroll(root)</code>. <code>root</code> means "the whole page's scrollbar".</p></div>
+      <div class="note info"><span class="ico">🪜</span><p>Unsupported browsers ignore <code>animation-timeline</code>, so the animation finishes instantly: bar full, cards visible. A safe fallback.</p></div>
+      <div class="note warn"><span class="ico">♿</span><p>Big parallax effects can make people feel sick. Put them inside <code>@media (prefers-reduced-motion: no-preference) { ... }</code>.</p></div>
+    </div>
+    <p class="takeaway">💡 Don't listen to scroll events. Let the scrollbar play the animation.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-at"><dt><code>@keyframes</code><span class="kind">📜 @-rule</span></dt><dd>A named animation: the steps from start (from / 0%) to end (to / 100%).<span class="like-a">Like: the pages of a flip-book</span></dd></div>
+      <div class="word k-prop"><dt><code>animation</code><span class="kind">🔧 Property</span></dt><dd>Plays a @keyframes animation: its name, how long, how many times.<span class="like-a">Like: pressing play on a flip-book</span></dd></div>
+      <div class="word k-prop"><dt><code>animation-timeline</code><span class="kind">🔧 Property</span></dt><dd>What drives the animation. Normally the clock. scroll() = the scrollbar, view() = the element moving on screen.<span class="like-a">Like: swapping the clock for a scroll wheel</span></dd></div>
+      <div class="word k-fn"><dt><code>scroll()</code><span class="kind">🧮 Function</span></dt><dd>An animation timeline driven by the scrollbar: 0% at the top, 100% at the bottom.<span class="like-a">Like: a flip-book you turn by scrolling</span></dd></div>
+      <div class="word k-fn"><dt><code>view()</code><span class="kind">🧮 Function</span></dt><dd>An animation timeline driven by the element moving through the screen as you scroll.<span class="like-a">Like: a door that opens as you walk up to it</span></dd></div>
+      <div class="word k-prop"><dt><code>animation-range</code><span class="kind">🔧 Property</span></dt><dd>Which part of the scroll the animation plays in, e.g. entry 0% to cover 40%.<span class="like-a">Like: "only play between these two lamp posts"</span></dd></div>
+      <div class="word k-prop"><dt><code>opacity</code><span class="kind">🔧 Property</span></dt><dd>How see-through: 0 = invisible, 1 = solid.<span class="like-a">Like: a dimmer for glass</span></dd></div>
+      <div class="word k-prop"><dt><code>translate</code><span class="kind">🔧 Property</span></dt><dd>Moves an element sideways or up and down without moving anything else. Cheap to animate.<span class="like-a">Like: sliding a sticker on glass</span></dd></div>
+      <div class="word k-prop"><dt><code>scale</code><span class="kind">🔧 Property</span></dt><dd>Makes an element bigger or smaller. 1 = normal size, 2 = double.<span class="like-a">Like: a zoom lens</span></dd></div>
+      <div class="word k-prop"><dt><code>transform-origin</code><span class="kind">🔧 Property</span></dt><dd>The pivot point for scale and rotate, e.g. left or center.<span class="like-a">Like: the pin in a spinning wheel</span></dd></div>
+      <div class="word k-prop"><dt><code>transition</code><span class="kind">🔧 Property</span></dt><dd>Animate smoothly when a value changes, instead of jumping.<span class="like-a">Like: a dimmer switch instead of an on/off switch</span></dd></div>
+      <div class="word k-unit"><dt><code>s / ms</code><span class="kind">📏 Unit</span></dt><dd>Seconds and milliseconds, for timings. 1000ms = 1s, so .3s = 300ms.<span class="like-a">Like: a stopwatch</span></dd></div>
+      <div class="word k-unit"><dt><code>px</code><span class="kind">📏 Unit</span></dt><dd>Pixels: one dot on the screen. A fixed size.<span class="like-a">Like: centimetres on a ruler</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;div&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain box with no special meaning, used to group things.<span class="like-a">Like: a cardboard box</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="12-entry-animations.html"><small>◀ Previous</small>12 · Fade in from nothing</a>
+    <a class="next" href="14-carousel.html"><small>Next ▶</small>14 · Carousels</a>
+  </nav>
+</main>
+</body>
+</html>

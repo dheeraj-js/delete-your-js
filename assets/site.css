@@ -1,0 +1,337 @@
+/* ==========================================================================
+   DELETE YOUR JS - shared presentation styles
+   No framework. No build step. Just CSS (which is kind of the point).
+   ========================================================================== */
+
+/* Page-to-page animations for the whole site (Lesson 17 explains this!) */
+@view-transition { navigation: auto; }
+
+:root {
+  color-scheme: dark;
+  --bg: #0a0e1f;
+  --bg-2: #10162e;
+  --panel: #141b38;
+  --panel-2: #1b2449;
+  --line: #2a3768;
+  --text: #eef1ff;
+  --muted: #a7b1d8;
+  --old: #ff6b6b;
+  --old-2: #ff9f43;
+  --new: #2ee6a6;
+  --new-2: #3ec5ff;
+  --accent: #9b8cff;
+  --warn: #ffd166;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --shadow: 0 24px 60px -24px rgb(0 0 0 / .7);
+  --font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", sans-serif;
+  --mono: "Cascadia Code", "JetBrains Mono", Consolas, ui-monospace, monospace;
+  --wrap: 1320px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  font-size: clamp(1rem, .95rem + .3vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--text);
+  background:
+    radial-gradient(1100px 600px at 5% -10%, #3a2a8a55, transparent 60%),
+    radial-gradient(900px 500px at 105% 5%, #0f6a7a44, transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+h1, h2, h3, h4 { line-height: 1.15; margin: 0 0 .5em; text-wrap: balance; }
+p { text-wrap: pretty; }
+a { color: var(--new-2); }
+img, svg { display: block; max-width: 100%; }
+:focus-visible { outline: 3px solid var(--warn); outline-offset: 3px; border-radius: 6px; }
+
+code {
+  font-family: var(--mono);
+  font-size: .88em;
+  padding: .1em .4em;
+  border-radius: 6px;
+  background: #ffffff17;
+}
+
+.wrap { width: min(100% - 2rem, var(--wrap)); margin-inline: auto; }
+
+/* ---------- Reading progress bar (pure CSS, scroll-driven - Lesson 13) ---------- */
+.progress {
+  position: fixed; inset: 0 0 auto 0; z-index: 60; height: 4px;
+  background: linear-gradient(90deg, var(--new), var(--new-2), var(--accent));
+  transform-origin: left;
+  scale: 0 1;
+  animation: progress-grow linear both;
+  animation-timeline: scroll(root);
+}
+@keyframes progress-grow { to { scale: 1 1; } }
+@supports not (animation-timeline: scroll()) { .progress { display: none; } }
+
+/* ---------- Top bar ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgb(10 14 31 / .78);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+  view-transition-name: topbar;
+}
+.topbar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; min-height: 64px; padding-block: .5rem; }
+.brand { display: flex; align-items: center; gap: .5rem; font-weight: 800; font-size: 1.1rem; color: var(--text); text-decoration: none; }
+.brand s { color: var(--old); text-decoration-thickness: 3px; }
+.topnav { display: flex; flex-wrap: wrap; gap: .5rem; margin-left: auto; }
+.topnav a {
+  padding: .4rem .9rem; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--text); text-decoration: none; font-size: .9rem; font-weight: 600;
+  transition: border-color .2s, background .2s;
+}
+.topnav a:hover { border-color: var(--accent); background: var(--panel-2); }
+
+/* ---------- Lesson hero ---------- */
+.lesson-hero { padding: clamp(2rem, 6vw, 4.5rem) 0 1.5rem; }
+.kicker {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .35rem .9rem; border-radius: 999px; border: 1px solid var(--line); background: var(--panel);
+  font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+}
+.lesson-hero h1, .home-hero h1 {
+  margin-top: 1rem;
+  font-size: clamp(2.2rem, 1.4rem + 4vw, 4.6rem);
+  letter-spacing: -.02em;
+  background: linear-gradient(120deg, #ffffff 10%, #cfc8ff 50%, var(--new) 95%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  view-transition-name: page-title;
+}
+.lead { max-width: 62ch; font-size: clamp(1.1rem, 1rem + .6vw, 1.45rem); color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
+.chip {
+  padding: .35rem .85rem; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2);
+  font-size: .85rem; font-weight: 600;
+}
+.chip.old { color: var(--old); border-color: #ff6b6b55; background: #ff6b6b14; }
+.chip.new { color: var(--new); border-color: #2ee6a655; background: #2ee6a614; }
+.chip.ok { color: #b8ffe6; }
+.chip.limited { color: var(--warn); border-color: #ffd16655; background: #ffd16614; }
+
+/* ---------- Sections ---------- */
+.section { padding: 2.25rem 0; }
+.section-title { display: flex; align-items: center; gap: .75rem; font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2.1rem); }
+.section-title .num {
+  display: grid; place-items: center; flex: none; width: 2.1em; aspect-ratio: 1; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--new-2)); color: #0a0e1f; font-size: .65em; font-weight: 900;
+}
+.panel {
+  padding: clamp(1.1rem, 2.5vw, 2rem); border-radius: var(--radius); border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--panel), var(--bg-2)); box-shadow: var(--shadow);
+}
+
+/* ---------- "In plain English" analogy cards ---------- */
+.plain { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); }
+.analogy { padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); }
+.analogy .big { font-size: 3.4rem; line-height: 1; margin-bottom: .75rem; }
+.analogy h3 { font-size: 1.25rem; }
+.analogy h3 small { display: block; margin-bottom: .35rem; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.analogy p { margin: 0; color: #d3d9f5; }
+.analogy.what { border-color: #9b8cff55; background: linear-gradient(160deg, #9b8cff22, var(--panel) 60%); }
+.analogy.old { border-color: #ff6b6b55; background: linear-gradient(160deg, #ff6b6b1f, var(--panel) 60%); }
+.analogy.new { border-color: #2ee6a655; background: linear-gradient(160deg, #2ee6a61f, var(--panel) 60%); }
+.analogy.old h3 small { color: var(--old); }
+.analogy.new h3 small { color: var(--new); }
+.analogy.what h3 small { color: var(--accent); }
+
+/* ---------- Before / After comparison ---------- */
+/* minmax(0, 1fr) stops long code lines from stretching the columns */
+.compare { display: grid; gap: 1.5rem; grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 980px) { .compare { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.side {
+  min-width: 0; display: flex; flex-direction: column;
+  border: 2px solid var(--c); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow);
+}
+.side.before { --c: #ff6b6b66; --tone: var(--old); }
+.side.after  { --c: #2ee6a666; --tone: var(--new); }
+.side-head {
+  display: flex; align-items: center; gap: .8rem; padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--c); border-radius: calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0 0;
+  background: color-mix(in srgb, var(--tone) 14%, transparent);
+}
+.side-head .face { font-size: 2.1rem; line-height: 1; }
+.side-head h3 { margin: 0; font-size: 1.15rem; letter-spacing: .04em; color: var(--tone); }
+.side-head p { margin: 0; font-size: .85rem; color: var(--muted); }
+.side-body { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.2rem; padding: 1.25rem; }
+.side-body > h4 { margin: .25rem 0 0; font-size: 1.05rem; }
+
+/* The live demo "stage" - looks like a real (light) website */
+.stage {
+  position: relative; min-height: 230px; padding: 2.4rem 1.25rem 1.5rem;
+  display: grid; place-items: center;
+  border-radius: var(--radius-sm); color-scheme: light; color: #1d2340;
+  background-color: #f6f7fc;
+  background-image: radial-gradient(#d6dbef 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+.stage::before {
+  content: "▶ LIVE DEMO · try it";
+  position: absolute; top: .65rem; left: .85rem;
+  font-size: .68rem; font-weight: 800; letter-spacing: .12em; color: #6b7394;
+}
+.stage.code-only::before { content: "📄 CODE ONLY · not running here"; }
+.stage code { background: #1d234012; }
+
+.stats { display: flex; flex-wrap: wrap; gap: .6rem; }
+.stat { flex: 1 1 120px; padding: .7rem .9rem; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--bg-2); }
+.stat b { display: block; font-size: 1.7rem; line-height: 1.1; color: var(--tone); }
+.stat span { font-size: .78rem; color: var(--muted); }
+
+/* ---------- Code blocks ----------
+   Fun fact: these are REAL <script> and <style> tags.
+   Browsers hide them by default (display: none). We just... un-hide them. */
+.code { margin: 0; overflow: hidden; border-radius: var(--radius-sm); border: 1px solid var(--line); background: #080c1c; }
+.code figcaption {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem;
+  padding: .5rem .9rem; border-bottom: 1px solid var(--line); background: #ffffff08;
+  font-size: .75rem; font-weight: 700; color: var(--muted);
+}
+.lang { padding: .15rem .6rem; border-radius: 6px; font-weight: 900; letter-spacing: .08em; color: #0a0e1f; }
+.lang.html { background: var(--old-2); }
+.lang.css  { background: var(--new-2); }
+.lang.js   { background: var(--warn); }
+.edit-hint { color: var(--new); }
+.code script, .code style, .code .src {
+  display: block; margin: 0; padding: 1rem 1.1rem;
+  max-height: 480px; overflow: auto;
+  white-space: pre; tab-size: 2;
+  font: .85rem/1.7 var(--mono); color: #e7eaff;
+  font-variant-ligatures: none; /* show => as two characters, not one arrow */
+}
+.code style[contenteditable] { outline: none; caret-color: var(--new); }
+.code style[contenteditable]:focus { box-shadow: inset 0 0 0 2px var(--new); }
+
+/* ---------- Numbered explanation steps ---------- */
+.steps { counter-reset: step; list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.steps li {
+  counter-increment: step; position: relative;
+  padding: .75rem .95rem .75rem 3.2rem; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--bg-2);
+  font-size: .95rem;
+}
+.steps li::before {
+  content: counter(step);
+  position: absolute; left: .8rem; top: .75rem; display: grid; place-items: center;
+  width: 1.75rem; height: 1.75rem; border-radius: 50%;
+  background: var(--tone, var(--accent)); color: #0a0e1f; font-weight: 900; font-size: .85rem;
+}
+
+/* ---------- Picture-version flow diagrams ---------- */
+.flows { display: grid; gap: 1.25rem; }
+.flow-row { display: grid; gap: 1rem; padding: 1.25rem; border-radius: var(--radius); border: 2px dashed var(--c); background: #ffffff05; }
+.flow-row.before { --tone: var(--old); --c: #ff6b6b55; }
+.flow-row.after  { --tone: var(--new); --c: #2ee6a655; }
+.flow-row h3 { margin: 0; font-size: 1.05rem; color: var(--tone); }
+.flow { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1.6rem 2.6rem; }
+.flow li {
+  position: relative; flex: 1 1 140px; max-width: 230px; padding: 1rem .8rem; text-align: center;
+  border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--panel-2); font-size: .92rem;
+}
+.flow li .ico { display: block; margin-bottom: .35rem; font-size: 2.1rem; line-height: 1.1; }
+.flow li:not(:last-child)::after {
+  content: "➜"; position: absolute; top: 50%; right: -2rem; translate: 0 -50%;
+  font-size: 1.4rem; color: var(--tone);
+}
+@media (max-width: 640px) {
+  .flow { flex-direction: column; align-items: stretch; gap: 2.2rem; }
+  .flow li { max-width: none; }
+  .flow li:not(:last-child)::after { content: "⬇"; top: auto; right: auto; bottom: -2.05rem; left: 50%; translate: -50% 0; }
+}
+
+/* ---------- Notes & takeaways ---------- */
+.notes { display: grid; gap: .9rem; }
+.note { display: flex; gap: 1rem; align-items: flex-start; padding: 1rem 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--panel); }
+.note .ico { flex: none; font-size: 1.6rem; line-height: 1.2; }
+.note p { margin: 0; }
+.note.info { border-color: #3ec5ff55; background: #3ec5ff12; }
+.note.warn { border-color: #ffd16655; background: #ffd16612; }
+.note.good { border-color: #2ee6a655; background: #2ee6a612; }
+.note.bad  { border-color: #ff6b6b55; background: #ff6b6b12; }
+.unsupported { display: none; } /* each page reveals this with @supports not (...) */
+
+.takeaway {
+  margin: 1rem 0 0; padding: clamp(1.25rem, 3vw, 2rem); border-radius: var(--radius); text-align: center;
+  font-size: clamp(1.15rem, 1rem + 1vw, 1.7rem); font-weight: 700; text-wrap: balance;
+  background: linear-gradient(120deg, #9b8cff33, #2ee6a62a); border: 1px solid #9b8cff66;
+}
+
+/* ---------- "Words used on this page" (made by ../delete-your-js-tools/css-words.js) ---------- */
+.words-intro { max-width: 70ch; margin: 0 0 1.25rem; color: var(--muted); }
+.words { display: grid; gap: .9rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); margin: 0; }
+.word { display: flex; flex-direction: column; gap: .5rem; padding: 1rem 1.1rem; border-radius: var(--radius-sm); border: 1px solid var(--line); border-top: 3px solid var(--kc, var(--accent)); background: var(--panel); }
+.word dt { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem; }
+.word dt code { font-size: 1rem; font-weight: 700; color: #fff; background: color-mix(in srgb, var(--kc, var(--accent)) 22%, #080c1c); }
+.word .kind { font-size: .72rem; font-weight: 800; letter-spacing: .04em; color: var(--kc, var(--accent)); }
+.word dd { margin: 0; font-size: .92rem; color: #d3d9f5; }
+.word .like-a { display: block; margin-top: .4rem; font-size: .82rem; font-weight: 700; color: var(--warn); }
+.k-prop { --kc: var(--new-2); } .k-sel, .k-syntax { --kc: #ff9f43; } .k-mood { --kc: #ff6b9d; } .k-ghost { --kc: #c9c2ff; }
+.k-at { --kc: var(--warn); } .k-fn, .k-val { --kc: #7ee0ff; } .k-unit { --kc: var(--new); } .k-tag { --kc: var(--old-2); } .k-attr { --kc: #ffb38a; }
+
+/* ---------- Prev / next pager ---------- */
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 2rem 0 4rem; }
+.pager a {
+  display: block; padding: 1.1rem 1.3rem; border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--panel); color: var(--text); text-decoration: none; font-weight: 700;
+  transition: translate .2s, border-color .2s;
+}
+.pager a:hover { translate: 0 -3px; border-color: var(--accent); }
+.pager small { display: block; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.pager .next { grid-column: 2; text-align: right; }
+@media (max-width: 600px) { .pager { grid-template-columns: 1fr; } .pager .next { grid-column: auto; } }
+
+/* ---------- Page transition polish ---------- */
+::view-transition-old(root) { animation: 220ms ease-in both vt-out; }
+::view-transition-new(root) { animation: 320ms ease-out both vt-in; }
+@keyframes vt-out { to { opacity: 0; translate: 0 -14px; } }
+@keyframes vt-in { from { opacity: 0; translate: 0 14px; } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
+/* ==========================================================================
+   DEMO KIT - shared look for the things inside the light "stage"
+   ========================================================================== */
+.btn {
+  font: inherit; font-size: 1rem; font-weight: 700;
+  padding: .7rem 1.2rem; border: 0; border-radius: 12px; cursor: pointer;
+  background: #1d2340; color: #fff; box-shadow: 0 8px 18px -8px rgb(29 35 64 / .6);
+  transition: translate .15s, background .2s;
+}
+.btn:hover { translate: 0 -2px; background: #2c3563; }
+.btn:active { translate: 0 0; }
+.btn.light { background: #fff; color: #1d2340; border: 1px solid #d5d9ea; }
+.btn.green { background: #0fa678; }
+
+.demo-menu {
+  list-style: none; margin: 0; padding: .4rem; min-width: 190px;
+  border: 1px solid #e1e4f0; border-radius: 14px; background: #fff; color: #1d2340;
+  box-shadow: 0 22px 44px -14px rgb(29 35 64 / .4);
+}
+.demo-menu a { display: block; padding: .55rem .85rem; border-radius: 9px; color: #1d2340; text-decoration: none; font-weight: 600; }
+.demo-menu a:hover { background: #eef0fb; }
+
+.demo-card {
+  width: 100%; padding: 1.25rem; border-radius: 16px; border: 1px solid #e1e4f0; background: #fff; color: #1d2340;
+  box-shadow: 0 16px 34px -18px rgb(29 35 64 / .35);
+}
+.demo-input {
+  width: 100%; padding: .7rem .9rem; font: inherit; color: #1d2340;
+  border: 2px solid #d5d9ea; border-radius: 10px; background: #fff;
+  transition: border-color .2s, box-shadow .2s;
+}
+.demo-input:focus { outline: none; border-color: #6c5ce7; box-shadow: 0 0 0 4px #6c5ce733; }
+.demo-label { display: block; margin-bottom: .35rem; font-weight: 700; font-size: .95rem; }
+.demo-muted { color: #5b6388; font-size: .92rem; }

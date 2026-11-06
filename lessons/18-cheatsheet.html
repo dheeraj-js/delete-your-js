@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>18 · Cheat sheet | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.sheet { width: 100%; border-collapse: separate; border-spacing: 0; overflow: hidden; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); font-size: .95rem; }
+.sheet th, .sheet td { padding: .85rem 1rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+.sheet thead th { background: var(--panel-2); font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.sheet tbody tr:last-child td { border-bottom: 0; }
+.sheet tbody tr:hover td { background: #ffffff06; }
+.sheet .n { font-family: var(--mono); color: var(--muted); }
+.sheet a { color: var(--text); font-weight: 800; text-decoration: none; }
+.sheet a:hover { color: var(--new-2); }
+.sheet .was { color: var(--old); }
+.sheet .now { color: var(--new); font-family: var(--mono); font-size: .88rem; }
+.sheet .js { font-weight: 800; color: var(--old); white-space: nowrap; }
+.sup { white-space: nowrap; }
+@media (max-width: 820px) {
+  .sheet, .sheet tbody, .sheet tr, .sheet td { display: block; }
+  .sheet thead { display: none; }
+  .sheet tr { padding: .8rem 1rem; border-bottom: 1px solid var(--line); }
+  .sheet td { padding: .2rem 0; border: 0; }
+  .sheet td[data-l]::before { content: attr(data-l) ": "; color: var(--muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+}
+.need { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
+.need div { padding: 1.2rem; border-radius: var(--radius); border: 1px solid #ffd16655; background: #ffd16610; }
+.need .e { font-size: 2rem; }
+.need b { display: block; margin: .3rem 0; }
+.need p { margin: 0; color: #d3d9f5; font-size: .92rem; }
+/* ---- The honest conclusion ---- */
+.c-sub { margin: 1.75rem 0 .8rem; font-size: 1.2rem; }
+.c-sub:first-of-type { margin-top: .5rem; }
+.c-stats { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+.c-stats div { display: grid; gap: .3rem; padding: 1.2rem 1.3rem; border-radius: var(--radius); border: 1px solid #2ee6a655; border-top: 4px solid var(--new); background: linear-gradient(160deg, #2ee6a61a, var(--panel) 70%); }
+.c-stats b { font-size: clamp(1.8rem, 1.4rem + 1.4vw, 2.6rem); font-weight: 900; line-height: 1; color: var(--new); }
+.c-stats span { color: #d3d9f5; font-size: .92rem; }
+.c-src { margin: .5rem 0 0; font-size: .75rem; color: var(--muted); }
+.c-when { display: grid; gap: .9rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
+.c-when div { display: grid; align-content: start; gap: .35rem; padding: 1.1rem 1.2rem; border-radius: var(--radius); border: 1px solid #ffd16655; background: #ffd1660d; }
+.c-ico { font-size: 1.8rem; line-height: 1; }
+.c-when b { font-size: 1rem; line-height: 1.3; }
+.c-when p { margin: 0; color: var(--muted); font-size: .85rem; }
+.c-when em { margin-top: .3rem; font-style: normal; font-weight: 800; font-size: .88rem; color: var(--warn); }
+.ladder { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: .8rem; max-width: 860px; }
+.ladder > div { position: relative; display: grid; align-content: end; gap: .2rem; padding: 1rem 1.1rem; border-radius: var(--radius) var(--radius) 8px 8px; border: 2px solid var(--lc); background: color-mix(in srgb, var(--lc) 16%, var(--panel)); }
+.ladder .l1 { --lc: #ff9f43; min-height: 110px; } .ladder .l2 { --lc: #2ee6a6; min-height: 150px; } .ladder .l3 { --lc: #ff6b6b; min-height: 190px; }
+.ladder b { font-size: 1.2rem; }
+.ladder small { color: #d3d9f5; font-size: .82rem; }
+.l-n { position: absolute; top: .7rem; left: 1rem; display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; font-weight: 900; background: var(--lc); color: #0a0e1f; }
+.ladder-note { margin: .7rem 0 1.25rem; color: var(--muted); font-size: .92rem; }
+.sources { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); }
+.source { position: relative; margin: 0; padding: 1.4rem 1.4rem 1.2rem; border-radius: var(--radius); border: 2px solid #9b8cff77; background: linear-gradient(160deg, #9b8cff24, var(--panel) 70%); box-shadow: 0 20px 44px -26px #9b8cffaa; }
+.s-badge { display: inline-block; margin-bottom: .7rem; padding: .3rem .8rem; border-radius: 8px; font-weight: 900; letter-spacing: .06em; color: #fff; }
+.s-badge.w3c { background: #005a9c; } .s-badge.gov { background: #1d70b8; }
+.source blockquote { margin: 0 0 .7rem; font-size: clamp(1.25rem, 1.05rem + .9vw, 1.7rem); font-weight: 800; font-style: italic; line-height: 1.3; }
+.source figcaption { color: #d3d9f5; font-size: .88rem; }
+.source figcaption a { font-weight: 800; white-space: nowrap; }
+.c-prove { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.25rem; padding: 1.1rem 1.4rem; border-radius: var(--radius); border: 1px solid #3ec5ff66; background: #3ec5ff12; }
+.c-prove p { margin: 0; }
+.c-prove a { padding: .7rem 1.2rem; border-radius: 999px; font-weight: 800; text-decoration: none; color: #0a0e1f; background: linear-gradient(120deg, var(--new), var(--new-2)); }
+@media (max-width: 600px) { .ladder { grid-template-columns: minmax(0, 1fr); } .ladder > div { min-height: 0 !important; padding-top: 3rem; } }
+.rule { display: grid; grid-template-columns: minmax(0, 1fr); gap: .8rem; counter-reset: r; }
+.rule div > * { min-width: 0; overflow-wrap: anywhere; }
+.rule div { counter-increment: r; display: flex; gap: 1rem; align-items: center; padding: 1rem 1.25rem; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); font-size: 1.1rem; }
+.rule div::before { content: counter(r); display: grid; place-items: center; flex: none; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: linear-gradient(135deg, var(--new), var(--new-2)); color: #0a0e1f; font-weight: 900; }
+.reveal-code .code script { max-height: none; }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="17-page-transitions.html">◀ Prev</a><a href="../index.html">All lessons</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 18 · 📄 Take-home summary</span>
+    <h1>The cheat sheet</h1>
+    <p class="lead">Everything from today on one page. Screenshot it, print it, stick it on your monitor.</p>
+  </section>
+
+  <section class="section">
+    <table class="sheet">
+      <thead><tr><th>#</th><th>I want...</th><th>We used to write</th><th>Now use</th><th>JS deleted</th><th>Support</th></tr></thead>
+      <tbody>
+        <tr><td class="n">01</td><td><a href="01-popover.html">📋 A dropdown menu</a></td><td class="was" data-l="Was">click + click-outside + Escape listeners</td><td class="now" data-l="Now">popover · popovertarget</td><td class="js" data-l="Deleted">−24 lines</td><td class="sup" data-l="Support">✅ Baseline 2024</td></tr>
+        <tr><td class="n">02</td><td><a href="02-dialog.html">🪟 A modal pop-up</a></td><td class="was" data-l="Was">overlay div, focus, scroll lock</td><td class="now" data-l="Now">&lt;dialog&gt; · commandfor · ::backdrop</td><td class="js" data-l="Deleted">−22 lines</td><td class="sup" data-l="Support">✅ / 🆕 2025</td></tr>
+        <tr><td class="n">03</td><td><a href="03-accordion.html">🪗 An accordion</a></td><td class="was" data-l="Was">close-others loop, height maths</td><td class="now" data-l="Now">&lt;details name&gt; · interpolate-size</td><td class="js" data-l="Deleted">−17 lines</td><td class="sup" data-l="Support">✅ (anim ⚠️)</td></tr>
+        <tr><td class="n">04</td><td><a href="04-tooltip.html">💬 A tooltip</a></td><td class="was" data-l="Was">getBoundingClientRect, Popper.js</td><td class="now" data-l="Now">anchor-name · position-area</td><td class="js" data-l="Deleted">−21 lines</td><td class="sup" data-l="Support">🆕 2026</td></tr>
+        <tr><td class="n">05</td><td><a href="05-select.html">🍕 A styled select</a></td><td class="was" data-l="Was">fake div dropdown, Select2</td><td class="now" data-l="Now">appearance: base-select</td><td class="js" data-l="Deleted">−15 lines</td><td class="sup" data-l="Support">⚠️ Chrome/Edge</td></tr>
+        <tr><td class="n">06</td><td><a href="06-autogrow.html">📝 A growing text box</a></td><td class="was" data-l="Was">scrollHeight on every key</td><td class="now" data-l="Now">field-sizing: content</td><td class="js" data-l="Deleted">−7 lines</td><td class="sup" data-l="Support">🆕 2026</td></tr>
+        <tr><td class="n">07</td><td><a href="07-validation.html">✅ Polite form errors</a></td><td class="was" data-l="Was">blur + "touched" classes</td><td class="now" data-l="Now">:user-invalid · :user-valid</td><td class="js" data-l="Deleted">−15 lines</td><td class="sup" data-l="Support">✅ Baseline 2023</td></tr>
+        <tr><td class="n">08</td><td><a href="08-has.html">👨‍👧 Style a parent</a></td><td class="was" data-l="Was">closest() + classList</td><td class="now" data-l="Now">:has()</td><td class="js" data-l="Deleted">−10 lines</td><td class="sup" data-l="Support">✅ Baseline 2023</td></tr>
+        <tr><td class="n">09</td><td><a href="09-counters.html">🔢 A live count</a></td><td class="was" data-l="Was">count :checked, textContent</td><td class="now" data-l="Now">counter-increment · counter()</td><td class="js" data-l="Deleted">−8 lines</td><td class="sup" data-l="Support">✅ forever</td></tr>
+        <tr><td class="n">10</td><td><a href="10-dark-mode.html">🌙 Dark mode</a></td><td class="was" data-l="Was">.dark class + every colour twice</td><td class="now" data-l="Now">color-scheme · light-dark()</td><td class="js" data-l="Deleted">−6 lines</td><td class="sup" data-l="Support">✅ Baseline 2024</td></tr>
+        <tr><td class="n">11</td><td><a href="11-container-queries.html">📦 Responsive components</a></td><td class="was" data-l="Was">ResizeObserver + classes</td><td class="now" data-l="Now">container-type · @container</td><td class="js" data-l="Deleted">−6 lines</td><td class="sup" data-l="Support">✅ Baseline 2023</td></tr>
+        <tr><td class="n">12</td><td><a href="12-entry-animations.html">✨ Animate from display:none</a></td><td class="was" data-l="Was">double rAF + transitionend</td><td class="now" data-l="Now">@starting-style · allow-discrete</td><td class="js" data-l="Deleted">−17 lines</td><td class="sup" data-l="Support">✅ Baseline 2024</td></tr>
+        <tr><td class="n">13</td><td><a href="13-scroll-animations.html">📜 Scroll animations</a></td><td class="was" data-l="Was">scroll listener, IntersectionObserver</td><td class="now" data-l="Now">animation-timeline: scroll() / view()</td><td class="js" data-l="Deleted">−15 lines</td><td class="sup" data-l="Support">🆕 not Firefox yet</td></tr>
+        <tr><td class="n">14</td><td><a href="14-carousel.html">🎠 A carousel</a></td><td class="was" data-l="Was">index + translateX, slider libs</td><td class="now" data-l="Now">scroll-snap · ::scroll-button · ::scroll-marker</td><td class="js" data-l="Deleted">−13 lines</td><td class="sup" data-l="Support">✅ snap / ⚠️ buttons</td></tr>
+        <tr><td class="n">15</td><td><a href="15-smooth-scroll.html">🛷 Smooth scroll to a section</a></td><td class="was" data-l="Was">preventDefault + scrollTo maths</td><td class="now" data-l="Now">scroll-behavior · scroll-margin-top</td><td class="js" data-l="Deleted">−11 lines</td><td class="sup" data-l="Support">✅ all browsers</td></tr>
+        <tr><td class="n">16</td><td><a href="16-balanced-text.html">⚖️ Balanced headlines</a></td><td class="was" data-l="Was">balance-text.js binary search</td><td class="now" data-l="Now">text-wrap: balance / pretty</td><td class="js" data-l="Deleted">−18 lines</td><td class="sup" data-l="Support">✅ Baseline 2024</td></tr>
+        <tr><td class="n">17</td><td><a href="17-page-transitions.html">🎬 Page transitions</a></td><td class="was" data-l="Was">fetch + innerHTML + pushState</td><td class="now" data-l="Now">@view-transition · view-transition-name</td><td class="js" data-l="Deleted">−15+ lines</td><td class="sup" data-l="Support">🆕 Chrome/Safari</td></tr>
+      </tbody>
+    </table>
+    <p class="takeaway">🗑️ Total: roughly <b>240 lines</b> of hand-written JavaScript deleted, plus the libraries (Popper, Select2, Swiper, balance-text...) that we no longer need to download.</p>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">❤️</span> When you STILL need JavaScript</h2>
+    <div class="need">
+      <div><div class="e">💾</div><b>Saving and remembering</b><p>Remembering a choice (like dark mode) for next time, saving a form draft.</p></div>
+      <div><div class="e">🌐</div><b>Talking to servers</b><p>Loading data, live search, sending forms without reloading, chat.</p></div>
+      <div><div class="e">🧮</div><b>Real logic and maths</b><p>Prices, baskets, filters, anything where the number is used and not just shown.</p></div>
+      <div><div class="e">⏱️</div><b>Timers</b><p>Auto-play carousels, countdowns, "session expires in 5 minutes".</p></div>
+      <div><div class="e">📊</div><b>Tracking and analytics</b><p>Measuring what people click (with consent!).</p></div>
+      <div><div class="e">🎮</div><b>Truly interactive apps</b><p>Editors, games, drag-and-drop builders, maps.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">🧭</span> The golden rules</h2>
+    <div class="rule">
+      <div>Before you write JS or <code>npm install</code> a UI library, ask: <b>"can HTML or CSS already do this?"</b></div>
+      <div>If JS is only <b>moving stickers (classes) around</b> for CSS, there's probably a CSS feature for it.</div>
+      <div>Use new features as a <b>staircase 🪜</b>: everyone gets a working page, modern browsers get the extras.</div>
+      <div>Check support on <a href="https://web.dev/baseline" target="_blank" rel="noopener">web.dev/baseline</a> and <a href="https://caniuse.com" target="_blank" rel="noopener">caniuse.com</a>.</div>
+      <div>JavaScript isn't the enemy. <b>Use the brain for brain jobs</b>, and let the paint do the painting.</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">⚖️</span> The honest conclusion</h2>
+
+    <h3 class="c-sub">✅ Why it's worth it</h3>
+    <div class="c-stats">
+      <div><b>650 KB</b><span>of JavaScript on a typical phone page, vs 79 KB of CSS</span></div>
+      <div><b>1.9 s</b><span>a typical phone page is too busy to answer a tap</span></div>
+      <div><b>1 in 93</b><span>visits never ran the JavaScript. Built-in HTML still works</span></div>
+      <div><b>♿ Free</b><span>keyboard, focus and screen-reader support come built in</span></div>
+    </div>
+    <p class="c-src">Sources: Web Almanac 2025 · GOV.UK (2013)</p>
+
+    <h3 class="c-sub">⚠️ When NOT to delete it</h3>
+    <div class="c-when">
+      <div><span class="c-ico">🌐</span><b>It isn't widely supported yet</b><p>Check the lesson's badge.</p><em>→ Keep a fallback, or keep the JS for now</em></div>
+      <div><span class="c-ico">🧩</span><b>The built-in version can't do the job</b><p>A type-to-search dropdown, a carousel that plays by itself.</p><em>→ Keep the JavaScript</em></div>
+      <div><span class="c-ico">🦯</span><b>A CSS trick breaks keyboards or screen readers</b><p>Hacks that only look right.</p><em>→ Use real HTML elements</em></div>
+      <div><span class="c-ico">🐘</span><b>The real problem is somewhere else</b><p>A 2 MB picture, a slow server.</p><em>→ Measure first</em></div>
+      <div><span class="c-ico">🏗️</span><b>A big rewrite for a tiny gain</b><p>Touching a stable page just for this.</p><em>→ Change it when you're already working on it</em></div>
+    </div>
+
+    <h3 class="c-sub">🪜 The order: always the least powerful tool first</h3>
+    <div class="ladder" aria-label="HTML first, then CSS, then JavaScript">
+      <div class="l1"><span class="l-n">1</span><b>🧱 HTML</b><small>the content, plus built-in behaviour</small></div>
+      <div class="l2"><span class="l-n">2</span><b>🎨 CSS</b><small>looks, states and animation</small></div>
+      <div class="l3"><span class="l-n">3</span><b>🧠 JavaScript</b><small>only the brain jobs</small></div>
+    </div>
+    <p class="ladder-note">↗ Each step up is more powerful, but also more to download, run and break. One component saves a little; a whole site of them adds up.</p>
+
+    <div class="sources">
+      <figure class="source"><div class="s-badge w3c">W3C</div>
+        <blockquote>"Use the least powerful language suitable…"</blockquote>
+        <figcaption><b>The Rule of Least Power</b> · Tim Berners-Lee &amp; Noah Mendelsohn, W3C, 2006. It names HTML ("intentionally designed not to be a full programming language") and CSS ("a declarative styling language that is easily analyzed") as the less powerful choices. <a href="https://www.w3.org/2001/tag/doc/leastPower.html">Read it ↗</a></figcaption></figure>
+      <figure class="source"><div class="s-badge gov">GOV.UK</div>
+        <blockquote>"Make your page work with HTML first."</blockquote>
+        <figcaption><b>Service Manual: progressive enhancement</b> · the UK government builds every service this way: HTML first, then CSS, then JavaScript to enhance it. <a href="https://www.gov.uk/service-manual/technology/using-progressive-enhancement">Read it ↗</a></figcaption></figure>
+    </div>
+
+    <div class="c-prove"><p><b>🔬 Don't take my word for it.</b> Measure your Web Vitals before and after you delete some JavaScript.</p><a href="https://pagespeed.web.dev/">Open PageSpeed Insights ↗</a></div>
+  </section>
+
+  <section class="section reveal-code">
+    <h2 class="section-title"><span class="num">🤫</span> One last secret about this presentation</h2>
+    <div class="panel">
+      <p>Did you notice every code box showed <b>exactly</b> the code that was running? And that you could <b>edit the CSS live</b>? There's no code-highlighting library and no JavaScript for that. The code boxes <b>are</b> the real <code>&lt;style&gt;</code> and <code>&lt;script&gt;</code> tags. Browsers hide them by default, and this CSS un-hides them:</p>
+      <figure class="code" style="margin-top:1rem"><figcaption><span class="lang css">CSS</span><span>from assets/site.css</span></figcaption><script type="text/plain">/* <style> and <script> are just elements with display: none by default... */
+.code script,
+.code style {
+  display: block;       /* ...so show them! */
+  white-space: pre;     /* keep the line breaks and spaces */
+  font-family: monospace;
+}
+
+/* and contenteditable on a <style> lets you edit CSS live, on stage */
+<style contenteditable="plaintext-only"> ... </style></script></figure>
+    </div>
+    <p class="takeaway">Thank you! 🙌 Now go delete some JavaScript. 🗑️</p>
+  </section>
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="17-page-transitions.html"><small>◀ Previous</small>17 · Page transitions</a>
+    <a class="next" href="../index.html"><small>Back to start ▶</small>All lessons</a>
+  </nav>
+</main>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · Tooltips | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { min-height: 260px; }
+.tip-bubble {
+  width: max-content; max-width: 220px; padding: .55rem .85rem; border-radius: 10px;
+  background: #1d2340; color: #fff; font-size: .9rem; font-weight: 600; pointer-events: none;
+  box-shadow: 0 12px 26px -10px rgb(29 35 64 / .6);
+}
+.anchor-demo { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+.magnet { position: relative; padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); text-align: center; }
+.magnet .row { display: flex; justify-content: center; align-items: center; gap: .5rem; font-size: 2.5rem; }
+.magnet p { margin: .5rem 0 0; color: var(--muted); }
+@supports not (anchor-name: --a) { .unsupported { display: flex; } }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="03-accordion.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="05-select.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 04 / 17 · 💬 Anchor positioning</span>
+    <h1>Tooltips that stick to their button</h1>
+    <p class="lead">Tie one element to another, like a balloon tied to a wrist. If there's no room above, it flips below by itself. No measuring, no maths, no Popper.js.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: getBoundingClientRect() · scroll/resize listeners · Popper.js / Floating UI</span>
+      <span class="chip new">Uses: anchor-name · position-anchor · position-area · position-try</span>
+      <span class="chip limited">🆕 Chrome/Edge 125+, Safari 26+, Firefox rolling out in 2026 (check caniuse)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A little speech bubble on hover</h3><p>Hover or tab to a button and a hint pops up above it. Near the top of the screen? It should go below instead.</p></div>
+      <div class="analogy old"><div class="big">📐</div><h3><small>😓 The old way</small>Measure, calculate, repeat forever</h3><p>JS asks "where is the button right now?", calculates where the bubble should go in pixels, and has to do it again on <b>every scroll and every resize</b>.</p></div>
+      <div class="analogy new"><div class="big">🎈</div><h3><small>😎 The new way</small>Tie a balloon to a wrist</h3><p>Give the button a name (the <b>anchor</b>) and tell the bubble "stick to the top of that". Wherever the button goes, the bubble follows.</p></div>
+    </div>
+    <div class="anchor-demo" style="margin-top:1.25rem">
+      <div class="magnet"><div class="row">⚓ <span style="font-size:1.4rem">anchor-name: --btn</span></div><p>Step 1: give the button a name, like a name-tag for anchoring.</p></div>
+      <div class="magnet"><div class="row">🎈 <span style="font-size:1.4rem">position-anchor: --btn</span></div><p>Step 2: tell the bubble which anchor to hold on to.</p></div>
+      <div class="magnet"><div class="row">🧭 <span style="font-size:1.4rem">position-area: top</span></div><p>Step 3: say which side. Think of a 3×3 grid around the button.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: hover (or Tab to) the buttons</h2>
+    <div class="note warn unsupported" style="margin-bottom:1rem"><span class="ico">⚠️</span><p>Your browser doesn't support anchor positioning yet, so the green demo won't place its bubble correctly. Try it in Chrome, Edge or Safari 26+.</p></div>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>Measure and place by hand</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <button class="btn old-tip-btn" aria-describedby="old-tip">Hover me ❓</button>
+            <span class="tip-bubble old-tip" id="old-tip" role="tooltip">I was placed with JavaScript maths 🧮</span>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>21</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>6</b><span>event listeners</span></div>
+            <div class="stat"><b>🔁</b><span>re-runs on every scroll</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><button class="old-tip-btn" aria-describedby="old-tip">Hover me ❓</button>
+<span class="old-tip" id="old-tip" role="tooltip">I was placed with JavaScript maths 🧮</span></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>.old-tip {
+  position: fixed;          /* JS will write top/left */
+  opacity: 0;
+  transition: opacity .2s;
+}
+.old-tip.is-visible { opacity: 1; }
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const tipBtn = document.querySelector('.old-tip-btn');
+const tip = document.querySelector('.old-tip');
+
+function placeTip() {
+  const btnBox = tipBtn.getBoundingClientRect(); // where is the button?
+  const tipBox = tip.getBoundingClientRect();    // how big is the bubble?
+
+  let top = btnBox.top - tipBox.height - 10;     // try ABOVE the button
+  if (top < 70) top = btnBox.bottom + 10;        // no room? go BELOW
+
+  const left = btnBox.left + btnBox.width / 2 - tipBox.width / 2;
+  tip.style.top = top + 'px';
+  tip.style.left = left + 'px';
+}
+
+function showTip() { placeTip(); tip.classList.add('is-visible'); }
+function hideTip() { tip.classList.remove('is-visible'); }
+
+tipBtn.addEventListener('mouseenter', showTip);
+tipBtn.addEventListener('mouseleave', hideTip);
+tipBtn.addEventListener('focus', showTip);
+tipBtn.addEventListener('blur', hideTip);
+window.addEventListener('scroll', placeTip);  // re-measure on EVERY scroll...
+window.addEventListener('resize', placeTip);  // ...and every resize
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>getBoundingClientRect()</code> asks the browser: <b>"where exactly is this button on screen right now?"</b> (x, y, width, height).</li>
+            <li>JS <b>calculates</b> a position above the button. If that's off the top of the screen, it goes below instead.</li>
+            <li>JS writes the result as pixel numbers: <code>top: 123px; left: 456px</code>.</li>
+            <li>It needs <b>6 listeners</b>: mouse in/out, keyboard focus in/out, and scroll and resize, because the moment the page moves, the numbers are wrong.</li>
+            <li>Real projects usually download a library (Popper.js / Floating UI) to do this properly.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · CSS</h3><p>Anchor positioning</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <button class="btn new-tip-btn" aria-describedby="new-tip">Hover me ❓</button>
+            <span class="tip-bubble new-tip" id="new-tip" role="tooltip">I'm tied to the button with CSS 🎈</span>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>0</b><span>pixel calculations</span></div>
+            <div class="stat"><b>🔄</b><span>flips by itself</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><button class="new-tip-btn" aria-describedby="new-tip">Hover me ❓</button>
+<span class="new-tip" id="new-tip" role="tooltip">I'm tied to the button with CSS 🎈</span></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: change "top" to "right"</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* 1. Give the button an anchor name */
+.new-tip-btn { anchor-name: --tip-btn; }
+
+/* 2. Tie the bubble to it */
+.new-tip {
+  position: fixed;
+  position-anchor: --tip-btn;
+  position-area: top;               /* sit ABOVE it */
+  margin: 10px;
+  position-try-fallbacks: flip-block; /* no room? flip BELOW */
+
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+/* 3. Show it on hover or keyboard focus */
+.new-tip-btn:is(:hover, :focus-visible) + .new-tip {
+  opacity: 1;
+}
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>anchor-name: --tip-btn</code> gives the button a <b>name to hold on to</b> ⚓. The <code>--</code> just means "a name I made up".</li>
+            <li><code>position-anchor: --tip-btn</code> says: <b>"bubble, hold on to that button"</b> 🎈.</li>
+            <li><code>position-area: top</code> says <b>which side</b>. Imagine a 3×3 grid around the button; we pick the top middle square.</li>
+            <li><code>position-try-fallbacks: flip-block</code> says: <b>"if there's no room on top, try the bottom"</b>. Scroll so the button is near the top of your screen to see it.</li>
+            <li><code>:hover</code> and <code>:focus-visible</code> are <b>moods</b> 😊. The <code>+</code> means "the thing right next to it". So: "when the button is hovered or focused, show the bubble next to it".</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">🖱️</span>Mouse enters</li>
+          <li><span class="ico">📐</span>JS measures the button</li>
+          <li><span class="ico">🧮</span>JS does maths</li>
+          <li><span class="ico">✏️</span>JS writes pixels</li>
+          <li><span class="ico">📜</span>You scroll: do it all again</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">⚓</span>Button has an anchor name</li>
+          <li><span class="ico">🎈</span>Bubble holds on to it</li>
+          <li><span class="ico">✅</span>Browser keeps it in place, even when scrolling</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note good"><span class="ico">🤝</span><p><b>Best combo:</b> anchor positioning + <b>popover</b> (Lesson 01). Popover does the open/close, anchor does the placing. That's a complete dropdown with zero JS.</p></div>
+      <div class="note info"><span class="ico">🗺️</span><p><code>position-area</code> values you can try: <code>top</code>, <code>bottom</code>, <code>left</code>, <code>right</code>, <code>top left</code>, <code>bottom span-right</code>...</p></div>
+      <div class="note warn"><span class="ico">🔭</span><p>Coming soon: the <code>interestfor</code> attribute, which will handle "show on hover" in HTML itself (Chrome is trying it now).</p></div>
+    </div>
+    <p class="takeaway">💡 Don't calculate where something should go. Tell the browser what it's attached to.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-prop"><dt><code>anchor-name</code><span class="kind">🔧 Property</span></dt><dd>Gives an element a name so other elements can be placed next to it.<span class="like-a">Like: dropping a pin on a map</span></dd></div>
+      <div class="word k-prop"><dt><code>position-anchor</code><span class="kind">🔧 Property</span></dt><dd>Says which anchor (by name) this element should stick to.<span class="like-a">Like: "follow that pin"</span></dd></div>
+      <div class="word k-prop"><dt><code>position-area</code><span class="kind">🔧 Property</span></dt><dd>Places an element around its anchor using a simple 3×3 grid, e.g. top or bottom center.<span class="like-a">Like: "sit in the seat above"</span></dd></div>
+      <div class="word k-prop"><dt><code>position-try-fallbacks</code><span class="kind">🔧 Property</span></dt><dd>Backup places to try if there's no room, e.g. flip-block moves it to the other side.<span class="like-a">Like: "if that seat is taken, sit on the other side"</span></dd></div>
+      <div class="word k-mood"><dt><code>:hover</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>When the mouse pointer is over the element.<span class="like-a">Like: "when someone points at me"</span></dd></div>
+      <div class="word k-mood"><dt><code>:focus-visible</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>When the element is focused by keyboard (the Tab key), so you can show a focus ring only when it helps.<span class="like-a">Like: a spotlight for keyboard users</span></dd></div>
+      <div class="word k-mood"><dt><code>:is()</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>A shortcut for a list: :is(:hover, :focus-visible) means "hovered OR focused".<span class="like-a">Like: "any of these"</span></dd></div>
+      <div class="word k-attr"><dt><code>aria-describedby</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Points to another element (by id) that describes this one. Screen readers read it too.<span class="like-a">Like: a footnote</span></dd></div>
+      <div class="word k-attr"><dt><code>role</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Tells screen readers what something is (e.g. dialog, tooltip) when the tag doesn't say it already.<span class="like-a">Like: a job-title badge</span></dd></div>
+      <div class="word k-prop"><dt><code>position</code><span class="kind">🔧 Property</span></dt><dd>How a box is placed: static (normal), relative, absolute (exact spot inside a positioned parent), fixed (stuck to the screen), sticky.<span class="like-a">Like: pinning a note to the board</span></dd></div>
+      <div class="word k-prop"><dt><code>opacity</code><span class="kind">🔧 Property</span></dt><dd>How see-through: 0 = invisible, 1 = solid.<span class="like-a">Like: a dimmer for glass</span></dd></div>
+      <div class="word k-prop"><dt><code>transition</code><span class="kind">🔧 Property</span></dt><dd>Animate smoothly when a value changes, instead of jumping.<span class="like-a">Like: a dimmer switch instead of an on/off switch</span></dd></div>
+      <div class="word k-prop"><dt><code>margin</code><span class="kind">🔧 Property</span></dt><dd>Space OUTSIDE the border, pushing other things away.<span class="like-a">Like: personal space</span></dd></div>
+      <div class="word k-unit"><dt><code>s / ms</code><span class="kind">📏 Unit</span></dt><dd>Seconds and milliseconds, for timings. 1000ms = 1s, so .3s = 300ms.<span class="like-a">Like: a stopwatch</span></dd></div>
+      <div class="word k-unit"><dt><code>px</code><span class="kind">📏 Unit</span></dt><dd>Pixels: one dot on the screen. A fixed size.<span class="like-a">Like: centimetres on a ruler</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;button&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A button you can click or press with the keyboard.<span class="like-a">Like: a doorbell</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;span&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain wrapper for a bit of text inside a line.<span class="like-a">Like: a highlighter pen</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="03-accordion.html"><small>◀ Previous</small>03 · Accordions</a>
+    <a class="next" href="05-select.html"><small>Next ▶</small>05 · Custom select boxes</a>
+  </nav>
+</main>
+</body>
+</html>

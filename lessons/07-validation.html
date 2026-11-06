@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · Friendly form errors | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.field { display: grid; gap: .4rem; width: min(100%, 340px); }
+.err { margin: 0; color: #d63031; font-weight: 700; font-size: .9rem; }
+.hint { margin: 0; font-size: .85rem; color: #5b6388; }
+.old-email.is-error, .new-email:user-invalid, .angry:invalid { border-color: #e17055; box-shadow: 0 0 0 4px #e1705522; }
+.old-email.is-ok, .new-email:user-valid { border-color: #00b894; box-shadow: 0 0 0 4px #00b89422; }
+.shouty { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); margin-top: 1.25rem; }
+.shouty .stage { min-height: 160px; }
+.shouty h3 { font-size: 1.05rem; }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="06-autogrow.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="08-has.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 07 / 17 · ✅ :user-invalid</span>
+    <h1>Form errors that wait until you've had a go</h1>
+    <p class="lead">Nobody likes a form that shouts "WRONG!" before you've typed anything. We used JS to wait until the user had finished with a field. Now there's a CSS mood for exactly that.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: blur listeners · "touched" classes · validation JS</span>
+      <span class="chip new">Uses: required · type="email" · :user-invalid · :user-valid</span>
+      <span class="chip ok">✅ All modern browsers (Baseline 2023)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>An email box that tells you if it's wrong</h3><p>Red border and a message if the email is wrong, green if it's right. But only <b>after</b> you've tried.</p></div>
+      <div class="analogy old"><div class="big">📝</div><h3><small>😓 The old way</small>A teacher who takes notes</h3><p>JS watches you. When you leave the box, it writes down "this one was touched", then checks the answer and adds a red or green sticker.</p></div>
+      <div class="analogy new"><div class="big">🧑‍🏫</div><h3><small>😎 The new way</small>A polite teacher built into the browser</h3><p>The browser already knows two things: <b>is the answer valid?</b> and <b>has the user had a go?</b> <code>:user-invalid</code> means "both: wrong, and they've tried".</p></div>
+    </div>
+    <div class="shouty">
+      <div class="panel"><h3>😡 The problem: plain <code>:invalid</code> is too eager</h3><div class="stage"><div class="field"><label class="demo-label" for="angry">📧 Email</label><input class="demo-input angry" id="angry" type="email" required placeholder="you@example.com"><p class="hint">It's already red and you haven't typed anything!</p></div></div></div>
+      <div class="panel"><h3>😊 What we want: wait until the user has tried</h3><p style="color:var(--muted)">The browser tracks whether you've <b>typed something and left the field</b> (or tried to submit). That's exactly what the old JS was doing by hand. ⬇️</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: type "hello", then click outside</h2>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>Track "touched" by hand</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="field">
+              <label class="demo-label" for="old-email">📧 Email</label>
+              <input class="demo-input old-email" id="old-email" type="email" required placeholder="you@example.com">
+              <p class="err old-error" hidden>Please enter a real email 📧</p>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>15</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>2</b><span>event listeners</span></div>
+            <div class="stat"><b>3</b><span>stickers to juggle</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><label for="old-email">📧 Email</label>
+<input class="old-email" id="old-email" type="email" required>
+<p class="old-error" hidden>Please enter a real email 📧</p></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>.old-email.is-error { border-color: #e17055; }
+.old-email.is-ok    { border-color: #00b894; }
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const emailBox = document.querySelector('.old-email');
+const emailError = document.querySelector('.old-error');
+
+function check() {
+  const ok = emailBox.checkValidity();   // ask the browser: is it valid?
+  emailBox.classList.toggle('is-error', !ok);
+  emailBox.classList.toggle('is-ok', ok);
+  emailError.hidden = ok;
+}
+
+emailBox.addEventListener('blur', () => {   // when you leave the box...
+  emailBox.classList.add('touched');        // ...remember it was touched
+  check();
+});
+
+emailBox.addEventListener('input', () => {  // while typing, only re-check
+  if (emailBox.classList.contains('touched')) check();  // if touched before
+});
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>blur</code> is the event for <b>"you just left this box"</b>. Then JS adds a <code>touched</code> sticker.</li>
+            <li>JS asks the browser <code>checkValidity()</code>: "is this a valid email?" (the browser already knows!).</li>
+            <li>Depending on the answer, JS swaps the <code>is-error</code> / <code>is-ok</code> stickers and shows or hides the message.</li>
+            <li>While you type, JS re-checks only if the box was touched before, so the red goes away as soon as you fix it.</li>
+            <li>Notice: the browser <b>already knew</b> the answer. JS was just carrying the message to CSS.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · CSS</h3><p>The "user has tried" moods</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="field">
+              <label class="demo-label" for="new-email">📧 Email</label>
+              <input class="demo-input new-email" id="new-email" type="email" required placeholder="you@example.com">
+              <p class="err new-error">Please enter a real email 📧</p>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>2</b><span>CSS moods</span></div>
+            <div class="stat"><b>😊</b><span>polite by default</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><label for="new-email">📧 Email</label>
+<input class="new-email" id="new-email" type="email" required>
+<p class="new-error">Please enter a real email 📧</p></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: change the colours</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* wrong AND the user has had a go */
+.new-email:user-invalid { border-color: #e17055; }
+
+/* right AND the user has had a go */
+.new-email:user-valid { border-color: #00b894; }
+
+/* the message is hidden... */
+.new-error { display: none; }
+
+/* ...unless the box right before it is user-invalid */
+.new-email:user-invalid + .new-error { display: block; }
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>The HTML does the checking: <code>type="email"</code> = "must look like an email", <code>required</code> = "can't be empty".</li>
+            <li><code>:user-invalid</code> is a mood 😊 meaning <b>"wrong, AND the user has typed and left, or tried to submit"</b>.</li>
+            <li><code>:user-valid</code> is the happy version: correct, after the user has tried.</li>
+            <li><code>+</code> means <b>"the element right after"</b>. So: "when the box is user-invalid, show the message after it".</li>
+            <li>No stickers, no listeners. The browser already tracks "touched", and now CSS can see it.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">⌨️</span>You type "hello"</li>
+          <li><span class="ico">🚪</span>You leave the box (blur)</li>
+          <li><span class="ico">📝</span>JS writes "touched"</li>
+          <li><span class="ico">❓</span>JS asks the browser "valid?"</li>
+          <li><span class="ico">🏷️</span>JS adds the red sticker</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">⌨️</span>You type "hello" and leave</li>
+          <li><span class="ico">🧑‍🏫</span>Browser: "wrong + tried = :user-invalid"</li>
+          <li><span class="ico">🎨</span>CSS turns it red</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note info"><span class="ico">🧰</span><p>Other free HTML checks: <code>minlength</code>, <code>maxlength</code>, <code>min</code>, <code>max</code>, <code>pattern</code> (your own rule), <code>type="url"</code>, <code>type="number"</code>.</p></div>
+      <div class="note warn"><span class="ico">🔒</span><p><b>Always check on the server too.</b> Browser checks are for being friendly. Anyone can skip them.</p></div>
+      <div class="note good"><span class="ico">🤝</span><p>Combine with <code>:has()</code> (next lesson): <code>form:has(:user-invalid) button</code> means "if anything in the form is wrong, dim the submit button".</p></div>
+    </div>
+    <p class="takeaway">💡 The browser already knew the answer. JS was just the messenger. Now CSS can ask directly.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-mood"><dt><code>:user-invalid</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>The field is wrong AND the person has already typed in it, so no red errors before they start.<span class="like-a">Like: a teacher who waits until you've answered</span></dd></div>
+      <div class="word k-mood"><dt><code>:user-valid</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>The field is correct and the person has typed in it.<span class="like-a">Like: a green tick after you answer</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;label&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>The name of a form field. Clicking it focuses (or ticks) the field.<span class="like-a">Like: the name sticker on a letterbox</span></dd></div>
+      <div class="word k-attr"><dt><code>for</code><span class="kind">⚙️ HTML attribute</span></dt><dd>On a label: the id of the field it belongs to.<span class="like-a">Like: an arrow pointing at the right box</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;input&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A form field. Its type decides what kind: text, email, checkbox, radio...<span class="like-a">Like: a blank on a paper form</span></dd></div>
+      <div class="word k-attr"><dt><code>type</code><span class="kind">⚙️ HTML attribute</span></dt><dd>The kind of input: text, email, checkbox, radio...<span class="like-a">Like: choosing the shape of a blank on a form</span></dd></div>
+      <div class="word k-attr"><dt><code>required</code><span class="kind">⚙️ HTML attribute</span></dt><dd>The field must be filled in before the form can be sent.<span class="like-a">Like: a box marked with a red star</span></dd></div>
+      <div class="word k-attr"><dt><code>hidden</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Hides the element until the attribute is removed.<span class="like-a">Like: an invisibility cloak</span></dd></div>
+      <div class="word k-prop"><dt><code>border-color</code><span class="kind">🔧 Property</span></dt><dd>Just the colour of the border.<span class="like-a">Like: painting the frame</span></dd></div>
+      <div class="word k-prop"><dt><code>display</code><span class="kind">🔧 Property</span></dt><dd>How a box behaves: block (own line), inline (inside text), flex or grid (arranges its children), none (hidden).<span class="like-a">Like: choosing furniture layout for a room</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;p&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A paragraph of text.<span class="like-a">Like: a paragraph in a book</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="06-autogrow.html"><small>◀ Previous</small>06 · Auto-growing text boxes</a>
+    <a class="next" href="08-has.html"><small>Next ▶</small>08 · The parent selector</a>
+  </nav>
+</main>
+</body>
+</html>

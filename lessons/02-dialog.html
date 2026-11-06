@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Modal pop-ups | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.modal-box { width: min(90vw, 420px); padding: 1.75rem; border-radius: 22px; background: #fff; color: #1d2340; text-align: center; box-shadow: 0 30px 70px -20px rgb(0 0 0 / .6); }
+.modal-box .e { font-size: 3rem; }
+.modal-box h3 { margin: .25rem 0; font-size: 1.5rem; }
+.modal-box p { color: #5b6388; margin: 0 0 1.25rem; }
+#new-modal { border: 0; padding: 0; background: transparent; overflow: visible; }
+#new-modal[open] { animation: pop .25s ease-out; }
+@keyframes pop { from { opacity: 0; scale: .92; } }
+.old-modal.is-open .modal-box { animation: pop .25s ease-out; }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="01-popover.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="03-accordion.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 02 / 17 · 🪟 Dialog</span>
+    <h1>Modal pop-ups without a modal library</h1>
+    <p class="lead">A box that appears in the middle of the screen, darkens everything behind it, and won't let you click the page until you close it. HTML has a tag for exactly this.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: overlay divs · focus handling · Escape key · scroll locking</span>
+      <span class="chip new">Uses: &lt;dialog&gt; · commandfor · ::backdrop · :has()</span>
+      <span class="chip ok">✅ &lt;dialog&gt;: all browsers · 🆕 commandfor: newly available (2025)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A "Are you sure?" pop-up</h3><p>Cookie banners, login boxes, "delete this?" questions. They sit on top and everything behind goes dark.</p></div>
+      <div class="analogy old"><div class="big">🎭</div><h3><small>😓 The old way</small>Build a fake stage out of cardboard</h3><p>We made a big dark <code>div</code> to cover the page, put our box on it, then wrote JS to stop scrolling, move the keyboard focus, and listen for Escape.</p></div>
+      <div class="analogy new"><div class="big">🏛️</div><h3><small>😎 The new way</small>Use the theatre's real stage</h3><p>The browser has a real modal built in: <code>&lt;dialog&gt;</code>. It has its own dark curtain (<code>::backdrop</code>) and handles focus and Escape itself.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: try both!</h2>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>A fake modal made from divs</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <button class="btn old-open">Open modal</button>
+            <div class="old-modal" role="dialog" aria-modal="true" aria-label="Old modal">
+              <div class="modal-box">
+                <div class="e">🍪</div><h3>Cookies?</h3><p>This modal was built with a div and JavaScript.</p>
+                <button class="btn old-close">Close</button>
+              </div>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>22</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>4</b><span>event listeners</span></div>
+            <div class="stat"><b>🐛</b><span>Tab key still escapes!</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><button class="old-open">Open modal</button>
+
+<div class="old-modal" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <h3>Cookies?</h3>
+    <button class="old-close">Close</button>
+  </div>
+</div></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>.old-modal {
+  display: none;
+  position: fixed;          /* cover the whole screen */
+  inset: 0;
+  z-index: 1000;
+  place-items: center;
+  background: rgb(0 0 0 / .6);   /* the dark curtain */
+}
+
+.old-modal.is-open { display: grid; }
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const openBtn = document.querySelector('.old-open');
+const closeBtn = document.querySelector('.old-close');
+const modal = document.querySelector('.old-modal');
+
+function openModal() {
+  modal.classList.add('is-open');
+  document.body.style.overflow = 'hidden';  // stop the page scrolling
+  closeBtn.focus();                         // move keyboard focus inside
+}
+
+function closeModal() {
+  modal.classList.remove('is-open');
+  document.body.style.overflow = '';
+  openBtn.focus();                          // give focus back
+}
+
+openBtn.addEventListener('click', openModal);
+closeBtn.addEventListener('click', closeModal);
+
+// click on the dark curtain = close
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) closeModal();
+});
+
+// Escape = close
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+});
+
+// ...and we STILL haven't stopped Tab from leaving the modal 😬
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>A <b>giant dark div</b> covers the whole screen (<code>position: fixed; inset: 0</code>). It's hidden until JS adds <code>is-open</code>.</li>
+            <li><b>openModal</b>: add the sticker, <b>freeze page scrolling</b>, move keyboard focus into the box.</li>
+            <li><b>closeModal</b>: remove the sticker, unfreeze scrolling, send focus back to the button.</li>
+            <li>Extra doorbells for clicking the dark area and pressing Escape.</li>
+            <li><b>Bug:</b> press <kbd>Tab</kbd> a few times while it's open. Focus escapes to the page behind! Fixing that ("focus trap") is another ~20 lines.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · HTML + CSS</h3><p>A real &lt;dialog&gt;</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <button class="btn" commandfor="new-modal" command="show-modal">Open modal</button>
+            <dialog id="new-modal" closedby="any" aria-label="New modal">
+              <div class="modal-box">
+                <div class="e">🍪</div><h3>Cookies?</h3><p>This modal is a real &lt;dialog&gt;. Try Tab, Escape, or clicking outside.</p>
+                <button class="btn green" commandfor="new-modal" command="close">Close</button>
+              </div>
+            </dialog>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>✅</b><span>focus is kept inside</span></div>
+            <div class="stat"><b>🥞</b><span>always on top</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><button commandfor="new-modal" command="show-modal">
+  Open modal
+</button>
+
+<dialog id="new-modal" closedby="any">
+  <h3>Cookies?</h3>
+  <button commandfor="new-modal" command="close">Close</button>
+</dialog></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: try another colour</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* The dark curtain comes free - just style it */
+#new-modal::backdrop {
+  background: rgb(20 10 60 / .6);
+  backdrop-filter: blur(4px);
+}
+
+/* Freeze the page while the modal is open.
+   ":has()" = "if the page HAS an open modal" */
+html:has(#new-modal[open]) {
+  overflow: hidden;
+}
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>&lt;dialog&gt;</code> is a <b>real modal box</b> built into HTML. It's hidden until opened.</li>
+            <li><code>commandfor="new-modal"</code> = "this button controls new-modal". <code>command="show-modal"</code> = "open it as a modal".</li>
+            <li>When open, the browser <b>puts it in the top layer 🥞</b>, <b>makes the page behind unclickable</b>, and <b>keeps Tab inside</b>.</li>
+            <li><kbd>Escape</kbd> closes it. <code>closedby="any"</code> also closes it when you click the dark area.</li>
+            <li><code>::backdrop</code> is the free dark curtain. We only choose its colour.</li>
+            <li><code>html:has(#new-modal[open])</code> means "if the page has an open modal, stop scrolling". No JS needed.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click "Open"</li>
+          <li><span class="ico">🏷️</span>JS adds a sticker to the fake overlay</li>
+          <li><span class="ico">🧊</span>JS freezes scrolling</li>
+          <li><span class="ico">🎯</span>JS moves focus</li>
+          <li><span class="ico">🐛</span>Tab still escapes</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click "Open"</li>
+          <li><span class="ico">🪟</span>Browser opens a real modal</li>
+          <li><span class="ico">✅</span>Curtain, focus, Escape, top layer: all done</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note info"><span class="ico">🧾</span><p><b>Closing with a form:</b> <code>&lt;form method="dialog"&gt;&lt;button&gt;Close&lt;/button&gt;&lt;/form&gt;</code> inside a dialog closes it in <i>every</i> browser, even old ones.</p></div>
+      <div class="note warn"><span class="ico">🆕</span><p><code>commandfor</code>/<code>command</code> (the "invoker" buttons) are newly available. For older browsers, one line of JS does the same job: <code>dialog.showModal()</code>. <code>closedby</code> is newer still. Without it, Escape still works.</p></div>
+      <div class="note good"><span class="ico">🍞</span><p>Want a pop-up that does <b>not</b> block the page (like a toast)? Use a <b>popover</b> (Lesson 01). Use <code>&lt;dialog&gt;</code> when the user <b>must</b> deal with it first.</p></div>
+    </div>
+    <p class="takeaway">💡 Stop building fake modals. HTML has a real one, and it gets focus right, which most hand-made ones don't.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-tag"><dt><code>&lt;dialog&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A built-in pop-up window. As a modal it blocks the page behind, Esc closes it and focus moves inside.<span class="like-a">Like: a pop-up booth with its own door</span></dd></div>
+      <div class="word k-attr"><dt><code>commandfor</code><span class="kind">⚙️ HTML attribute</span></dt><dd>On a button: which element (by id) this button controls.<span class="like-a">Like: "this remote is for the bedroom TV"</span></dd></div>
+      <div class="word k-attr"><dt><code>command</code><span class="kind">⚙️ HTML attribute</span></dt><dd>What the button does to that element, e.g. show-modal, close or toggle-popover.<span class="like-a">Like: which button you press on the remote</span></dd></div>
+      <div class="word k-attr"><dt><code>closedby</code><span class="kind">⚙️ HTML attribute</span></dt><dd>How a dialog may be closed: any (Esc or click outside), closerequest (Esc only) or none.<span class="like-a">Like: house rules for leaving</span></dd></div>
+      <div class="word k-attr"><dt><code>role</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Tells screen readers what something is (e.g. dialog, tooltip) when the tag doesn't say it already.<span class="like-a">Like: a job-title badge</span></dd></div>
+      <div class="word k-attr"><dt><code>aria-modal</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Tells screen readers "only this window matters right now".<span class="like-a">Like: a "meeting in progress" sign</span></dd></div>
+      <div class="word k-ghost"><dt><code>::backdrop</code><span class="kind">👻 Pseudo-element: a "ghost" part</span></dt><dd>The full-screen layer behind a modal dialog or popover. Style it to dim or blur the page.<span class="like-a">Like: dimming the room lights</span></dd></div>
+      <div class="word k-mood"><dt><code>:has()</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>"Has something inside that matches". Lets a parent change because of its child. The famous "parent selector".<span class="like-a">Like: "any box that has a cat in it"</span></dd></div>
+      <div class="word k-sel"><dt><code>html</code><span class="kind">👉 Selector</span></dt><dd>The html element: the whole page, the outermost box.<span class="like-a">Like: the whole house</span></dd></div>
+      <div class="word k-prop"><dt><code>display</code><span class="kind">🔧 Property</span></dt><dd>How a box behaves: block (own line), inline (inside text), flex or grid (arranges its children), none (hidden).<span class="like-a">Like: choosing furniture layout for a room</span></dd></div>
+      <div class="word k-prop"><dt><code>position</code><span class="kind">🔧 Property</span></dt><dd>How a box is placed: static (normal), relative, absolute (exact spot inside a positioned parent), fixed (stuck to the screen), sticky.<span class="like-a">Like: pinning a note to the board</span></dd></div>
+      <div class="word k-prop"><dt><code>inset</code><span class="kind">🔧 Property</span></dt><dd>A shortcut for top, right, bottom and left in one go. inset: 0 = stretch to all four edges.<span class="like-a">Like: wall-to-wall carpet</span></dd></div>
+      <div class="word k-prop"><dt><code>z-index</code><span class="kind">🔧 Property</span></dt><dd>Which box is on top when boxes overlap. The bigger number is closer to you.<span class="like-a">Like: a stack of paper</span></dd></div>
+      <div class="word k-prop"><dt><code>place-items</code><span class="kind">🔧 Property</span></dt><dd>Where children sit inside a grid. place-items: center puts them in the middle.<span class="like-a">Like: centring a picture on the wall</span></dd></div>
+      <div class="word k-prop"><dt><code>background</code><span class="kind">🔧 Property</span></dt><dd>The colour or picture behind the element.<span class="like-a">Like: wallpaper</span></dd></div>
+      <div class="word k-prop"><dt><code>backdrop-filter</code><span class="kind">🔧 Property</span></dt><dd>Blurs or tints whatever is BEHIND the element.<span class="like-a">Like: frosted glass</span></dd></div>
+      <div class="word k-fn"><dt><code>blur()</code><span class="kind">🧮 Function</span></dt><dd>How blurry: blur(6px) is a soft frosted look.<span class="like-a">Like: squinting</span></dd></div>
+      <div class="word k-fn"><dt><code>rgb()</code><span class="kind">🧮 Function</span></dt><dd>A colour from red, green and blue amounts. rgb(0 0 0 / .5) = half see-through black.<span class="like-a">Like: mixing three paints</span></dd></div>
+      <div class="word k-prop"><dt><code>overflow</code><span class="kind">🔧 Property</span></dt><dd>What to do with content too big for its box: visible (spill out), hidden (cut off), auto (scrollbars when needed).<span class="like-a">Like: a suitcase that is too full</span></dd></div>
+      <div class="word k-unit"><dt><code>px</code><span class="kind">📏 Unit</span></dt><dd>Pixels: one dot on the screen. A fixed size.<span class="like-a">Like: centimetres on a ruler</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;button&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A button you can click or press with the keyboard.<span class="like-a">Like: a doorbell</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;div&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain box with no special meaning, used to group things.<span class="like-a">Like: a cardboard box</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;h3&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A heading. h1 is the biggest, h6 the smallest.<span class="like-a">Like: a chapter title</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="01-popover.html"><small>◀ Previous</small>01 · Dropdown menus</a>
+    <a class="next" href="03-accordion.html"><small>Next ▶</small>03 · Accordions</a>
+  </nav>
+</main>
+</body>
+</html>

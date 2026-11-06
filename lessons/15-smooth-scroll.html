@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>15 · Smooth scroll | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { display: block; padding: 2.2rem .75rem .75rem; }
+.mini-site { position: relative; height: 340px; overflow-y: auto; border-radius: 14px; background: #fff; border: 1px solid #e1e4f0; color: #1d2340; }
+.mini-head { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; height: 60px; padding: 0 .8rem; background: #1d2340; }
+.mini-head b { margin-right: auto; color: #fff; }
+.mini-head a { padding: .35rem .7rem; border-radius: 999px; background: #ffffff1f; color: #fff; text-decoration: none; font-size: .85rem; font-weight: 700; }
+.mini-head a:hover { background: #ffffff38; }
+.sec { min-height: 260px; padding: 1rem 1.2rem; border-bottom: 1px dashed #e1e4f0; }
+.sec h3 { margin: 0 0 .5rem; font-size: 1.3rem; }
+.sec p { margin: 0; color: #5b6388; }
+.sec .e { font-size: 2.4rem; }
+.hidden-title { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); margin-top: 1.25rem; }
+.mock { overflow: hidden; border-radius: 12px; border: 1px solid var(--line); background: #fff; color: #1d2340; }
+.mock .h { height: 44px; display: flex; align-items: center; padding: 0 .8rem; background: #1d2340; color: #fff; font-weight: 800; font-size: .85rem; }
+.mock .t { padding: .5rem .8rem; font-weight: 800; }
+.mock .t.cut { margin-top: -22px; opacity: .45; }
+.mock .b { padding: 0 .8rem .8rem; color: #5b6388; font-size: .9rem; }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="14-carousel.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="16-balanced-text.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 15 / 17 · 🛷 scroll-behavior + scroll-margin</span>
+    <h1>Smooth scrolling that doesn't hide under the header</h1>
+    <p class="lead">Click "Contact" in the menu and the page glides to that section. The title lands just <b>below</b> the sticky header, not hidden behind it. Two CSS lines, and a bonus highlight.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: click listeners · preventDefault · offsetTop maths · scrollTo()</span>
+      <span class="chip new">Uses: scroll-behavior: smooth · scroll-margin-top · :target</span>
+      <span class="chip ok">✅ All modern browsers</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A menu that glides to sections</h3><p>A one-page site with a sticky top menu: Home, About, Contact. Click one and it glides there.</p></div>
+      <div class="analogy old"><div class="big">🚖</div><h3><small>😓 The old way</small>A taxi driver doing maths</h3><p>JS stops the normal jump, works out <b>where the section is minus the header height</b>, then drives there smoothly with <code>scrollTo()</code>.</p></div>
+      <div class="analogy new"><div class="big">🛷</div><h3><small>😎 The new way</small>A sledge with a parking space</h3><p><code>scroll-behavior: smooth</code> makes every jump a glide. <code>scroll-margin-top</code> gives each section a <b>"leave 60px of room above me"</b> parking space.</p></div>
+    </div>
+    <div class="hidden-title">
+      <div class="panel"><h3>😬 The problem: the title hides under the sticky header</h3><div class="mock"><div class="h">STICKY HEADER</div><div class="t cut">📮 Contact (hidden!)</div><div class="b">Text starts here, but where's the title?</div></div></div>
+      <div class="panel"><h3>😎 With scroll-margin-top: 60px</h3><div class="mock"><div class="h">STICKY HEADER</div><div class="t">📮 Contact</div><div class="b">The title sits just below the header.</div></div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: click the menu links</h2>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>Calculate and scroll</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="mini-site old-site">
+              <nav class="mini-head"><b>🏠 Old</b><a href="#old-about">About</a><a href="#old-menu">Menu</a><a href="#old-contact">Contact</a></nav>
+              <section class="sec" id="old-home"><div class="e">👋</div><h3>Home</h3><p>Scroll or use the menu.</p></section>
+              <section class="sec" id="old-about"><div class="e">🙋</div><h3>About</h3><p>JS calculated where this is.</p></section>
+              <section class="sec" id="old-menu"><div class="e">🍝</div><h3>Menu</h3><p>Then subtracted the header height.</p></section>
+              <section class="sec" id="old-contact"><div class="e">📮</div><h3>Contact</h3><p>Then called scrollTo().</p></section>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>11</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>60</b><span>header height hard-coded</span></div>
+            <div class="stat"><b>🔗</b><span>URL doesn't update</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><nav class="mini-head">
+  <a href="#old-about">About</a>
+  <a href="#old-contact">Contact</a>
+</nav>
+<section id="old-about">...</section>
+<section id="old-contact">...</section></script></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const oldSite = document.querySelector('.old-site');
+
+oldSite.querySelectorAll('.mini-head a').forEach((link) => {
+  link.addEventListener('click', (event) => {
+    event.preventDefault();                       // stop the instant jump
+    const target = document.querySelector(link.getAttribute('href'));
+    const headerHeight = 60;                      // the sticky header covers content...
+    const y = target.offsetTop - headerHeight;    // ...so stop 60px early
+    oldSite.scrollTo({ top: y, behavior: 'smooth' });
+  });
+});
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>Normally, clicking <code>href="#contact"</code> <b>jumps</b> instantly to the element with <code>id="contact"</code>. JS stops that with <code>preventDefault()</code>.</li>
+            <li>JS finds the section and reads its position from the top (<code>offsetTop</code>).</li>
+            <li>It <b>subtracts the header height</b> (60px, written by hand; if the header changes, this breaks).</li>
+            <li>It calls <code>scrollTo()</code> with <code>smooth</code> to glide there.</li>
+            <li>Side effect: the URL no longer changes to <code>#contact</code>, so you can't share or bookmark the section.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · CSS</h3><p>Glide + parking space</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="mini-site new-site">
+              <nav class="mini-head"><b>🏠 New</b><a href="#new-about">About</a><a href="#new-menu">Menu</a><a href="#new-contact">Contact</a></nav>
+              <section class="sec new-sec" id="new-home"><div class="e">👋</div><h3>Home</h3><p>Scroll or use the menu.</p></section>
+              <section class="sec new-sec" id="new-about"><div class="e">🙋</div><h3>About</h3><p>I have a 60px parking space above me.</p></section>
+              <section class="sec new-sec" id="new-menu"><div class="e">🍝</div><h3>Menu</h3><p>And I flash when you arrive (:target).</p></section>
+              <section class="sec new-sec" id="new-contact"><div class="e">📮</div><h3>Contact</h3><p>And the URL updates, so I'm shareable.</p></section>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>🔗</b><span>URL updates (#new-contact)</span></div>
+            <div class="stat"><b>⬅️</b><span>back button works</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><nav class="mini-head">
+  <a href="#new-about">About</a>
+  <a href="#new-contact">Contact</a>
+</nav>
+<section class="new-sec" id="new-about">...</section>
+<section class="new-sec" id="new-contact">...</section></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: set scroll-margin-top to 0</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* 1. every jump becomes a glide */
+.new-site { scroll-behavior: smooth; }
+
+/* 2. "leave room for the 60px header above me" */
+.new-sec { scroll-margin-top: 60px; }
+
+/* 3. bonus: flash the section you arrived at */
+.new-sec:target { animation: flash 1.2s ease-out; }
+@keyframes flash {
+  from { background: #fff3b0; }
+}
+
+/* 4. be kind to motion-sensitive people */
+@media (prefers-reduced-motion: reduce) {
+  .new-site { scroll-behavior: auto; }
+}
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>The links are <b>plain HTML anchor links</b> (<code>href="#new-contact"</code>). They already jump to the section with that <code>id</code>.</li>
+            <li><code>scroll-behavior: smooth</code> turns every jump in that scroll area into a <b>glide</b>.</li>
+            <li><code>scroll-margin-top: 60px</code> = <b>"when you scroll to me, leave 60px free above me"</b>, so the title isn't hidden.</li>
+            <li><code>:target</code> is the mood 😊 <b>"I'm the section in the URL right now"</b>. We use it to flash yellow when you arrive.</li>
+            <li>Because it's a real link, the <b>URL updates</b>, the <b>back button</b> works, and you can share the link.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+    <div class="notes" style="margin-top:1rem"><div class="note info"><span class="ico">ℹ️</span><p>In this demo the <b>whole page</b> may scroll a little too, so the section comes into view. On a real one-page site the page <i>is</i> the scroll area, so that's exactly what you want.</p></div></div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click "Contact"</li>
+          <li><span class="ico">✋</span>JS cancels the jump</li>
+          <li><span class="ico">📐</span>JS: position − 60</li>
+          <li><span class="ico">🚖</span>JS scrolls there</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click "Contact"</li>
+          <li><span class="ico">🛷</span>Browser glides (smooth)</li>
+          <li><span class="ico">🅿️</span>Parks 60px below the top</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note good"><span class="ico">🌍</span><p>Put <code>html { scroll-behavior: smooth; }</code> on your site and every "#" link glides. This whole presentation does that.</p></div>
+      <div class="note info"><span class="ico">📏</span><p>Tip: use a CSS variable for the header height (<code>--header-h</code>) and reuse it in <code>scroll-margin-top</code>, so they never get out of sync.</p></div>
+    </div>
+    <p class="takeaway">💡 Use real links. Add a glide and a parking space. Delete the scroll maths.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-prop"><dt><code>scroll-behavior</code><span class="kind">🔧 Property</span></dt><dd>scroll-behavior: smooth makes jumps glide instead of teleport.<span class="like-a">Like: a slide instead of a trapdoor</span></dd></div>
+      <div class="word k-prop"><dt><code>scroll-margin-top</code><span class="kind">🔧 Property</span></dt><dd>Leaves a gap above an element when you jump to it, so a sticky header doesn't cover it.<span class="like-a">Like: stopping one step before the edge</span></dd></div>
+      <div class="word k-mood"><dt><code>:target</code><span class="kind">😊 Pseudo-class: a "mood"</span></dt><dd>The element whose id is in the address bar (e.g. page#faq), the one you just jumped to.<span class="like-a">Like: "you are here" on a map</span></dd></div>
+      <div class="word k-at"><dt><code>@keyframes</code><span class="kind">📜 @-rule</span></dt><dd>A named animation: the steps from start (from / 0%) to end (to / 100%).<span class="like-a">Like: the pages of a flip-book</span></dd></div>
+      <div class="word k-prop"><dt><code>animation</code><span class="kind">🔧 Property</span></dt><dd>Plays a @keyframes animation: its name, how long, how many times.<span class="like-a">Like: pressing play on a flip-book</span></dd></div>
+      <div class="word k-at"><dt><code>@media</code><span class="kind">📜 @-rule</span></dt><dd>Rules that only apply in some conditions, e.g. on small screens or when the user asks for less motion.<span class="like-a">Like: "only when it's raining, take an umbrella"</span></dd></div>
+      <div class="word k-val"><dt><code>prefers-reduced-motion</code><span class="kind">🎚️ Value</span></dt><dd>A device setting for "less animation, please". Check it with @media (prefers-reduced-motion: reduce).<span class="like-a">Like: a "please don't shake the boat" sign</span></dd></div>
+      <div class="word k-prop"><dt><code>background</code><span class="kind">🔧 Property</span></dt><dd>The colour or picture behind the element.<span class="like-a">Like: wallpaper</span></dd></div>
+      <div class="word k-attr"><dt><code>href</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Where a link goes. href="#faq" jumps to the element with id faq.<span class="like-a">Like: the address on a signpost</span></dd></div>
+      <div class="word k-attr"><dt><code>id</code><span class="kind">⚙️ HTML attribute</span></dt><dd>A unique name for ONE element. Buttons, labels and links point at it.<span class="like-a">Like: a house number</span></dd></div>
+      <div class="word k-unit"><dt><code>s / ms</code><span class="kind">📏 Unit</span></dt><dd>Seconds and milliseconds, for timings. 1000ms = 1s, so .3s = 300ms.<span class="like-a">Like: a stopwatch</span></dd></div>
+      <div class="word k-unit"><dt><code>px</code><span class="kind">📏 Unit</span></dt><dd>Pixels: one dot on the screen. A fixed size.<span class="like-a">Like: centimetres on a ruler</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;nav&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A group of main links for getting around.<span class="like-a">Like: a signpost at a crossroads</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;a&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A link. Its href says where it goes.<span class="like-a">Like: a signpost</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;section&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A themed part of a page, usually with a heading.<span class="like-a">Like: a chapter</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="14-carousel.html"><small>◀ Previous</small>14 · Carousels</a>
+    <a class="next" href="16-balanced-text.html"><small>Next ▶</small>16 · Beautiful headlines</a>
+  </nav>
+</main>
+</body>
+</html>

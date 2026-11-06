@@ -1,0 +1,24 @@
+/* Shared look for the three playground pages. Identical on every version, so it's a fair race. */
+*, *::before, *::after { box-sizing: border-box; }
+html { color-scheme: light; }
+body { margin: 0; font: 16px/1.55 "Segoe UI", system-ui, sans-serif; color: #1d2340; background: #f6f7fc; }
+.who { position: sticky; top: 0; z-index: 2; margin: 0; padding: .35rem .8rem; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff; }
+.who.css { background: #0fa678; } .who.js { background: #e0543f; }
+.bar { position: relative; display: flex; align-items: center; justify-content: space-between; padding: .7rem 1rem; background: #fff; border-bottom: 1px solid #e1e4f0; }
+.bar b { font-size: 1.05rem; }
+.menu-btn { font: inherit; font-weight: 700; padding: .45rem .9rem; border: 0; border-radius: 10px; background: #1d2340; color: #fff; cursor: pointer; }
+.menu { margin: 0; padding: .35rem; list-style: none; min-width: 170px; border: 1px solid #e1e4f0; border-radius: 12px; background: #fff; box-shadow: 0 18px 36px -14px rgb(29 35 64 / .45); }
+.menu a { display: block; padding: .45rem .7rem; border-radius: 8px; color: #1d2340; text-decoration: none; font-weight: 600; }
+.menu a:hover { background: #eef0fb; }
+/* JS version: an absolutely placed list that JS shows and hides with the hidden attribute */
+.js-menu { position: absolute; top: calc(100% + 6px); right: 1rem; z-index: 3; }
+/* CSS version: a popover (top layer), placed under the button */
+[popover].menu { position: fixed; inset: auto 1rem auto auto; top: 5.2rem; }
+main { padding: .75rem 1rem 2rem; }
+.hero { margin: .25rem 0 .4rem; font-size: 1.6rem; line-height: 1.15; }
+.hero-text { margin: 0 0 .8rem; font-size: 1.05rem; color: #3b4470; }
+.faq h2 { margin: 0 0 .5rem; font-size: 1.2rem; }
+/* The same visual for <details> (CSS page) and div+button (JS pages) */
+.q { display: block; width: 100%; margin-top: .5rem; padding: .7rem .9rem; font: inherit; font-weight: 700; text-align: left; border: 1px solid #d5d9ea; border-radius: 10px; background: #fff; color: #1d2340; cursor: pointer; list-style: none; }
+.a { margin: 0; padding: .6rem .9rem 0; color: #3b4470; }
+footer { margin-top: 1.5rem; padding: 1rem; border-radius: 12px; background: #e9ebf7; color: #3b4470; font-size: .9rem; }

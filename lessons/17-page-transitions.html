@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>17 · Page transitions | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { min-height: 200px; }
+.launch { display: grid; gap: 1rem; justify-items: center; text-align: center; }
+.launch .e { font-size: 3.5rem; }
+.launch p { margin: 0; color: #5b6388; max-width: 36ch; }
+.launch a.btn { text-decoration: none; }
+.morph-pic { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); margin-top: 1.25rem; align-items: center; }
+.morph-pic .panel { text-align: center; }
+.mini-page { width: 100%; max-width: 230px; margin: .75rem auto 0; aspect-ratio: 4/3; padding: 10px; border-radius: 12px; background: #fff; display: grid; gap: 8px; }
+.mini-page.list { grid-template-columns: repeat(3, 1fr); align-content: start; }
+.mini-page.list span { aspect-ratio: 1; border-radius: 8px; background: #e1e4f0; }
+.mini-page.list span.hl { background: linear-gradient(135deg, #fd79a8, #ff9f43); }
+.mini-page.detail span { border-radius: 8px; background: linear-gradient(135deg, #fd79a8, #ff9f43); }
+.arrow-big { font-size: 3rem; text-align: center; color: var(--new); }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="16-balanced-text.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="18-cheatsheet.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 17 / 17 · 🎬 View transitions</span>
+    <h1>App-like page transitions on a normal website</h1>
+    <p class="lead">You've been watching this all along: every time you clicked "Next", the page <b>faded and slid</b>, the title <b>morphed</b>, and the top bar <b>stayed still</b>. These are normal, separate HTML pages, and the effect is pure CSS.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: SPA routers (just for animations) · Barba.js / Swup · fetch + innerHTML swapping</span>
+      <span class="chip new">Uses: @view-transition · view-transition-name</span>
+      <span class="chip limited">🆕 Chrome/Edge 126+, Safari 18.2+. Firefox: same-page only so far (check caniuse)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>Smooth animations between pages</h3><p>Click a link and, instead of a hard white flash, the old page fades out, the new one fades in, and matching things morph from one to the other.</p></div>
+      <div class="analogy old"><div class="big">🧳</div><h3><small>😓 The old way</small>Never actually leave the room</h3><p>To animate between pages, sites stopped real navigation. JS downloaded the next page, <b>swapped the content by hand</b>, faked the URL, and animated it. That's basically a whole app framework (a big ready-made JavaScript toolkit, like React).</p></div>
+      <div class="analogy new"><div class="big">📸</div><h3><small>😎 The new way</small>The browser takes before and after photos</h3><p>The browser takes a <b>photo of the old page</b> and a <b>photo of the new page</b>, then cross-fades between them. Give two things the same <code>view-transition-name</code> and it morphs one into the other.</p></div>
+    </div>
+    <div class="morph-pic">
+      <div class="panel"><b>📄 List page</b><div class="mini-page list"><span class="hl"></span><span></span><span></span><span></span><span></span><span></span></div><p style="color:var(--muted);margin:.5rem 0 0"><code>view-transition-name: donut</code></p></div>
+      <div class="arrow-big">➜<br><small style="font-size:1rem">same name = morph</small></div>
+      <div class="panel"><b>📄 Detail page</b><div class="mini-page detail"><span></span></div><p style="color:var(--muted);margin:.5rem 0 0"><code>view-transition-name: donut</code></p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after</h2>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>Hijack every link</p></div></header>
+        <div class="side-body">
+          <div class="stage code-only">
+            <div class="launch"><div class="e">🧳</div><p>This code isn't running here. Hijacking the whole site's navigation would break the presentation! Read it below.</p></div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>15+</b><span>lines (the simple version)</span></div>
+            <div class="stat"><b>🐛</b><span>back button, focus, scroll...</span></div>
+            <div class="stat"><b>📦</b><span>often a whole framework (a big JS toolkit)</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span><span>(not running)</span></figcaption><script type="text/plain">document.querySelectorAll('a').forEach((link) => {
+  link.addEventListener('click', async (event) => {
+    event.preventDefault();                          // 1. stop normal navigation
+
+    document.body.classList.add('fade-out');         // 2. fade the page out
+    await new Promise((r) => setTimeout(r, 300));    //    ...and wait for it
+
+    const response = await fetch(link.href);         // 3. download the next page
+    const html = await response.text();
+    const next = new DOMParser().parseFromString(html, 'text/html');
+
+    document.body.innerHTML = next.body.innerHTML;   // 4. swap everything by hand
+    document.title = next.title;
+    history.pushState({}, '', link.href);            // 5. fake the URL change
+
+    document.body.classList.remove('fade-out');      // 6. fade back in
+  });
+});
+
+// Still to do: back/forward buttons (popstate), scroll position,
+// focus for screen readers, re-running scripts, error pages...</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><b>Stops every link</b> from working normally (<code>preventDefault</code>).</li>
+            <li>Fades the current page out and waits for the fade to finish.</li>
+            <li><b>Downloads</b> the next page in the background (<code>fetch</code>) and reads it.</li>
+            <li><b>Replaces</b> the current page's content with the new content, and changes the title.</li>
+            <li><b>Fakes the URL</b> with <code>history.pushState</code> so the address bar looks right.</li>
+            <li>Now the back button, scroll position and screen readers are all broken, and each needs more code.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · CSS</h3><p>Opt in, done</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="launch"><div class="e">🍩</div><p>Try the morph demo: a list of treats where the picture <b>flies</b> into the detail page.</p><a class="btn green" href="vt-demo-list.html">Open the morph demo ▶</a></div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>1</b><span>line to turn it on</span></div>
+            <div class="stat"><b>⬅️</b><span>back button just works</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span>(on BOTH pages)</span></figcaption><script type="text/plain">/* 1. "animate when navigating between my pages" */
+@view-transition {
+  navigation: auto;
+}
+
+/* 2. keep the header still while the rest fades */
+.topbar { view-transition-name: topbar; }
+
+/* 3. things with the SAME name morph into each other */
+.list-page  .donut-photo { view-transition-name: donut; }
+.detail-page .hero-photo { view-transition-name: donut; }
+
+/* 4. (optional) your own style of animation */
+::view-transition-old(root) { animation: .25s ease-in both fade-up-out; }
+::view-transition-new(root) { animation: .35s ease-out both fade-up-in; }</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>@view-transition { navigation: auto; }</code> on both pages = <b>"please animate between my pages"</b>. That alone gives a smooth cross-fade.</li>
+            <li>The browser takes a 📸 <b>photo of the old page</b>, loads the new page <b>normally</b>, takes a 📸 of it, and blends between them.</li>
+            <li><code>view-transition-name</code> gives an element a <b>name tag</b>. If the old and new page both have something called <code>donut</code>, the browser <b>morphs</b> its size and position.</li>
+            <li>It's still a <b>real page load</b>: real URL, back button, scroll, screen readers. Nothing to fake.</li>
+            <li><code>::view-transition-old/new</code> let you pick your own animation. This site uses a small slide up.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+    <div class="notes" style="margin-top:1rem">
+      <div class="note warn"><span class="ico">🖥️</span><p><b>Presenter tip:</b> page transitions only work over <code>http://</code>, not when opening files directly (<code>file://</code>). Run the site with VS Code <b>Live Server</b> or <code>npx serve</code> (see README).</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click link</li>
+          <li><span class="ico">✋</span>JS cancels it</li>
+          <li><span class="ico">📥</span>JS downloads the page</li>
+          <li><span class="ico">🔀</span>JS swaps the content</li>
+          <li><span class="ico">🎭</span>JS fakes the URL</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click link</li>
+          <li><span class="ico">📸</span>Browser photographs old + new page</li>
+          <li><span class="ico">✨</span>Blends and morphs between them</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note good"><span class="ico">🪜</span><p>Browsers without support simply do a <b>normal page load</b>. Zero risk.</p></div>
+      <div class="note info"><span class="ico">⚛️</span><p>Single-page apps (React, Vue) use the <b>same feature</b> via <code>document.startViewTransition()</code>, one JS call that replaces a lot of animation-library code.</p></div>
+      <div class="note warn"><span class="ico">🏷️</span><p>Each <code>view-transition-name</code> must be <b>unique on a page</b>. Two elements with the same name on one page = no transition.</p></div>
+    </div>
+    <p class="takeaway">💡 Multi-page websites can feel like apps now, with one line of CSS.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-at"><dt><code>@view-transition</code><span class="kind">📜 @-rule</span></dt><dd>@view-transition { navigation: auto; } on both pages means "animate when I go from one page to the other".<span class="like-a">Like: a smooth scene change in a film</span></dd></div>
+      <div class="word k-prop"><dt><code>view-transition-name</code><span class="kind">🔧 Property</span></dt><dd>A name tag. An element with the same name on the old and new page morphs from one to the other.<span class="like-a">Like: the same actor in two scenes</span></dd></div>
+      <div class="word k-ghost"><dt><code>::view-transition-old()</code><span class="kind">👻 Pseudo-element: a "ghost" part</span></dt><dd>A snapshot of the OLD page (or named element) while it changes. Give it your own leaving animation.<span class="like-a">Like: the "before" photo</span></dd></div>
+      <div class="word k-ghost"><dt><code>::view-transition-new()</code><span class="kind">👻 Pseudo-element: a "ghost" part</span></dt><dd>A snapshot of the NEW page (or named element) while it changes. Give it your own arriving animation.<span class="like-a">Like: the "after" photo</span></dd></div>
+      <div class="word k-prop"><dt><code>animation</code><span class="kind">🔧 Property</span></dt><dd>Plays a @keyframes animation: its name, how long, how many times.<span class="like-a">Like: pressing play on a flip-book</span></dd></div>
+      <div class="word k-at"><dt><code>@keyframes</code><span class="kind">📜 @-rule</span></dt><dd>A named animation: the steps from start (from / 0%) to end (to / 100%).<span class="like-a">Like: the pages of a flip-book</span></dd></div>
+      <div class="word k-val"><dt><code>ease-in / ease-out</code><span class="kind">🎚️ Value</span></dt><dd>Speed curves. ease-in starts slow and speeds up, ease-out starts fast and slows down at the end.<span class="like-a">Like: a car pulling away / parking</span></dd></div>
+      <div class="word k-unit"><dt><code>s / ms</code><span class="kind">📏 Unit</span></dt><dd>Seconds and milliseconds, for timings. 1000ms = 1s, so .3s = 300ms.<span class="like-a">Like: a stopwatch</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="16-balanced-text.html"><small>◀ Previous</small>16 · Beautiful headlines</a>
+    <a class="next" href="18-cheatsheet.html"><small>Next ▶</small>18 · Cheat sheet &amp; wrap-up</a>
+  </nav>
+</main>
+</body>
+</html>

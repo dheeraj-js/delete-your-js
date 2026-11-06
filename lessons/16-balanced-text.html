@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>16 · Beautiful headlines | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { display: block; }
+.news { display: grid; gap: .9rem; }
+.news article { padding: 1rem 1.1rem; border-radius: 14px; background: #fff; border: 1px solid #e1e4f0; }
+.news .h { margin: 0; font-size: clamp(1.15rem, 1rem + .9vw, 1.55rem); line-height: 1.25; color: #1d2340; outline: 1px dashed transparent; }
+.news p { margin: .5rem 0 0; color: #5b6388; font-size: .95rem; }
+/* this site balances all headings by default, so switch that off for the "before" side */
+.old-balance { text-wrap: wrap; }
+.orphan-demo { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); margin-top: 1.25rem; }
+.orphan-demo .box { width: 100%; max-width: 300px; margin: .75rem auto 0; padding: 1rem; border-radius: 12px; background: #fff; color: #1d2340; font-weight: 800; font-size: 1.35rem; line-height: 1.25; }
+.orphan-demo .bad { text-wrap: wrap; }
+.orphan-demo .good { text-wrap: balance; }
+.lonely { background: #ffd6d6; border-radius: 4px; padding: 0 .2rem; }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="15-smooth-scroll.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="17-page-transitions.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 16 / 17 · ⚖️ text-wrap</span>
+    <h1>Beautiful headlines: no more lonely last words</h1>
+    <p class="lead">Headlines often wrap with one sad word alone on the last line. Designers hate it. We used JS libraries that tried width after width to even the lines out. Now it's one CSS line.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: balance-text.js · manual &lt;br&gt; tags · &amp;nbsp; hacks</span>
+      <span class="chip new">Uses: text-wrap: balance · text-wrap: pretty</span>
+      <span class="chip ok">✅ balance: all modern browsers (Baseline 2024)</span>
+      <span class="chip limited">⚠️ pretty: Chrome/Edge + Safari (others ignore it safely)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>Headlines with even lines</h3><p>Instead of a long first line and one word on the second, we want two lines of roughly <b>equal length</b>.</p></div>
+      <div class="analogy old"><div class="big">👗📏</div><h3><small>😓 The old way</small>Try on every size of shirt</h3><p>A JS library makes the headline narrower and narrower, <b>checking each time</b> whether it grew an extra line, until it finds the tightest fit. Then it does it all again when you resize the window.</p></div>
+      <div class="analogy new"><div class="big">⚖️</div><h3><small>😎 The new way</small>The browser balances the scales</h3><p><code>text-wrap: balance</code> tells the browser <b>"share the words out evenly between the lines"</b>. It already knows how wide every word is.</p></div>
+    </div>
+    <div class="orphan-demo">
+      <div class="panel"><h3>😢 Normal wrapping</h3><div class="box bad">Modern CSS can now replace so much of our <span class="lonely">JavaScript</span></div></div>
+      <div class="panel"><h3>😍 text-wrap: balance</h3><div class="box good">Modern CSS can now replace so much of our JavaScript</div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: resize your window and watch the lines</h2>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>Binary search on the width</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="news">
+              <article><h3 class="h old-balance">Scientists discover that cats secretly understand CSS</h3><p>Balanced by JavaScript measuring, over and over.</p></article>
+              <article><h3 class="h old-balance">Local developer deletes 300 lines of code and feels amazing</h3><p>Resize the window: JS has to redo it.</p></article>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>18</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>~10</b><span>layout measurements per headline</span></div>
+            <div class="stat"><b>⚡</b><span>visible "jump" on load</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><h3 class="old-balance">Scientists discover that cats secretly understand CSS</h3></script></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>// A simplified version of what "balance-text" libraries do
+function balanceHeadlines() {
+  document.querySelectorAll('.old-balance').forEach((el) => {
+    el.style.maxWidth = '';                       // start at full width
+    const normalHeight = el.offsetHeight;         // how tall normally?
+    let low = 0;
+    let high = el.offsetWidth;
+
+    while (high - low > 1) {                      // binary search 🔍
+      const mid = Math.floor((low + high) / 2);
+      el.style.maxWidth = mid + 'px';             // try a narrower width
+      if (el.offsetHeight > normalHeight) low = mid; // grew a line? too narrow
+      else high = mid;                            // same? squeeze more
+    }
+    el.style.maxWidth = high + 'px';              // the tightest good width
+  });
+}
+
+balanceHeadlines();
+window.addEventListener('resize', balanceHeadlines); // ...and on every resize 😩
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>JS measures how tall the headline is <b>normally</b> (say 2 lines).</li>
+            <li>It tries a narrower width and measures again. <b>Still 2 lines?</b> Try narrower. <b>3 lines?</b> Too far, go back a bit.</li>
+            <li>This "guess halfway" method is called a <b>binary search</b> 🔍. It's like guessing a number from 1 to 100 by always asking "higher or lower?"</li>
+            <li>The narrowest width that still fits in 2 lines gives the <b>most even</b> lines.</li>
+            <li>Every measurement makes the browser recalculate the layout, and it all has to <b>re-run on every resize</b>.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · CSS</h3><p>One line</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="news">
+              <article><h3 class="h new-balance">Scientists discover that cats secretly understand CSS</h3><p class="new-pretty">Balanced by the browser, instantly, with zero measuring in JavaScript.</p></article>
+              <article><h3 class="h new-balance">Local developer deletes 300 lines of code and feels amazing</h3><p class="new-pretty">Resize the window: CSS keeps it balanced for free.</p></article>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>1</b><span>line of CSS</span></div>
+            <div class="stat"><b>🧈</b><span>no jump on load</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><h3 class="new-balance">Scientists discover that cats secretly understand CSS</h3>
+<p class="new-pretty">Balanced by the browser...</p></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: change balance to wrap</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* headlines: share words evenly between lines */
+.new-balance { text-wrap: balance; }
+
+/* paragraphs: just avoid a lonely last word */
+.new-pretty { text-wrap: pretty; }
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>text-wrap: balance</code> = <b>"make the lines about the same length"</b>. Great for headlines and short text.</li>
+            <li>The browser already knows how wide every word is, so it does this <b>while drawing</b>. No measuring, no jump.</li>
+            <li><code>text-wrap: pretty</code> is the gentler version for paragraphs: it only fixes <b>a lonely last word</b> (an "orphan").</li>
+            <li>Browsers that don't know <code>pretty</code> just wrap normally. Nothing breaks.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">📄</span>Page loads, text wraps normally</li>
+          <li><span class="ico">📏</span>JS measures</li>
+          <li><span class="ico">🔁</span>Narrower? Measure. Again. Again...</li>
+          <li><span class="ico">🦘</span>Text jumps to its new shape</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">📄</span>Page loads</li>
+          <li><span class="ico">⚖️</span>Browser wraps it balanced the first time</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note info"><span class="ico">📏</span><p><code>balance</code> is limited to short text (Chrome: up to about 6 lines), because balancing a whole essay would be slow. Use it on headings, captions and buttons.</p></div>
+      <div class="note good"><span class="ico">🌍</span><p>An easy win for any site: <code>h1, h2, h3 { text-wrap: balance; }</code> and <code>p { text-wrap: pretty; }</code>. This presentation uses exactly that.</p></div>
+    </div>
+    <p class="takeaway">💡 A whole JS library replaced by one word: <code>balance</code>.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-prop"><dt><code>text-wrap</code><span class="kind">🔧 Property</span></dt><dd>How text breaks into lines. balance = even lines (headings), pretty = no lonely last word (paragraphs).<span class="like-a">Like: a tidy bookshelf</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;h3&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A heading. h1 is the biggest, h6 the smallest.<span class="like-a">Like: a chapter title</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;p&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A paragraph of text.<span class="like-a">Like: a paragraph in a book</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="15-smooth-scroll.html"><small>◀ Previous</small>15 · Smooth scroll</a>
+    <a class="next" href="17-page-transitions.html"><small>Next ▶</small>17 · Page transitions</a>
+  </nav>
+</main>
+</body>
+</html>

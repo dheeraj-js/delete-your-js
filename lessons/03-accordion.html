@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · Accordions | Delete your JS</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage { align-items: start; }
+.acc { width: 100%; display: grid; gap: .6rem; }
+.acc-item { border: 1px solid #e1e4f0; border-radius: 14px; background: #fff; box-shadow: 0 10px 24px -18px rgb(29 35 64 / .5); }
+.acc-q {
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%;
+  padding: 1rem 1.1rem; border: 0; background: none; font: inherit; font-weight: 800; color: #1d2340; text-align: left; cursor: pointer;
+}
+.acc-q::after { content: "＋"; flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #eef0fb; transition: rotate .3s; }
+.acc-a { margin: 0; padding: 0 1.1rem 1.1rem; color: #5b6388; }
+.old-acc-btn[aria-expanded="true"]::after, .new-acc[open] > summary::after { rotate: 45deg; background: #d8f7ec; }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../index.html">🗑️ Delete your <s>JS</s></a>
+  <nav class="topnav" aria-label="Lessons">
+    <a href="02-dialog.html">◀ Prev</a><a href="../index.html">All lessons</a><a href="04-tooltip.html">Next ▶</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="lesson-hero">
+    <span class="kicker">Lesson 03 / 17 · 🪗 Details</span>
+    <h1>Accordions that only open one at a time</h1>
+    <p class="lead">The classic FAQ list: click a question, the answer slides open, and the other answers close. We used to measure heights with JavaScript. Now HTML and CSS do all of it.</p>
+    <div class="chips">
+      <span class="chip old">Replaces: click listeners · "close the others" loops · height measuring</span>
+      <span class="chip new">Uses: &lt;details name&gt; · ::details-content · interpolate-size</span>
+      <span class="chip ok">✅ Accordion: all browsers</span>
+      <span class="chip limited">⚠️ Smooth animation: Chrome/Edge (others just open instantly)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">1</span> In plain English</h2>
+    <div class="plain">
+      <div class="analogy what"><div class="big">🤔</div><h3><small>What are we building?</small>A list of questions that open and close</h3><p>Only one answer can be open at a time, like a group of drawers where opening one closes the others.</p></div>
+      <div class="analogy old"><div class="big">📏</div><h3><small>😓 The old way</small>Measure every drawer with a tape measure</h3><p>CSS couldn't animate to "whatever height the content is" (<code>height: auto</code>). So JS measured the content's height in pixels and set it by hand, every time.</p></div>
+      <div class="analogy new"><div class="big">🗄️</div><h3><small>😎 The new way</small>Buy drawers that are already linked</h3><p><code>&lt;details&gt;</code> opens and closes by itself. Give several the same <code>name</code> and only one can be open. CSS can now animate to <code>auto</code> height too.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">2</span> Before vs after: try both!</h2>
+    <div class="compare">
+      <article class="side before">
+        <header class="side-head"><span class="face">😓</span><div><h3>BEFORE · JavaScript</h3><p>Buttons + divs + height maths</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="acc">
+              <div class="acc-item"><button class="acc-q old-acc-btn" aria-expanded="false">Is CSS a programming language?</button><div class="old-acc-panel"><p class="acc-a">People argue about this a lot. It can do more every year! 😄</p></div></div>
+              <div class="acc-item"><button class="acc-q old-acc-btn" aria-expanded="false">Do I still need JavaScript?</button><div class="old-acc-panel"><p class="acc-a">Yes, for brain jobs. But not for opening a drawer.</p></div></div>
+              <div class="acc-item"><button class="acc-q old-acc-btn" aria-expanded="false">Why only one open at a time?</button><div class="old-acc-panel"><p class="acc-a">It keeps long FAQ pages tidy and easy to scan.</p></div></div>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>17</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>📏</b><span>measures pixels</span></div>
+            <div class="stat"><b>🐛</b><span>breaks if content changes</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><button class="old-acc-btn" aria-expanded="false">
+  Is CSS a programming language?
+</button>
+<div class="old-acc-panel">
+  <p>People argue about this a lot...</p>
+</div>
+<!-- ...repeat for each question --></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span></figcaption><style>.old-acc-panel {
+  height: 0;                /* closed = zero height */
+  overflow: hidden;
+  transition: height .3s;
+}
+</style></figure>
+          <figure class="code"><figcaption><span class="lang js">JavaScript</span></figcaption><script>const accButtons = document.querySelectorAll('.old-acc-btn');
+
+accButtons.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const panel = btn.nextElementSibling;
+    const wasOpen = btn.getAttribute('aria-expanded') === 'true';
+
+    // 1. close EVERY panel first (only one open at a time)
+    accButtons.forEach((other) => {
+      other.setAttribute('aria-expanded', 'false');
+      other.nextElementSibling.style.height = '0px';
+    });
+
+    // 2. open the clicked one (unless it was already open)
+    if (!wasOpen) {
+      btn.setAttribute('aria-expanded', 'true');
+      panel.style.height = panel.scrollHeight + 'px'; // measure it! 📏
+    }
+  });
+});
+</script></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li>Each answer panel starts at <code>height: 0</code>, so it's invisible.</li>
+            <li>When a question is clicked, JS <b>loops over every question</b> and closes them all.</li>
+            <li>Then JS <b>measures</b> how tall the answer really is (<code>scrollHeight</code>) and sets that exact pixel height, so CSS can animate from 0 to that number.</li>
+            <li>JS also flips <code>aria-expanded</code> by hand for screen readers.</li>
+            <li><b>Weak spot:</b> if the text changes size (for example when the window is resized), the saved pixel height is now wrong.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="side after">
+        <header class="side-head"><span class="face">😎</span><div><h3>AFTER · HTML + CSS</h3><p>&lt;details&gt; does it all</p></div></header>
+        <div class="side-body">
+          <div class="stage">
+            <div class="acc">
+              <details class="acc-item new-acc" name="faq"><summary class="acc-q">Is CSS a programming language?</summary><p class="acc-a">People argue about this a lot. It can do more every year! 😄</p></details>
+              <details class="acc-item new-acc" name="faq"><summary class="acc-q">Do I still need JavaScript?</summary><p class="acc-a">Yes, for brain jobs. But not for opening a drawer.</p></details>
+              <details class="acc-item new-acc" name="faq"><summary class="acc-q">Why only one open at a time?</summary><p class="acc-a">Because they all share <b>name="faq"</b>. That's the whole trick.</p></details>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>0</b><span>lines of JavaScript</span></div>
+            <div class="stat"><b>1</b><span>attribute for "one at a time"</span></div>
+            <div class="stat"><b>🔍</b><span>Ctrl+F finds hidden answers</span></div>
+          </div>
+          <figure class="code"><figcaption><span class="lang html">HTML</span></figcaption><script type="text/plain"><details class="new-acc" name="faq">
+  <summary>Is CSS a programming language?</summary>
+  <p>People argue about this a lot...</p>
+</details>
+
+<details class="new-acc" name="faq">
+  <summary>Do I still need JavaScript?</summary>
+  <p>Yes, for brain jobs...</p>
+</details></script></figure>
+          <figure class="code"><figcaption><span class="lang css">CSS</span><span class="edit-hint">✏️ Editable: try .8s</span></figcaption><style contenteditable="plaintext-only" spellcheck="false">/* Let CSS animate to "auto" (content height) */
+.new-acc { interpolate-size: allow-keywords; }
+
+/* the hidden answer part of <details> */
+.new-acc::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition: block-size .35s,
+              content-visibility .35s allow-discrete;
+}
+.new-acc[open]::details-content {
+  block-size: auto;
+}
+
+/* hide the default ▶ triangle */
+.new-acc summary { list-style: none; }
+.new-acc summary::-webkit-details-marker { display: none; }
+</style></figure>
+          <h4>🧐 What this code does, step by step</h4>
+          <ol class="steps">
+            <li><code>&lt;details&gt;</code> is a <b>drawer</b>. <code>&lt;summary&gt;</code> is its <b>handle</b>. Click the handle and it opens. It's keyboard and screen-reader friendly.</li>
+            <li>Every drawer has <code>name="faq"</code>. Drawers with the <b>same name</b> are a group, so opening one closes the others.</li>
+            <li><code>::details-content</code> is the hidden part of the drawer. We say "0 tall when closed, <code>auto</code> tall when open".</li>
+            <li><code>interpolate-size: allow-keywords</code> is the magic line: it lets CSS <b>animate to <code>auto</code></b>, the thing JS used to measure for us.</li>
+            <li>Bonus: press <kbd>Ctrl</kbd>+<kbd>F</kbd> and search for "brain". The browser opens the right drawer for you. Hand-made accordions can't do that.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">3</span> The picture version</h2>
+    <div class="flows">
+      <div class="flow-row before"><h3>😓 Before</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click a question</li>
+          <li><span class="ico">🔁</span>JS closes every panel</li>
+          <li><span class="ico">📏</span>JS measures the answer</li>
+          <li><span class="ico">✏️</span>JS writes "height: 87px"</li>
+          <li><span class="ico">🎞️</span>CSS animates</li>
+        </ol>
+      </div>
+      <div class="flow-row after"><h3>😎 After</h3>
+        <ol class="flow">
+          <li><span class="ico">👆</span>Click a question</li>
+          <li><span class="ico">🗄️</span>Browser opens it and closes the others (same name)</li>
+          <li><span class="ico">🎞️</span>CSS animates to "auto"</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="num">4</span> Good to know</h2>
+    <div class="notes">
+      <div class="note good"><span class="ico">🪜</span><p><b>Progressive enhancement in action:</b> in browsers without <code>interpolate-size</code>, the accordion still works perfectly. It just opens instantly instead of sliding.</p></div>
+      <div class="note info"><span class="ico">📂</span><p>Want one open when the page loads? Add the <code>open</code> attribute: <code>&lt;details name="faq" open&gt;</code>.</p></div>
+      <div class="note warn"><span class="ico">🧠</span><p><code>interpolate-size</code> can go on <code>:root</code> to let <i>every</i> element on your site animate to <code>auto</code>.</p></div>
+    </div>
+    <p class="takeaway">💡 The same "name" = only one open. The browser does the bookkeeping.</p>
+  </section>
+
+  <!-- css-words:start (made by ../delete-your-js-tools/css-words.js: edit it there, then run it with node) -->
+  <section class="section words-section" id="words">
+    <h2 class="section-title"><span class="num">📖</span> Words used on this page 📖</h2>
+    <p class="words-intro">Never written CSS? Here is every CSS and HTML word from the code boxes above, in plain English. The very basics (like <code>px</code>, <code>margin</code> and <code>.name</code>) are in the <a href="00-basics.html#words">starter kit in Lesson 00</a>.</p>
+    <dl class="words">
+      <div class="word k-tag"><dt><code>&lt;details&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A box that opens and closes by itself when you click its summary. No JS needed.<span class="like-a">Like: a drawer</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;summary&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>The always-visible, clickable heading of a &lt;details&gt;.<span class="like-a">Like: the drawer handle</span></dd></div>
+      <div class="word k-attr"><dt><code>name</code><span class="kind">⚙️ HTML attribute</span></dt><dd>A group name. On &lt;details&gt;: the same name means only one can be open at a time. On form fields: the label used when the form is sent.<span class="like-a">Like: a team name</span></dd></div>
+      <div class="word k-attr"><dt><code>aria-expanded</code><span class="kind">⚙️ HTML attribute</span></dt><dd>Tells screen readers whether the thing this button controls is open (true) or closed (false).<span class="like-a">Like: an OPEN / CLOSED sign on a shop</span></dd></div>
+      <div class="word k-ghost"><dt><code>::details-content</code><span class="kind">👻 Pseudo-element: a "ghost" part</span></dt><dd>The part of a &lt;details&gt; that hides and shows. Style it to animate the opening.<span class="like-a">Like: the inside of a drawer</span></dd></div>
+      <div class="word k-prop"><dt><code>interpolate-size</code><span class="kind">🔧 Property</span></dt><dd>interpolate-size: allow-keywords lets the browser animate to and from auto sizes, like height: auto.<span class="like-a">Like: a dimmer that works for "however tall it needs"</span></dd></div>
+      <div class="word k-prop"><dt><code>height</code><span class="kind">🔧 Property</span></dt><dd>How tall the box is. auto = as tall as its content needs.<span class="like-a">Like: the height of a shelf</span></dd></div>
+      <div class="word k-prop"><dt><code>block-size</code><span class="kind">🔧 Property</span></dt><dd>The same as height in English pages (it follows the writing direction).<span class="like-a">Like: height, said a smarter way</span></dd></div>
+      <div class="word k-prop"><dt><code>overflow</code><span class="kind">🔧 Property</span></dt><dd>What to do with content too big for its box: visible (spill out), hidden (cut off), auto (scrollbars when needed).<span class="like-a">Like: a suitcase that is too full</span></dd></div>
+      <div class="word k-prop"><dt><code>transition</code><span class="kind">🔧 Property</span></dt><dd>Animate smoothly when a value changes, instead of jumping.<span class="like-a">Like: a dimmer switch instead of an on/off switch</span></dd></div>
+      <div class="word k-prop"><dt><code>list-style</code><span class="kind">🔧 Property</span></dt><dd>The bullet points of a list. none removes them (and removes the ▶ triangle on a summary).<span class="like-a">Like: the dots on a shopping list</span></dd></div>
+      <div class="word k-prop"><dt><code>display</code><span class="kind">🔧 Property</span></dt><dd>How a box behaves: block (own line), inline (inside text), flex or grid (arranges its children), none (hidden).<span class="like-a">Like: choosing furniture layout for a room</span></dd></div>
+      <div class="word k-unit"><dt><code>s / ms</code><span class="kind">📏 Unit</span></dt><dd>Seconds and milliseconds, for timings. 1000ms = 1s, so .3s = 300ms.<span class="like-a">Like: a stopwatch</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;button&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A button you can click or press with the keyboard.<span class="like-a">Like: a doorbell</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;div&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A plain box with no special meaning, used to group things.<span class="like-a">Like: a cardboard box</span></dd></div>
+      <div class="word k-tag"><dt><code>&lt;p&gt;</code><span class="kind">🧱 HTML tag</span></dt><dd>A paragraph of text.<span class="like-a">Like: a paragraph in a book</span></dd></div>
+    </dl>
+  </section>
+  <!-- css-words:end -->
+
+  <nav class="pager" aria-label="Lesson navigation">
+    <a class="prev" href="02-dialog.html"><small>◀ Previous</small>02 · Modal pop-ups</a>
+    <a class="next" href="04-tooltip.html"><small>Next ▶</small>04 · Tooltips</a>
+  </nav>
+</main>
+</body>
+</html>
